@@ -637,6 +637,56 @@
       color: #a7f3d0;
     }
 
+    /* 行程路书底部版本号与状态标识 (Liquid Glass Style Footer) */
+    .schedule-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 24px 16px 36px 16px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .footer-version-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      border-radius: var(--radius-full);
+      padding: 5px 14px;
+      font-size: 11px;
+      color: var(--text-dim);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+    .footer-version-pill .version-tag {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.25));
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: var(--accent-gold);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+      letter-spacing: 0.6px;
+    }
+    .footer-version-pill .version-num {
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .footer-version-pill .footer-sep {
+      opacity: 0.4;
+    }
+    .footer-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      opacity: 0.72;
+      letter-spacing: 0.3px;
+    }
+
     /* ==========================================================================
        6. 视图 2：【🗺 路线地图】
        ========================================================================== */
@@ -2011,6 +2061,19 @@
       <div id="schedule-cards-container">
         <!-- 由 JS 动态渲染 9 天卡片 -->
       </div>
+
+      <!-- 行程路书底部版本号与状态标识 (Liquid Glass Style Footer) -->
+      <footer class="schedule-footer">
+        <div class="footer-version-pill">
+          <span class="version-tag">RELEASE</span>
+          <span class="version-num">v3.0</span>
+          <span class="footer-sep">·</span>
+          <span class="version-date">2026.09</span>
+        </div>
+        <div class="footer-meta">
+          西行计划 · 丝路自驾路书 · 纯静态秒开
+        </div>
+      </footer>
     </section>
 
     <!-- ==================== TAB 2: 🗺 路线地图 ==================== -->
