@@ -601,6 +601,32 @@
       font-size: 13px;
       color: var(--text-sub);
       border: 1px solid rgba(251, 191, 36, 0.12);
+      transition: all 0.25s ease;
+    }
+
+    .day-hotel-box.hotel-confirmed {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(5, 150, 105, 0.08) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.38);
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.12);
+    }
+
+    .hotel-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      border-radius: 999px;
+      padding: 2px 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .hotel-nav-btn:hover {
+      background: rgba(16, 185, 129, 0.35);
+      color: #fff;
     }
 
     .day-hotel-box .hotel-icon {
@@ -1022,6 +1048,16 @@
     }
     .l2-pin-secret .l2-pin-pulse {
       background: rgba(250, 204, 21, 0.28);
+    }
+
+    /* 🏨 精选住宿 / 酒店大本营 */
+    .l2-pin-hotel .l2-pin-core {
+      background: rgba(16, 40, 28, 0.92);
+      border-color: #34d399;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.55);
+    }
+    .l2-pin-hotel .l2-pin-pulse {
+      background: rgba(52, 211, 153, 0.28);
     }
 
     @keyframes pinPulse {
@@ -2078,7 +2114,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.1</span>
+          <span class="version-num">v3.2</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -2366,18 +2402,23 @@
         tag: "Day 0",
         date: "09月24日 · 周三",
         title: "济南 ✈ 兰州 · 丝路集结夜",
-        km: "飞行 1400km",
-        driveTime: "飞行约2.5h",
-        hotel: "兰州全季/桔子酒店（中川机场周边或西客站商业区）",
+        km: "飞行 1400km + 接机 70km",
+        driveTime: "飞行2.5h + 车程约55min",
+        hotel: "水岸云上酒店（兰州中山桥店）",
+        hotelStatus: "confirmed",
+        hotelAddress: "兰州市城关区南滨河东路873号（中山桥东侧）",
+        hotelCoords: [103.8178, 36.0668],
+        hotelNavName: "水岸云上酒店(中山桥店)",
         spots: [
-          { name: "济南遥墙国际机场", lng: 117.2160, lat: 36.8576, desc: "搭乘 MU6283 航班直飞兰州" },
-          { name: "兰州中川国际机场", lng: 103.6212, lat: 36.5146, desc: "21:30 落地兰州，考斯特接机前往酒店" }
+          { name: "兰州中川国际机场", lng: 103.6212, lat: 36.5146, desc: "21:30 落地兰州，考斯特接驾专车就位" },
+          { name: "水岸云上酒店（中山桥店）", lng: 103.8178, lat: 36.0668, desc: "南滨河东路873号 · 已预订 · 一线黄河与中山桥夜景" }
         ],
         timeline: [
           { time: "17:00", title: "济南遥墙机场集合", desc: "办理乘机手续与行李托运，全队核对证件" },
           { time: "19:00", title: "MU6283 航班起飞", desc: "起飞前往甘肃兰州，开启西行万里路" },
           { time: "21:30", title: "抵达兰州中川国际机场", desc: "接驾考斯特专车就位，装运大件行李" },
-          { time: "22:30", title: "入住兰州酒店休整", desc: "首晚保证充足睡眠，或前往老字号宵夜暖胃补给", subDetailKey: "d0_supper", subDetailBadge: "🥢 深夜老字号与烧烤 (3家)" }
+          { time: "22:30", title: "入住水岸云上酒店（中山桥店）", desc: "专车抵南滨河东路873号，开窗即赏黄河中山铁桥夜景，卸行李休整", subDetailKey: "d0_hotel", subDetailBadge: "🏨 已订酒店与周边指南" },
+          { time: "23:00", title: "深夜老字号宵夜暖胃补给（自选）", desc: "近邻大众巷与正宁路，老马爷鸡蛋醪糟、大胡子烤肉驱散疲乏", subDetailKey: "d0_supper", subDetailBadge: "🥢 深夜老字号与烧烤 (3家)" }
         ]
       },
       {
@@ -2388,15 +2429,17 @@
         km: "约 500 km",
         driveTime: "车程约 5.5 h",
         hotel: "张掖绿洲假日大酒店 / 金阳国际饭店（高品质四星标准）",
+        hotelStatus: "tentative",
         spots: [
+          { name: "黄河第一桥·中山桥", lng: 103.8152, lat: 36.0682, desc: "天下黄河第一桥，晨起下楼漫步打卡" },
           { name: "甘肃省博物馆", lng: 103.7735, lat: 36.0673, desc: "甘肃省博：马踏飞燕、彩陶珍品馆" },
-          { name: "黄河第一桥·中山桥", lng: 103.8152, lat: 36.0682, desc: "天下黄河第一桥，品正宗牛肉面" },
           { name: "张掖市区酒店", lng: 100.4552, lat: 38.9328, desc: "经连霍高速G30抵达张掖，夜宿甘州" }
         ],
         timeline: [
-          { time: "08:30", title: "品尝正宗兰州牛肉面", desc: "「一清二白三红四绿五黄」，肉蛋双飞能量拉满", subDetailKey: "d1_beef_noodles", subDetailBadge: "🥢 正宗牛肉面江湖 (3家)" },
+          { time: "07:30", title: "黄河铁桥晨景与晨起漫步", desc: "酒店正临黄河，出门即至中山桥南广场与白塔山对岸晨光" },
+          { time: "08:30", title: "品尝正宗兰州牛肉面", desc: "「一清二白三红四绿五黄」，肉蛋双飞能量拉满（安泊尔/磨沟沿）", subDetailKey: "d1_beef_noodles", subDetailBadge: "🥢 正宗牛肉面江湖 (3家)" },
           { time: "09:30", title: "甘肃省博物馆（建议2h）", desc: "镇馆之宝马踏飞燕、丝绸之路文明展（需提前预约）" },
-          { time: "12:00", title: "黄河铁桥（中山桥）", desc: "漫步百里黄河风情线，远眺白塔山" },
+          { time: "12:00", title: "午间简餐与考斯特车队整备", desc: "考斯特全员集合、装运随身补给，启程进入河西走廊" },
           { time: "13:30", title: "考斯特启程赴张掖（G30连霍高速）", desc: "翻越乌鞘岭进入河西走廊，感受山河壮丽", subDetailKey: "d1_wushaoling", subDetailBadge: "🔭 乌鞘岭公路观景台 (2处)" },
           { time: "19:30", title: "抵达张掖，入住高品质酒店", desc: "晚餐推荐张掖特色搓鱼面、炒拨拉" }
         ]
@@ -2409,6 +2452,7 @@
         km: "约 380 km",
         driveTime: "车程约 4.5 h",
         hotel: "空军鼎新基地内部宾馆 / 招待所（凭特种名单入住）",
+        hotelStatus: "tentative",
         spots: [
           { name: "张掖七彩丹霞", lng: 100.1293, lat: 38.9754, desc: "上帝打翻的调色盘，色彩斑斓的壮美丹霞" },
           { name: "酒泉钟鼓楼", lng: 98.5111, lat: 39.7443, desc: "酒泉城区午餐休整，霍去病倾酒入泉故地" },
@@ -2429,6 +2473,7 @@
         km: "约 360 km往返",
         driveTime: "车程约 4 h",
         hotel: "空军鼎新基地内部宾馆（第二晚连住）",
+        hotelStatus: "tentative",
         spots: [
           { name: "东风航天城(酒泉卫星发射中心)", lng: 100.2952, lat: 40.9633, desc: "中国航天摇篮：问天阁、载人发射架" },
           { name: "黑城·弱水胡杨·怪树林", lng: 101.1448, lat: 41.7766, desc: "千年不死不倒不朽的金色胡杨与枯木日落" }
@@ -2449,6 +2494,7 @@
         km: "约 420 km",
         driveTime: "车程约 5 h",
         hotel: "敦煌全季酒店 / 敦煌太阳大饭店（四星级/市中心）",
+        hotelStatus: "tentative",
         spots: [
           { name: "嘉峪关关城景区", lng: 98.2198, lat: 39.7997, desc: "天下第一雄关，万里长城西端起点" },
           { name: "长城第一墩", lng: 98.1752, lat: 39.7346, desc: "明代万里长城最西端的第一座烽燧" },
@@ -2471,6 +2517,7 @@
         km: "约 60 km市郊",
         driveTime: "全天市内漫游",
         hotel: "敦煌全季酒店 / 敦煌太阳大饭店（连住）",
+        hotelStatus: "tentative",
         spots: [
           { name: "莫高窟数字展示中心", lng: 94.7938, lat: 40.1437, desc: "世界文化遗产：双巨幕数字电影《千年莫高》" },
           { name: "莫高窟窟区", lng: 94.8151, lat: 40.0425, desc: "专业讲师讲解经典实体洞窟、九层楼" },
@@ -2492,6 +2539,7 @@
         km: "约 650 km",
         driveTime: "车程约 8 h（景观大道）",
         hotel: "茶卡盐湖星空景美酒店 / 茶卡天境青年大酒店（四星品质）",
+        hotelStatus: "tentative",
         spots: [
           { name: "当金山垭口(海拔3648m)", lng: 94.3415, lat: 39.3241, desc: "甘青分界线，阿尔金山与祁连山交汇险关" },
           { name: "大柴旦翡翠湖", lng: 95.3057, lat: 37.8546, desc: "柴达木盆地深处的一颗绿宝石，晶莹剔透" },
@@ -2514,6 +2562,7 @@
         km: "约 300 km",
         driveTime: "车程约 4.5 h",
         hotel: "西宁全季酒店（新宁广场或五四西路店）/ 西宁新华联索菲特",
+        hotelStatus: "tentative",
         spots: [
           { name: "茶卡盐湖·天空之镜", lng: 99.0838, lat: 36.7027, desc: "国家旅游地理杂志必去之地，盐白倒影如梦境" },
           { name: "青海湖二郎剑景区", lng: 100.4998, lat: 36.5779, desc: "中国最大内陆咸水湖，高原蓝宝石与经幡飞舞" },
@@ -2536,6 +2585,7 @@
         km: "约 60 km",
         driveTime: "车程约 1 h + 飞行2.5h",
         hotel: "返回温馨的家（济南）",
+        hotelStatus: "home",
         spots: [
           { name: "塔尔寺景区", lng: 101.5683, lat: 36.4851, desc: "格鲁派六大寺之一：宗喀巴大师诞生地，藏艺三绝" },
           { name: "西宁曹家堡国际机场", lng: 102.0435, lat: 36.5298, desc: "考斯特送机，满载回忆直飞济南，凯旋归来" }
@@ -2553,11 +2603,49 @@
     // A2. 第二层级深度规划与高德导航库 (Sub-level Details & Amap Navigation)
     // --------------------------------------------------------------------------
     const DAY_DETAILS = {
+      // Day 0: 水岸云上酒店（兰州中山桥店）入住指南
+      "d0_hotel": {
+        title: "🏨 水岸云上酒店（兰州中山桥店）入住指南",
+        subtitle: "Day 0 · 已确认预订 · 兰州集结首晚大本营",
+        intro: "全队首晚集结大本营已确定！酒店坐落于南滨河东路873号，正临黄河南岸，推窗即可俯瞰百年中山铁桥与白塔山夜景。周边美食街区环绕，考斯特大巴接送与全员出行极为便利。",
+        items: [
+          {
+            name: "水岸云上酒店（兰州中山桥店）",
+            tag: "✅ 已预订 · 一线黄河景观大本营",
+            story: "地处兰州百里黄河风情线核心枢纽，正对白塔山与黄河索道，距天下黄河第一桥（中山桥）仅约 200 米。客房视野绝佳，枕黄河涛声而眠。大堂与高层观景露台可全览黄河两岸璀璨霓虹，是甘肃自驾集结的第一站完美港湾。",
+            dishes: [
+              "一线黄河与中山桥夜景客房",
+              "高层全景露台（夜眺白塔山）",
+              "全天候充足热水与空调暖气",
+              "房间提供加湿与静音隔音保障"
+            ],
+            price: "已完成官方预订确认",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。酒店位于城关区南滨河东路873号主干道旁，门前平坦开阔，考斯特接机可直接平稳靠边停靠，从容装卸全队大件行李；夜间停车可由前台协调专属客车位或周边开阔停车场。",
+            lng: 103.8178,
+            lat: 36.0668,
+            navName: "水岸云上酒店(中山桥店)"
+          },
+          {
+            name: "大众巷老字号美食街与黄河风情线（周边步行圈）",
+            tag: "步行 3 分钟即达市井风味",
+            story: "酒店西侧紧邻百年中山铁桥，下楼漫步 3 分钟即可进入兰州最著名的老字号美食街【大众巷】。夜间微风徐徐，两岸茶摊飘香，是抵兰后放松身心、感受金城魅力的最佳夜步动线。",
+            dishes: ["杜记甜食（灰豆子/晶糕）", "金城老面片", "黄河之滨三炮台茶座"],
+            price: "人均约 15~30 元",
+            trafficType: "taxi",
+            trafficText: "🚶‍♂️ 建议步行。距酒店仅 200~300 米，出酒店沿滨河步道向西漫步即达，无需乘车。",
+            lng: 103.8165,
+            lat: 36.0655,
+            navName: "大众巷美食街"
+          }
+        ]
+      },
+
       // Day 0: 兰州深夜老字号烧烤与暖胃补给
       "d0_supper": {
         title: "🥢 兰州深夜老字号烧烤与暖胃补给",
         subtitle: "Day 0 · 济南 ✈ 兰州 丝路集结夜",
-        intro: "MU6283 预计 21:30 落地兰州中川机场，乘考斯特抵市区已近 23:00。此时正是老兰州宵夜最浓郁的时刻，精选 3 家市井老摊与清真旗舰。",
+        intro: "全队乘考斯特抵水岸云上酒店（南滨河东路873号）放好行李已近 23:00。此时正是老兰州宵夜最浓郁的时刻，精选 3 家近邻市井老摊与清真旗舰。",
         items: [
           {
             name: "老马爷牛奶鸡蛋醪糟（正宁路夜市 44 号摊）",
@@ -2566,7 +2654,7 @@
             dishes: ["招牌牛奶鸡蛋醪糟（15元/碗）", "清真冬果梨汤"],
             price: "约 15 元/人",
             trafficType: "taxi",
-            trafficText: "🚕 建议步行/打车。正宁路为纯步行小吃街，夜间人流密集，考斯特无法开入。建议考斯特将全队送到酒店放好行李后，步行或分乘出租车前往。",
+            trafficText: "🚕 建议步行/打车。距水岸云上酒店约 1.6km，打车 7 分钟或漫步即达。正宁路为纯步行夜市，考斯特无法开入，全队分乘出租车前往最方便。",
             lng: 103.8242,
             lat: 36.0531,
             navName: "老马爷牛奶鸡蛋醪糟(正宁路店)"
@@ -2578,7 +2666,7 @@
             dishes: ["铁签羊肉串（按把点）", "烤羊排", "传统白玉炒面片", "加糖三炮台盖碗茶"],
             price: "约 65 元/人",
             trafficType: "taxi",
-            trafficText: "🚕 建议打车/步行。箭道巷街巷狭窄，路边无大车位，考斯特切勿开入，建议打车直达店门口。",
+            trafficText: "🚕 建议打车。距水岸云上酒店仅约 1.2km，沿南滨河东路/永昌路打车 5 分钟直达店门口。箭道巷街巷狭窄，考斯特切勿开入。",
             lng: 103.8322,
             lat: 36.0583,
             navName: "大胡子烤肉(箭道巷店)"
@@ -2590,7 +2678,7 @@
             dishes: ["爆炒羊羔肉", "手抓羊肉", "酥皮烤包子", "特色胡辣羊头"],
             price: "约 110~130 元/人",
             trafficType: "coaster",
-            trafficText: "🚌 考斯特直达停靠。位于大沙坪高速入口附近，拥有大型独立大巴停车场，车队停靠极其方便。",
+            trafficText: "🚌 考斯特直达停靠。距酒店约 4.8km，出酒店跨黄河大桥北上大沙坪直达，拥有大型独立大巴停车场，车队停靠极其方便。",
             lng: 103.8185,
             lat: 36.1042,
             navName: "阿西娅大沙坪总店"
@@ -3183,11 +3271,31 @@
             ${timelineHtml}
           </div>
 
-          <div class="day-hotel-box">
-            <span class="hotel-icon">🏨</span>
-            <div>
-              <div style="font-size:11px; color:var(--text-dim);">建议住宿标准：</div>
-              <strong style="color:#fff;">${day.hotel}</strong>
+          <div class="day-hotel-box ${day.hotelStatus === 'confirmed' ? 'hotel-confirmed' : ''}">
+            <span class="hotel-icon">${day.hotelStatus === 'confirmed' ? '🏨' : (day.hotelStatus === 'home' ? '🏡' : '🛏️')}</span>
+            <div style="flex:1;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+                <div style="font-size:11px; color:${day.hotelStatus === 'confirmed' ? '#34d399' : 'var(--text-dim)'}; font-weight:700;">
+                  ${day.hotelStatus === 'confirmed' ? '✅ 已确认预订入住：' : (day.hotelStatus === 'home' ? '🏁 行程终点：' : '建议住宿标准（待定）：')}
+                </div>
+                ${day.hotelStatus === 'confirmed' ? `
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <button class="hotel-sub-btn" onclick="openBottomSheet('d0_hotel')" title="查看酒店深度入住攻略" style="background:rgba(251,191,36,0.18); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; border-radius:999px; padding:2px 8px; font-size:11px; cursor:pointer; font-weight:600;">
+                      📖 指南
+                    </button>
+                    <a href="https://uri.amap.com/marker?position=${day.hotelCoords[0]},${day.hotelCoords[1]}&name=${encodeURIComponent(day.hotelNavName || day.hotel)}&coordinate=gaode&callnative=1" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="hotel-nav-btn" 
+                       title="一键唤起高德地图导航至酒店"
+                       onclick="event.stopPropagation()">
+                      🧭 导航
+                    </a>
+                  </div>
+                ` : ''}
+              </div>
+              <strong style="color:#fff; font-size:14px; line-height:1.4;">${day.hotel}</strong>
+              ${day.hotelAddress ? `<div style="font-size:12px; color:var(--text-sub); margin-top:3px; opacity:0.88;">📍 ${day.hotelAddress}</div>` : ''}
             </div>
           </div>
 
@@ -3343,8 +3451,9 @@
     let pendingMapInitCallbacks = [];
     let isMapInitializing = false;
 
-    // 8 段全真高速/国道自驾路段定义 (G30连霍、G3011敦当、德小、G109等真实线网)
+    // 9 段全真高速/国道自驾路段定义 (含D0中川机场接机高速与G30连霍、G3011敦当、德小、G109等真实线网)
     const DAY_LEGS = [
+      { day: 0, from: [103.6212, 36.5146], to: [103.8178, 36.0668], waypoints: [] }, // 兰州中川机场 -> 水岸云上酒店(中山桥店) (中川机场高速/南滨河东路)
       { day: 1, from: [103.8152, 36.0682], to: [100.4552, 38.9328], waypoints: [] }, // 兰州 -> 张掖 (G30连霍高速)
       { day: 2, from: [100.4552, 38.9328], to: [100.0465, 40.2978], waypoints: [[100.1293, 38.9754], [98.5111, 39.7443]] }, // 张掖 -> 丹霞 -> 酒泉 -> 鼎新
       { day: 3, from: [100.0465, 40.2978], to: [101.1448, 41.7766], waypoints: [[100.2952, 40.9633]] }, // 鼎新 -> 航天城 -> 额济纳怪树林
@@ -3824,6 +3933,9 @@
         if (k.includes('beef_noodles') || k.includes('food') || k.includes('supper') || k.includes('bbq') || k.includes('hポット') || k.includes('mongol')) {
           icon = "🥢";
           styleClass = "l2-pin-food";
+        } else if (k.includes('hotel')) {
+          icon = "🏨";
+          styleClass = "l2-pin-hotel";
         } else if (k.includes('wushaoling') || k.includes('sculpture') || k.includes('dangjinshan') || k.includes('road')) {
           icon = "🔭";
           styleClass = "l2-pin-view";
@@ -4261,19 +4373,26 @@
       if (spotInfoWindow) spotInfoWindow.close();
       const navUrl = `https://uri.amap.com/marker?position=${spot.lng},${spot.lat}&name=${encodeURIComponent(spot.name)}&coordinate=gaode&callnative=1`;
       
+      const isHotel = spot.name.includes("水岸云上酒店");
       const content = `
-        <div class="l2-map-infowindow" style="max-width: 250px;" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
+        <div class="l2-map-infowindow" style="max-width: 260px;" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
             <div style="font-size:11px; color:#38bdf8; font-weight:700;">${day.tag} · ${day.title.split('·')[0]}</div>
             <button class="l2-info-close" onclick="closeSpotInfoWindow(event, true)" title="关闭">✕</button>
           </div>
           <div style="font-size:14px; font-weight:800; margin:3px 0 5px 0; color:#fff;">${spot.name}</div>
           <div style="font-size:11px; color:var(--text-sub); line-height:1.45; margin-bottom:10px;">${spot.desc}</div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
             <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="l2-btn-nav" style="padding:6px 10px;">
               <span>🧭 高德导航 ➔</span>
             </a>
-            <span style="font-size:10px; color:#94a3b8; font-weight:600;">🚌 考斯特路线</span>
+            ${isHotel ? `
+              <button onclick="openBottomSheet('d0_hotel')" class="l2-btn-guide" style="padding:6px 10px; font-size:11px; border-radius:999px; background:rgba(251,191,36,0.2); border:1px solid rgba(251,191,36,0.45); color:#fbbf24; font-weight:700; cursor:pointer;">
+                <span>📖 入住指南</span>
+              </button>
+            ` : `
+              <span style="font-size:10px; color:#94a3b8; font-weight:600;">🚌 考斯特路线</span>
+            `}
           </div>
         </div>
       `;
