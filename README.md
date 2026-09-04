@@ -46,17 +46,15 @@ Trip/ (仓库根目录)
 
 本项目与 Cloudflare Pages 已深度打通，实现 **Git Push ➔ 自动触发全球边缘部署**：
 
-1. **进入 Cloudflare Dashboard**：
-   - 导航至 **Workers & Pages** ➔ **Create application** ➔ **Pages** ➔ **Connect to Git**；
-   - 授权并选择本仓库 `JohnMaxwell0123/Trip`。
-2. **构建与发布参数设置**：
-   - **项目名称 (Project Name)**：`journeytothewest`（或自定义，如 `trip`）
-   - **生产分支 (Production Branch)**：`main`
-   - **框架预设 (Framework preset)**：`None`（无）
-   - **构建命令 (Build command)**：**留空**（无需任何打包构建步骤）
-   - **构建输出目录 (Build output directory)**：**`trip-map`**（或者根目录 `/`）
-3. **点击「Save and Deploy」**：
-   - 部署完成后，每次本地或 Agent 提交代码推送到 `main` 分支，Cloudflare 将在 15~25 秒内自动部署并生效至全球 CDN 节点。
+- **正式生产发布站点**：[https://trip-cts.pages.dev](https://trip-cts.pages.dev)
+- **CI/CD 触发机制**：向 `main` 分支推入任何 Commit，Cloudflare Pages 将在 15~25 秒内自动完成全球边缘节点部署。
+
+### 构建与发布参数规范：
+- **关联仓库**：`JohnMaxwell0123/Trip`
+- **生产分支 (Production Branch)**：`main`
+- **框架预设 (Framework preset)**：`None`（无）
+- **构建命令 (Build command)**：**留空**（零打包构建，免编译静态架构）
+- **构建输出目录 (Build output directory)**：`trip-map`（或 `/`）
 
 ---
 
