@@ -1,0 +1,4515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1c120a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>西行计划 · 丝路自驾路书</title>
+
+  <!-- 高德地图安全密钥配置（必须在加载高德地图脚本之前） -->
+  <script>
+    window._AMapSecurityConfig = {
+      securityJsCode: 'bbeb02ef5fd2ffb3079e5c8cdbbdb165'
+    };
+  </script>
+  <!-- 高德地图 JS API v2 -->
+  <script src="https://webapi.amap.com/maps?v=2.0&key=15d8ab014e31b56f285e8425bf05e78f&plugin=AMap.Driving,AMap.Scale,AMap.ToolBar,AMap.Geolocation"></script>
+
+  <style>
+    /* ==========================================================================
+       1. 基础重置与液态玻璃色彩体系 (Dunhuang Golden Silk Road Liquid Glass)
+       ========================================================================== */
+    :root {
+      --bg-deep: #140d07;
+      --bg-gradient: radial-gradient(circle at 10% 10%, #28180d 0%, #170d06 50%, #0d0703 100%);
+      --glass-surface: rgba(35, 23, 14, 0.60);
+      --glass-surface-hover: rgba(50, 33, 20, 0.72);
+      --glass-surface-active: rgba(65, 43, 27, 0.82);
+      --glass-border: rgba(251, 191, 36, 0.28);
+      --glass-highlight: rgba(254, 240, 138, 0.55);
+      --glass-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.65), 0 0 1px 1px rgba(245, 158, 11, 0.16);
+      --glass-blur: blur(28px) saturate(190%);
+      
+      --accent-amber: #f59e0b;
+      --accent-gold: #fbbf24;
+      --accent-cinnabar: #ef4444;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-indigo: #f97316;
+      
+      --text-main: #fffdfa;
+      --text-sub: #f3e8dc;
+      --text-dim: #c5b49f;
+      
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      background-image: 
+        linear-gradient(180deg, rgba(16, 10, 5, 0.32) 0%, rgba(22, 14, 7, 0.60) 30%, rgba(14, 9, 4, 0.88) 100%),
+        url('assets/images/dunhuang_feitian_bg.jpg');
+      background-attachment: fixed;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-size: cover;
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 顶部流光氛围背景 */
+    .ambient-glow {
+      position: fixed;
+      top: -120px;
+      right: -60px;
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(239, 68, 68, 0.15) 50%, transparent 70%);
+      filter: blur(55px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: 60px;
+      left: -80px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.22) 0%, rgba(16, 185, 129, 0.12) 50%, transparent 70%);
+      filter: blur(55px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       2. 液态玻璃核心通用类 (Liquid Glass Utility Classes)
+       ========================================================================== */
+    .liquid-glass {
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-glass::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+      opacity: 0.7;
+    }
+
+    .liquid-pill {
+      background: rgba(255, 248, 235, 0.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ==========================================================================
+       3. 顶部 Header (Apple Liquid Glass Floating Header)
+       ========================================================================== */
+    .app-header {
+      position: fixed;
+      top: calc(8px + env(safe-area-inset-top, 0px));
+      left: 14px;
+      right: 14px;
+      z-index: 120;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      border-radius: 22px;
+      background: rgba(20, 12, 6, 0.38); /* 强化液态玻璃设计，让地图在底部自由流动穿透 */
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .brand-block h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.65));
+    }
+
+    .brand-block .sub-title {
+      font-size: 11px;
+      color: #f3e8dc;
+      opacity: 0.92;
+      margin-top: 1px;
+      letter-spacing: 0.2px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .badge-coaster {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.25));
+      border: 1px solid rgba(251, 191, 36, 0.55);
+      color: #fef08a;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+    }
+
+    /* ==========================================================================
+       4. 主内容视口与 Tab 视图切换
+       ========================================================================== */
+    .main-container {
+      flex: 1;
+      position: relative;
+      z-index: 10;
+      padding-top: calc(78px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(88px + var(--safe-bottom));
+    }
+
+    .tab-view {
+      display: none;
+      animation: viewFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      padding: 16px;
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+
+    @keyframes viewFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       5. 视图 1：【📅 行程路书】与敦煌飞天横幅
+       ========================================================================== */
+    /* 顶部飞天长卷横幅卡片 */
+    .hero-banner-card {
+      margin-bottom: 16px;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      position: relative;
+    }
+    .hero-banner-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 156px;
+      overflow: hidden;
+    }
+    .hero-banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 36%;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .hero-banner-img-wrap:hover .hero-banner-img {
+      transform: scale(1.02);
+    }
+    .hero-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(20, 12, 6, 0.12) 0%, rgba(20, 12, 6, 0.70) 78%, rgba(18, 10, 5, 0.92) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 12px 16px;
+    }
+    .hero-banner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      background: rgba(245, 158, 11, 0.35);
+      border: 1px solid rgba(251, 191, 36, 0.6);
+      color: #fef08a;
+      font-size: 11px;
+      font-weight: 700;
+      width: fit-content;
+      margin-bottom: 4px;
+      backdrop-filter: blur(8px);
+    }
+    .hero-banner-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+    .hero-banner-sub {
+      font-size: 11px;
+      color: #f3e8dc;
+      opacity: 0.92;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 旅程全局进展条与印章 */
+    .trip-overview-card {
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+
+    .overview-header-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .seal-badge-wrapper {
+      position: relative;
+      flex-shrink: 0;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(239, 68, 68, 0.5), rgba(245, 158, 11, 0.9));
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+    }
+    .seal-badge-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+    .overview-info-block {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .trip-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      text-align: center;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(251, 191, 36, 0.12);
+    }
+
+    .stat-item .val {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .stat-item .lbl {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .progress-bar-bg {
+      background: rgba(255, 255, 255, 0.12);
+      height: 6px;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-gold), var(--accent-cinnabar));
+      width: 0%;
+      border-radius: var(--radius-full);
+      transition: width 0.4s ease;
+    }
+
+    /* 天数横向快捷滑动胶囊 */
+    .day-selector-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 14px 2px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .day-selector-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .day-chip {
+      flex: 0 0 auto;
+      padding: 7px 14px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .day-chip.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(239, 68, 68, 0.35));
+      border-color: rgba(251, 191, 36, 0.85);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+
+    /* 每日行程长卡片 */
+    .day-card {
+      margin-bottom: 20px;
+      padding: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    .day-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(251, 191, 36, 0.12);
+      padding-bottom: 12px;
+    }
+
+    .day-tag {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.20));
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #fef08a;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .day-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.35;
+    }
+
+    .day-date {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .day-meta-pill {
+      font-size: 11px;
+      padding: 4px 9px;
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #fef08a;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+    }
+
+    /* 时间轴节点 */
+    .timeline-list {
+      position: relative;
+      padding-left: 20px;
+      margin: 14px 0 16px 0;
+    }
+
+    .timeline-list::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      left: 6px;
+      width: 2px;
+      background: linear-gradient(to bottom, rgba(245, 158, 11, 0.8), rgba(217, 119, 6, 0.4));
+      border-radius: 1px;
+    }
+
+    .timeline-node {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .timeline-node:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-node::before {
+      content: '';
+      position: absolute;
+      left: -18px;
+      top: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      border: 2px solid var(--bg-deep);
+      box-shadow: 0 0 8px var(--accent-gold);
+    }
+
+    .node-time {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 2px;
+    }
+
+    .node-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+    }
+
+    .node-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .node-sub-capsule {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.24), rgba(217, 119, 6, 0.18));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #fef08a;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(254, 240, 138, 0.25);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      outline: none;
+    }
+
+    .node-sub-capsule::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(254, 240, 138, 0.28), transparent);
+      animation: shimmerCapsule 4s infinite ease-in-out;
+    }
+
+    @keyframes shimmerCapsule {
+      0% { left: -100%; }
+      30%, 100% { left: 100%; }
+    }
+
+    .node-sub-capsule:active {
+      transform: scale(0.95);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(217, 119, 6, 0.3));
+      border-color: rgba(251, 191, 36, 0.75);
+    }
+
+    .capsule-arrow {
+      font-size: 10px;
+      opacity: 0.85;
+      transition: transform 0.2s ease;
+    }
+
+    .node-sub-capsule:hover .capsule-arrow {
+      transform: translateX(2px);
+    }
+
+    .node-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 2px;
+      line-height: 1.45;
+    }
+
+    /* 卡片底部功能条（酒店、打卡、地图查看） */
+    .day-hotel-box {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--text-sub);
+      border: 1px solid rgba(251, 191, 36, 0.12);
+    }
+
+    .day-hotel-box .hotel-icon {
+      font-size: 16px;
+    }
+
+    .day-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-map {
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #fef08a;
+    }
+
+    .btn-action-map:active {
+      background: rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-action-checkin {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+    }
+
+    .btn-action-checkin.checked {
+      background: linear-gradient(135deg, rgba(52, 211, 153, 0.35), rgba(16, 185, 129, 0.25));
+      border-color: rgba(52, 211, 153, 0.65);
+      color: #a7f3d0;
+    }
+
+    /* ==========================================================================
+       6. 视图 2：【🗺 路线地图】
+       ========================================================================== */
+    #view-map {
+      padding: 0;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      overflow: hidden;
+      animation: none !important;
+      transform: none !important;
+      touch-action: none;
+    }
+
+    #amap-container {
+      width: 100%;
+      height: 100%;
+      background: #181008;
+      touch-action: none;
+    }
+
+    #amap-container iframe {
+      pointer-events: none !important;
+    }
+
+    body.map-mode {
+      overflow: hidden !important;
+      height: 100vh !important;
+      touch-action: none;
+    }
+
+    /* 地图上方悬浮日期切换栏 (Apple Liquid Glass Pills Bar) */
+    .map-top-bar {
+      position: absolute;
+      top: calc(78px + env(safe-area-inset-top, 0px) + 8px);
+      left: 14px;
+      right: 14px;
+      z-index: 200;
+      pointer-events: auto;
+    }
+
+    .map-day-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px 12px;
+      background: rgba(20, 12, 6, 0.35); /* 极通透液态玻璃，地图视界完全满铺 */
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: var(--radius-full);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      scrollbar-width: none;
+    }
+    .map-day-pills::-webkit-scrollbar {
+      display: none;
+    }
+
+    .map-pill-btn {
+      flex: 0 0 auto;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 500;
+      color: #e2e8f0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .map-pill-btn.active {
+      background: linear-gradient(135deg, var(--accent-gold), #ea580c);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 3px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    /* 地图右下角控制按钮组 (Apple Liquid Glass Floating Controls) */
+    .map-controls {
+      position: absolute;
+      right: 14px;
+      bottom: calc(76px + var(--safe-bottom) + 12px);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .map-ctrl-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(22, 14, 8, 0.32); /* 极通透悬浮晶体，扩大地图可视面 */
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: auto;
+    }
+    .map-ctrl-btn:active {
+      transform: scale(0.9);
+      background: rgba(22, 14, 8, 0.55);
+    }
+
+    /* 地图路线里程统计小浮条 (Liquid Glass Panel) */
+    .map-stats-panel {
+      position: absolute;
+      left: 14px;
+      bottom: calc(76px + var(--safe-bottom) + 12px);
+      right: 68px;
+      z-index: 200;
+      padding: 9px 14px;
+      border-radius: 20px;
+      background: rgba(20, 12, 6, 0.32); /* 强化液态玻璃卡片，地图在后方完全铺满流动 */
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: auto;
+    }
+
+    .map-stats-panel .route-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.65);
+    }
+    .map-stats-panel .route-detail {
+      font-size: 11px;
+      color: #38bdf8; /* 苹果电光蓝高对比标识 */
+      margin-top: 1px;
+      font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.65);
+    }
+
+    /* 自定义高德气泡样式 */
+    .custom-marker-pill {
+      background: rgba(28, 18, 11, 0.92);
+      border: 1px solid var(--accent-gold);
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .marker-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+    }
+
+    /* 核心城市与枢纽徽章 (全程总览模式) */
+    .hub-marker-pill {
+      background: linear-gradient(135deg, rgba(42, 26, 15, 0.95), rgba(24, 14, 7, 0.98));
+      border: 1.5px solid #fbbf24;
+      padding: 3px 9px;
+      border-radius: 16px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75), 0 0 10px rgba(251, 191, 36, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hub-marker-pill:hover, .hub-marker-pill:active {
+      transform: scale(1.1);
+      z-index: 250 !important;
+    }
+    .hub-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fbbf24;
+      box-shadow: 0 0 6px #fbbf24;
+    }
+
+    /* 细分景点星芒微光点 (全程总览防堆叠) */
+    .starlight-marker-dot {
+      width: 16px;
+      height: 16px;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+    .starlight-core {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fbbf24;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 0 8px rgba(251, 191, 36, 0.95);
+      transition: transform 0.2s ease;
+    }
+    .starlight-marker-dot:hover .starlight-core,
+    .starlight-marker-dot:active .starlight-core {
+      transform: scale(1.5);
+      background: #f59e0b;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 1);
+    }
+
+    /* 二级探索点位微光图钉 (Level-2 Glowing Pins) */
+    .l2-map-pin {
+      position: relative;
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .l2-map-pin:hover, .l2-map-pin:active {
+      transform: scale(1.28);
+      z-index: 300 !important;
+    }
+    .l2-pin-pulse {
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      animation: pinPulse 2.8s infinite ease-out;
+      pointer-events: none;
+    }
+    .l2-pin-core {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      border: 1.5px solid;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+
+    /* 二级图钉分类配色 */
+    /* 🥢 美食名吃 */
+    .l2-pin-food .l2-pin-core {
+      background: rgba(45, 20, 8, 0.9);
+      border-color: #f59e0b;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+    .l2-pin-food .l2-pin-pulse {
+      background: rgba(245, 158, 11, 0.28);
+    }
+
+    /* 🔭 绝美公路观景台 / 露天长廊 */
+    .l2-pin-view .l2-pin-core {
+      background: rgba(10, 30, 48, 0.9);
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+    .l2-pin-view .l2-pin-pulse {
+      background: rgba(56, 189, 248, 0.28);
+    }
+
+    /* 🚀 航天核心高地 */
+    .l2-pin-space .l2-pin-core {
+      background: rgba(35, 15, 48, 0.9);
+      border-color: #c084fc;
+      box-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+    }
+    .l2-pin-space .l2-pin-pulse {
+      background: rgba(192, 132, 252, 0.28);
+    }
+
+    /* 📸 残阳摄影绝杀机位 */
+    .l2-pin-photo .l2-pin-core {
+      background: rgba(40, 16, 28, 0.9);
+      border-color: #f43f5e;
+      box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+    }
+    .l2-pin-photo .l2-pin-pulse {
+      background: rgba(244, 63, 94, 0.28);
+    }
+
+    /* 💡 游玩秘籍点 */
+    .l2-pin-secret .l2-pin-core {
+      background: rgba(38, 30, 10, 0.9);
+      border-color: #facc15;
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+    }
+    .l2-pin-secret .l2-pin-pulse {
+      background: rgba(250, 204, 21, 0.28);
+    }
+
+    @keyframes pinPulse {
+      0% { transform: scale(0.7); opacity: 0.85; }
+      70% { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    /* 地图二级点位信息弹窗 (Apple Liquid Glass InfoWindow) */
+    .l2-map-infowindow {
+      position: relative;
+      background: rgba(20, 13, 7, 0.82);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 18px;
+      padding: 12px 14px;
+      color: #fff;
+      min-width: 230px;
+      max-width: 270px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    }
+    .l2-info-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 6px;
+    }
+    .l2-info-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.22);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: #fef08a;
+      white-space: nowrap;
+    }
+    .l2-info-traffic {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .l2-info-traffic.coaster {
+      background: rgba(52, 211, 153, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #a7f3d0;
+    }
+    .l2-info-traffic.taxi {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: #fcd34d;
+    }
+    .l2-info-close {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #cbd5e1;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+      margin-left: auto;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .l2-info-close:hover,
+    .l2-info-close:active {
+      transform: scale(0.88);
+      background: rgba(255, 255, 255, 0.28);
+      color: #fff;
+    }
+    .l2-info-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.35;
+      margin-bottom: 5px;
+    }
+    .l2-info-story {
+      font-size: 11px;
+      color: var(--text-sub);
+      line-height: 1.45;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .l2-info-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .l2-btn-nav {
+      flex: 1;
+      padding: 7px 8px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      border-radius: 8px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      box-shadow: 0 3px 12px rgba(14, 165, 233, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .l2-btn-sheet {
+      flex: 1;
+      padding: 7px 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #f1f5f9;
+      font-weight: 700;
+      font-size: 11px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .l2-btn-sheet:active {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .map-ctrl-btn.active {
+      background: rgba(14, 165, 233, 0.35);
+      border-color: rgba(56, 189, 248, 0.85);
+      box-shadow: 0 0 16px rgba(14, 165, 233, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+      color: #e0f2fe;
+    }
+
+    /* 实时定位脉冲标记 */
+    .user-location-marker {
+      position: relative;
+      width: 20px;
+      height: 20px;
+    }
+    .user-location-core {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f59e0b;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.95);
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      z-index: 2;
+    }
+    .user-location-pulse {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.45);
+      top: -8px;
+      left: -8px;
+      animation: radarPulse 2s infinite ease-out;
+      z-index: 1;
+    }
+    @keyframes radarPulse {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    /* 地图降级提示窗 */
+    .map-fallback-banner {
+      position: absolute;
+      top: 70px;
+      left: 14px;
+      right: 14px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      backdrop-filter: blur(14px);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      color: #fecaca;
+      font-size: 12px;
+      display: none;
+      z-index: 101;
+    }
+
+    /* ==========================================================================
+       7. 视图 3：【⚠️ 实用贴士与团队工具】
+       ========================================================================== */
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin: 18px 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--accent-gold);
+      border-radius: 2px;
+    }
+
+    /* 特殊预警卡片 */
+    .alert-card {
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border-radius: var(--radius-md);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+
+    .alert-card.danger {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .alert-card.cyan {
+      background: rgba(16, 185, 129, 0.14);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .alert-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .alert-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    /* 行李清单勾选 */
+    .packing-group {
+      margin-bottom: 14px;
+      padding: 14px 16px;
+    }
+
+    .packing-cat-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 10px;
+    }
+
+    .packing-items-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .packing-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-sub);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .packing-item.checked {
+      background: rgba(52, 211, 153, 0.15);
+      border-color: rgba(52, 211, 153, 0.4);
+      color: #a7f3d0;
+      text-decoration: line-through;
+    }
+
+    .packing-item input[type="checkbox"] {
+      display: none;
+    }
+
+    .custom-check-box {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .packing-item.checked .custom-check-box {
+      background: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+    }
+    .packing-item.checked .custom-check-box::after {
+      content: '✓';
+      color: #064e3b;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    /* 团队 AA 记账器 */
+    .ledger-summary-card {
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .ledger-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .total-amount-display {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .people-count-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    .people-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .ledger-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn-add-expense {
+      flex: 1;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--accent-amber), #ea580c);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-copy-wechat {
+      flex: 1.2;
+      padding: 10px;
+      background: rgba(52, 211, 153, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      border-radius: var(--radius-sm);
+      color: #a7f3d0;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .expense-list {
+      margin-top: 14px;
+    }
+
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13px;
+    }
+
+    .expense-item:last-child {
+      border-bottom: none;
+    }
+
+    .expense-left .exp-title {
+      font-weight: 600;
+      color: #fff;
+    }
+    .expense-left .exp-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .expense-right {
+      text-align: right;
+    }
+
+    .expense-amount {
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .expense-del {
+      color: #f87171;
+      font-size: 11px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    /* 记账输入模态窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 360px;
+      padding: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--accent-amber);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn-modal-cancel {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-sub);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .btn-modal-save {
+      flex: 1;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--accent-amber), #ea580c);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    /* Toast 浮动提示 */
+    .toast-pill {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(16, 185, 129, 0.9);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast-pill.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ==========================================================================
+       7.1 苹果液态玻璃底部悬浮抽屉 (Liquid Glass Bottom Sheet)
+       ========================================================================== */
+    /* ==========================================================================
+       7.1 苹果液态玻璃底部悬浮抽屉 (Apple Liquid Glass Bottom Sheet)
+       ========================================================================== */
+    .bottom-sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.04); /* 极轻度纯净穿透，上方地图完全清晰可见 */
+      backdrop-filter: none; /* 移除模糊滤镜，保证上方地图道路、点位和轨迹完全锐利显现 */
+      -webkit-backdrop-filter: none;
+      z-index: 2500;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .bottom-sheet-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .bottom-sheet-modal {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2600;
+      max-width: 520px;
+      margin: 0 auto;
+      height: 68vh;
+      max-height: 74vh;
+      min-height: 40vh;
+      background: linear-gradient(180deg, rgba(28, 17, 10, 0.48) 0%, rgba(16, 10, 6, 0.68) 100%);
+      backdrop-filter: blur(24px) saturate(210%);
+      -webkit-backdrop-filter: blur(24px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-bottom: none;
+      border-radius: 28px 28px 0 0;
+      box-shadow: 0 -20px 48px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(105%);
+      transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+      visibility: hidden;
+      touch-action: pan-y;
+    }
+
+    .bottom-sheet-modal.active {
+      transform: translateY(0);
+      visibility: visible;
+    }
+
+    /* 顶部拖拽把手区 */
+    .sheet-drag-handle-wrap {
+      width: 100%;
+      padding: 12px 0 6px 0;
+      display: flex;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .sheet-drag-pill {
+      width: 42px;
+      height: 4.5px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 抽屉头部 */
+    .sheet-header {
+      padding: 6px 20px 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      flex-shrink: 0;
+    }
+
+    .sheet-header-text {
+      flex: 1;
+      min-width: 0;
+      padding-right: 12px;
+    }
+
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.35;
+      letter-spacing: 0.3px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    .sheet-subtitle {
+      font-size: 11px;
+      color: #38bdf8; /* 苹果电光天蓝，呼应路线地图主色 */
+      font-weight: 600;
+      margin-top: 3px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sheet-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .sheet-close-btn:active {
+      transform: scale(0.9);
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    /* 抽屉滚动物料区 */
+    .sheet-body {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px 18px calc(28px + var(--safe-bottom)) 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sheet-body > * {
+      flex-shrink: 0;
+    }
+
+    .sheet-body::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sheet-body::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
+
+    /* 深度导读卡片 */
+    .sheet-intro-card {
+      font-size: 12px;
+      color: #f1f5f9;
+      line-height: 1.55;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+
+    /* 抽屉内扩展卡片 (Apple Liquid Glass Card) */
+    .sheet-card {
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.04); /* 超通透液态玻璃 */
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sheet-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    }
+
+    .sheet-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .sheet-card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.4;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .sheet-card-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(254, 240, 138, 0.45);
+      color: #fef08a;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+      white-space: nowrap;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+
+    .sheet-section-block {
+      margin-top: 10px;
+    }
+
+    .sheet-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8; /* 苹果电光蓝 */
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .sheet-section-desc {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .sheet-dish-badge {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 500;
+      color: #f8fafc;
+      margin-right: 6px;
+      margin-top: 5px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+
+    .sheet-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+    }
+
+    .sheet-price-val {
+      font-weight: 700;
+      color: #fef08a;
+    }
+
+    /* 🚗 交通到达建议呼出块 */
+    .sheet-traffic-callout {
+      margin-top: 12px;
+      padding: 10px 13px;
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.55;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .sheet-traffic-callout.coaster {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      color: #a7f3d0;
+    }
+
+    .sheet-traffic-callout.taxi {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f1f5f9;
+    }
+
+    .traffic-callout-icon {
+      font-size: 15px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* 🧭 高德地图一键导航按钮 (Apple Electric Blue Action) */
+    .sheet-nav-action-row {
+      margin-top: 12px;
+    }
+
+    .amap-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7 0%, #0091ff 100%);
+      border: 1px solid rgba(56, 189, 248, 0.65);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .amap-nav-btn:active {
+      transform: scale(0.98);
+      background: linear-gradient(135deg, #0369a1 0%, #0077e6 100%);
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+    }
+
+    .amap-nav-btn .nav-icon {
+      font-size: 15px;
+    }
+    .amap-nav-btn .nav-arrow {
+      font-size: 12px;
+      opacity: 0.9;
+      transition: transform 0.2s ease;
+    }
+    .amap-nav-btn:hover .nav-arrow {
+      transform: translateX(3px);
+    }
+
+    /* ==========================================================================
+       8. 底部悬浮式苹果液态玻璃导航栏 (Floating Liquid Dock)
+       ========================================================================== */
+    .floating-dock-wrapper {
+      position: fixed;
+      bottom: calc(14px + var(--safe-bottom));
+      left: 18px;
+      right: 18px;
+      z-index: 1000;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .floating-dock {
+      background: rgba(20, 12, 6, 0.38); /* 强化液态玻璃设计，让满铺地图在底部自然延伸穿透 */
+      backdrop-filter: blur(32px) saturate(210%);
+      -webkit-backdrop-filter: blur(32px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: var(--radius-full);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.38);
+      padding: 6px;
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .dock-btn {
+      flex: 1;
+      padding: 8px 4px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-full);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 2;
+    }
+
+    .dock-btn .dock-icon {
+      font-size: 19px;
+      line-height: 1;
+      transition: transform 0.25s ease;
+    }
+
+    .dock-btn .dock-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .dock-btn.active {
+      color: #fff;
+    }
+
+    .dock-btn.active .dock-icon {
+      transform: scale(1.15);
+    }
+
+    .dock-indicator {
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.5), rgba(217, 119, 6, 0.4));
+      border: 1px solid rgba(251, 191, 36, 0.65);
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1;
+      width: calc((100% - 12px) / 3);
+      left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 氛围渐变背景 -->
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- 顶部状态栏 -->
+  <header class="app-header">
+    <div class="brand-block">
+      <h1>西行计划 · 丝路路书 <span>🚩</span></h1>
+      <div class="sub-title">济南往返 · 考斯特大环线（09.24 - 10.02）</div>
+    </div>
+    <div class="badge-coaster">考斯特 9日行</div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="main-container">
+
+    <!-- ==================== TAB 1: 📅 行程路书 ==================== -->
+    <section id="view-schedule" class="tab-view active">
+      
+      <!-- 敦煌飞天长卷 Hero 横幅卡片 -->
+      <div class="liquid-glass hero-banner-card">
+        <div class="hero-banner-img-wrap">
+          <img src="assets/images/dunhuang_hero_banner.jpg" alt="敦煌丝路飞天长卷" class="hero-banner-img">
+          <div class="hero-banner-overlay">
+            <div class="hero-banner-badge">🚩 丝路自驾 · 2800km 大漠长卷</div>
+            <div class="hero-banner-title">西行漫记 · 莫高千佛入画来</div>
+            <div class="hero-banner-sub">济南往返 9日探秘河西走廊 · 额济纳胡杨 · 鸣沙落日 · 柴达木穿越</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 概览打卡与通关印章卡片 -->
+      <div class="liquid-glass trip-overview-card">
+        <div class="overview-header-row">
+          <div class="seal-badge-wrapper">
+            <img src="assets/images/dunhuang_seal_badge.jpg" alt="丝路通关文牒打卡印章" class="seal-badge-img">
+          </div>
+          <div class="overview-info-block">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 13px; font-weight: 700; color: #fff;">🚩 全队丝路行程进展</span>
+              <span id="checkin-progress-text" style="font-size: 12px; color: var(--accent-gold); font-weight: 700;">已打卡 0 / 9 天</span>
+            </div>
+            <div class="progress-bar-bg" style="margin-top: 0;">
+              <div id="checkin-progress-fill" class="progress-bar-fill"></div>
+            </div>
+          </div>
+        </div>
+        <div class="trip-stats-grid">
+          <div class="stat-item">
+            <div class="val">9 <span style="font-size: 12px; font-weight: 400;">天</span></div>
+            <div class="lbl">行程周期</div>
+          </div>
+          <div class="stat-item">
+            <div class="val">~2800 <span style="font-size: 12px; font-weight: 400;">km</span></div>
+            <div class="lbl">自驾总里程</div>
+          </div>
+          <div class="stat-item">
+            <div class="val">3 <span style="font-size: 12px; font-weight: 400;">省</span></div>
+            <div class="lbl">甘·蒙·青</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 天数快捷选择滑条 -->
+      <div class="day-selector-scroll">
+        <div class="day-chip active" onclick="filterScheduleDay(-1, this)">全部行程</div>
+        <div class="day-chip" onclick="filterScheduleDay(0, this)">D0 济南✈兰州</div>
+        <div class="day-chip" onclick="filterScheduleDay(1, this)">D1 兰州→张掖</div>
+        <div class="day-chip" onclick="filterScheduleDay(2, this)">D2 丹霞→鼎新</div>
+        <div class="day-chip" onclick="filterScheduleDay(3, this)">D3 航天城·胡杨</div>
+        <div class="day-chip" onclick="filterScheduleDay(4, this)">D4 嘉峪关→敦煌</div>
+        <div class="day-chip" onclick="filterScheduleDay(5, this)">D5 莫高窟·鸣沙山</div>
+        <div class="day-chip" onclick="filterScheduleDay(6, this)">D6 穿越柴达木</div>
+        <div class="day-chip" onclick="filterScheduleDay(7, this)">D7 茶卡·青海湖</div>
+        <div class="day-chip" onclick="filterScheduleDay(8, this)">D8 塔尔寺✈济南</div>
+      </div>
+
+      <!-- 每日卡片容器 -->
+      <div id="schedule-cards-container">
+        <!-- 由 JS 动态渲染 9 天卡片 -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: 🗺 路线地图 ==================== -->
+    <section id="view-map" class="tab-view">
+      <!-- 顶部天数切换药丸栏 -->
+      <div class="map-top-bar">
+        <div class="map-day-pills">
+          <button class="map-pill-btn active" onclick="switchMapDay(-1, this)">全程总览</button>
+          <button class="map-pill-btn" onclick="switchMapDay(0, this)">D0 兰州</button>
+          <button class="map-pill-btn" onclick="switchMapDay(1, this)">D1 兰州-张掖</button>
+          <button class="map-pill-btn" onclick="switchMapDay(2, this)">D2 张掖-鼎新</button>
+          <button class="map-pill-btn" onclick="switchMapDay(3, this)">D3 航天城-怪树林</button>
+          <button class="map-pill-btn" onclick="switchMapDay(4, this)">D4 嘉峪关-敦煌</button>
+          <button class="map-pill-btn" onclick="switchMapDay(5, this)">D5 莫高窟-鸣沙山</button>
+          <button class="map-pill-btn" onclick="switchMapDay(6, this)">D6 穿越柴达木</button>
+          <button class="map-pill-btn" onclick="switchMapDay(7, this)">D7 茶卡-西宁</button>
+          <button class="map-pill-btn" onclick="switchMapDay(8, this)">D8 塔尔寺-济南</button>
+        </div>
+      </div>
+
+      <!-- 地图降级提示条 -->
+      <div id="map-fallback-banner" class="map-fallback-banner">
+        ⚠️ 高德地图正在离线/降级模式运行中（请在正式部署后于高德开放平台配置您的正式域名白名单）。
+      </div>
+
+      <!-- 高德地图挂载容器 -->
+      <div id="amap-container"></div>
+
+      <!-- 路线里程信息浮窗 -->
+      <div class="map-stats-panel">
+        <div>
+          <div id="map-route-title" class="route-name">丝路自驾全程轨迹总览</div>
+          <div id="map-route-detail" class="route-detail">包含连霍高速G30、柴达木大穿越</div>
+        </div>
+        <button class="liquid-pill" style="font-size: 11px; padding: 4px 10px;" onclick="fitMapFullView()">适应视野</button>
+      </div>
+
+      <!-- 右侧控制悬浮按钮 -->
+      <div class="map-controls">
+        <div class="map-ctrl-btn" id="btn-toggle-l2" onclick="toggleL2Markers()" title="探索图钉开关 (美食/观景/机位)">✨</div>
+        <div class="map-ctrl-btn" id="btn-location" onclick="locateUserPosition()" title="实时定位我在哪">📍</div>
+        <div class="map-ctrl-btn" id="btn-toggle-satellite" onclick="toggleMapSatellite()" title="卫星/公路图层切换">🛰️</div>
+        <div class="map-ctrl-btn" onclick="fitMapFullView()" title="居中全景">🎯</div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: ⚠️ 贴士备忘与团队工具 ==================== -->
+    <section id="view-tips" class="tab-view">
+      
+      <!-- 模块 1: 🚨 核心预约与通行强提醒 -->
+      <div class="section-title">通行报备与重要预约提醒</div>
+      
+      <div class="alert-card danger">
+        <div class="alert-header">🚀 东风航天城与鼎新基地（Day 3）特别纪律</div>
+        <div class="alert-desc">
+          1. <strong>证件原件</strong>：所有人员必须随身携带<strong>二代身份证原件</strong>，严禁假借他人证件；<br>
+          2. <strong>拍摄限制</strong>：军事管制与涉密区域绝对严禁拍照、录像、飞无人机（航拍器建议放车内不携带）；<br>
+          3. <strong>报备车辆</strong>：考斯特车辆与司机身份必须已完成提前报备核验，听从随车向导统一指挥。
+        </div>
+      </div>
+
+      <div class="alert-card">
+        <div class="alert-header">🎨 敦煌莫高窟 A类票抢票（Day 5）</div>
+        <div class="alert-desc">
+          莫高窟实行严格预约制，提前30天放票。首选包含两部高清球幕电影+8个实体洞窟的<strong>A类正常票</strong>（需按预约场次提前30分钟抵达数字展示中心）。
+        </div>
+      </div>
+
+      <div class="alert-card cyan">
+        <div class="alert-header">🏜️ 穿越柴达木无人区与高原温差（Day 6-7）</div>
+        <div class="alert-desc">
+          1. <strong>戈壁物资</strong>：Day 6 穿越 650km 柴达木戈壁，车上备足 2 箱饮用水与高热量零食；离开敦煌前务必将考斯特加满油；<br>
+          2. <strong>高反与防晒</strong>：茶卡盐湖（3100m）、青海湖（3200m），备好红景天/散利痛。紫外线强烈，SPF50+防晒与墨镜不可离身。
+        </div>
+      </div>
+
+      <!-- 模块 2: 🎒 行前行李打勾清单 -->
+      <div class="section-title">行前行李必备清单（支持打勾保存）</div>
+      
+      <div class="liquid-glass packing-group">
+        <div class="packing-cat-name">🪪 证件与贵重物资</div>
+        <div class="packing-items-grid">
+          <label class="packing-item" onclick="togglePackingItem(this, 'id-card')">
+            <div class="custom-check-box"></div>
+            <span>身份证原件 (必备)</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'driver-license')">
+            <div class="custom-check-box"></div>
+            <span>驾驶证 (备查)</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'powerbank')">
+            <div class="custom-check-box"></div>
+            <span>充电宝 (带3C标)</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'cash')">
+            <div class="custom-check-box"></div>
+            <span>少量应急现金</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="liquid-glass packing-group">
+        <div class="packing-cat-name">🧥 穿戴与户外装备</div>
+        <div class="packing-items-grid">
+          <label class="packing-item" onclick="togglePackingItem(this, 'jacket')">
+            <div class="custom-check-box"></div>
+            <span>三合一冲锋衣</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'sunglasses')">
+            <div class="custom-check-box"></div>
+            <span>UV400 偏光墨镜</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'shoes')">
+            <div class="custom-check-box"></div>
+            <span>舒适徒步运动鞋</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'scarf')">
+            <div class="custom-check-box"></div>
+            <span>魔术头巾/防风帽</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'thermos')">
+            <div class="custom-check-box"></div>
+            <span>大容量保温杯</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'dress')">
+            <div class="custom-check-box"></div>
+            <span>亮色披肩/红裙(拍照)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="liquid-glass packing-group">
+        <div class="packing-cat-name">💊 医疗与护肤防燥</div>
+        <div class="packing-items-grid">
+          <label class="packing-item" onclick="togglePackingItem(this, 'sunscreen')">
+            <div class="custom-check-box"></div>
+            <span>SPF50+ 高倍防晒</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'lipbalm')">
+            <div class="custom-check-box"></div>
+            <span>滋润润唇膏</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'headache')">
+            <div class="custom-check-box"></div>
+            <span>布洛芬/散利痛</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'carsick')">
+            <div class="custom-check-box"></div>
+            <span>晕车贴/晕车药</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'stomach')">
+            <div class="custom-check-box"></div>
+            <span>肠胃药/黄连素</span>
+          </label>
+          <label class="packing-item" onclick="togglePackingItem(this, 'drops')">
+            <div class="custom-check-box"></div>
+            <span>人工泪液滴眼液</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 模块 3: 💰 团队公共 AA 记账器 -->
+      <div class="section-title">考斯特团队公共 AA 记账器</div>
+      <div class="liquid-glass ledger-summary-card">
+        <div class="ledger-top-row">
+          <div>
+            <div style="font-size: 11px; color: var(--text-dim);">团队公共总支出</div>
+            <div class="total-amount-display">¥ <span id="ledger-total-num">0.00</span></div>
+          </div>
+          <div class="people-count-wrapper">
+            <span>同行分摊：</span>
+            <div class="people-btn" onclick="adjustPeopleCount(-1)">-</div>
+            <span id="people-count-num" style="font-weight: 700; color: #fff; min-width: 20px; text-align: center;">10</span>
+            <span>人</span>
+            <div class="people-btn" onclick="adjustPeopleCount(1)">+</div>
+          </div>
+        </div>
+        <div style="font-size: 12px; color: var(--accent-amber); font-weight: 600;">
+          当前人均应付：¥ <span id="per-person-amount">0.00</span>
+        </div>
+
+        <div class="ledger-btn-row">
+          <button class="btn-add-expense" onclick="openExpenseModal()">➕ 记一笔公共账</button>
+          <button class="btn-copy-wechat" onclick="copyWeChatSummary()">📋 复制微信群明细</button>
+        </div>
+
+        <div class="expense-list" id="expense-list-container">
+          <!-- 动态渲染记账条目 -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 记账输入模态弹窗 -->
+  <div class="modal-overlay" id="expense-modal">
+    <div class="liquid-glass modal-box">
+      <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 16px;">➕ 记录团队公共支出</div>
+      <div class="form-group">
+        <label>支出项目名称</label>
+        <input type="text" id="exp-title-input" placeholder="例：考斯特连霍高速油费、兰州团体餐">
+      </div>
+      <div class="form-group">
+        <label>金额 (元)</label>
+        <input type="number" id="exp-amount-input" placeholder="0.00" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>支出类别</label>
+        <select id="exp-cat-select">
+          <option value="油费路桥">⛽ 油费 / 高速过路费</option>
+          <option value="团队餐饮">🍜 团队集体餐饮</option>
+          <option value="景区门票">🎫 景区门票/观光车</option>
+          <option value="物资零食">🥤 车载饮水/水果零食</option>
+          <option value="其他支出">📦 其他机动支出</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>经手人</label>
+        <input type="text" id="exp-payer-input" placeholder="例：领队 / 司机师傅">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeExpenseModal()">取消</button>
+        <button class="btn-modal-save" onclick="saveExpenseItem()">保存记录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 苹果液态玻璃底部悬浮抽屉 (Bottom Sheet) ==================== -->
+  <div id="bottom-sheet-backdrop" class="bottom-sheet-backdrop" onclick="closeBottomSheet()"></div>
+  <div id="bottom-sheet-modal" class="bottom-sheet-modal" role="dialog" aria-modal="true">
+    <div class="sheet-drag-handle-wrap" id="sheet-drag-handle">
+      <div class="sheet-drag-pill"></div>
+    </div>
+    <div class="sheet-header">
+      <div class="sheet-header-text">
+        <div id="sheet-title" class="sheet-title">主题详情</div>
+        <div id="sheet-subtitle" class="sheet-subtitle">副标题</div>
+      </div>
+      <button class="sheet-close-btn" onclick="closeBottomSheet()" aria-label="关闭">✕</button>
+    </div>
+    <div id="sheet-content" class="sheet-body">
+      <!-- 动态注入详细推荐卡片 -->
+    </div>
+  </div>
+
+  <!-- Toast 提示胶囊 -->
+  <div id="toast" class="toast-pill">已成功复制到剪贴板！</div>
+
+  <!-- 底部悬浮式苹果液态玻璃 Dock 导航栏 -->
+  <div class="floating-dock-wrapper">
+    <nav class="floating-dock">
+      <div class="dock-indicator" id="dock-indicator"></div>
+      <button class="dock-btn active" onclick="switchTab(0, this)">
+        <span class="dock-icon">📅</span>
+        <span class="dock-label">行程路书</span>
+      </button>
+      <button class="dock-btn" onclick="switchTab(1, this)">
+        <span class="dock-icon">🗺️</span>
+        <span class="dock-label">路线地图</span>
+      </button>
+      <button class="dock-btn" onclick="switchTab(2, this)">
+        <span class="dock-icon">⚠️</span>
+        <span class="dock-label">贴士备忘</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==========================================================================
+       9. 核心数据与业务交互逻辑 (Data & Controller)
+       ========================================================================== -->
+  <script>
+    // --------------------------------------------------------------------------
+    // A. 完整 9 天行程数据集 (Trip Data Engine)
+    // --------------------------------------------------------------------------
+    const TRIP_DAYS = [
+      {
+        dayIndex: 0,
+        tag: "Day 0",
+        date: "09月24日 · 周三",
+        title: "济南 ✈ 兰州 · 丝路集结夜",
+        km: "飞行 1400km",
+        driveTime: "飞行约2.5h",
+        hotel: "兰州全季/桔子酒店（中川机场周边或西客站商业区）",
+        spots: [
+          { name: "济南遥墙国际机场", lng: 117.2160, lat: 36.8576, desc: "搭乘 MU6283 航班直飞兰州" },
+          { name: "兰州中川国际机场", lng: 103.6212, lat: 36.5146, desc: "21:30 落地兰州，考斯特接机前往酒店" }
+        ],
+        timeline: [
+          { time: "17:00", title: "济南遥墙机场集合", desc: "办理乘机手续与行李托运，全队核对证件" },
+          { time: "19:00", title: "MU6283 航班起飞", desc: "起飞前往甘肃兰州，开启西行万里路" },
+          { time: "21:30", title: "抵达兰州中川国际机场", desc: "接驾考斯特专车就位，装运大件行李" },
+          { time: "22:30", title: "入住兰州酒店休整", desc: "首晚保证充足睡眠，或前往老字号宵夜暖胃补给", subDetailKey: "d0_supper", subDetailBadge: "🥢 深夜老字号与烧烤 (3家)" }
+        ]
+      },
+      {
+        dayIndex: 1,
+        tag: "Day 1",
+        date: "09月25日 · 周四",
+        title: "兰州提车巡礼 ➔ 张掖 · 跨越乌鞘岭",
+        km: "约 500 km",
+        driveTime: "车程约 5.5 h",
+        hotel: "张掖绿洲假日大酒店 / 金阳国际饭店（高品质四星标准）",
+        spots: [
+          { name: "甘肃省博物馆", lng: 103.7735, lat: 36.0673, desc: "甘肃省博：马踏飞燕、彩陶珍品馆" },
+          { name: "黄河第一桥·中山桥", lng: 103.8152, lat: 36.0682, desc: "天下黄河第一桥，品正宗牛肉面" },
+          { name: "张掖市区酒店", lng: 100.4552, lat: 38.9328, desc: "经连霍高速G30抵达张掖，夜宿甘州" }
+        ],
+        timeline: [
+          { time: "08:30", title: "品尝正宗兰州牛肉面", desc: "「一清二白三红四绿五黄」，肉蛋双飞能量拉满", subDetailKey: "d1_beef_noodles", subDetailBadge: "🥢 正宗牛肉面江湖 (3家)" },
+          { time: "09:30", title: "甘肃省博物馆（建议2h）", desc: "镇馆之宝马踏飞燕、丝绸之路文明展（需提前预约）" },
+          { time: "12:00", title: "黄河铁桥（中山桥）", desc: "漫步百里黄河风情线，远眺白塔山" },
+          { time: "13:30", title: "考斯特启程赴张掖（G30连霍高速）", desc: "翻越乌鞘岭进入河西走廊，感受山河壮丽", subDetailKey: "d1_wushaoling", subDetailBadge: "🔭 乌鞘岭公路观景台 (2处)" },
+          { time: "19:30", title: "抵达张掖，入住高品质酒店", desc: "晚餐推荐张掖特色搓鱼面、炒拨拉" }
+        ]
+      },
+      {
+        dayIndex: 2,
+        tag: "Day 2",
+        date: "09月26日 · 周五",
+        title: "张掖七彩丹霞 ➔ 酒泉 ➔ 鼎新基地",
+        km: "约 380 km",
+        driveTime: "车程约 4.5 h",
+        hotel: "空军鼎新基地内部宾馆 / 招待所（凭特种名单入住）",
+        spots: [
+          { name: "张掖七彩丹霞", lng: 100.1293, lat: 38.9754, desc: "上帝打翻的调色盘，色彩斑斓的壮美丹霞" },
+          { name: "酒泉钟鼓楼", lng: 98.5111, lat: 39.7443, desc: "酒泉城区午餐休整，霍去病倾酒入泉故地" },
+          { name: "空军鼎新基地", lng: 100.0465, lat: 40.2978, desc: "深入戈壁绿洲，入住鼎新基地" }
+        ],
+        timeline: [
+          { time: "07:30", title: "游览张掖七彩丹霞", desc: "晨间柔和光影，1至4号观景台色彩最为震撼" },
+          { time: "11:30", title: "张掖午餐与驱车经G30赴酒泉", desc: "品尝张掖炒炮与特色炒拨拉，酒泉休整补给", subDetailKey: "d2_zhangye_food", subDetailBadge: "🥢 张掖市井名吃 (2家)" },
+          { time: "14:30", title: "挺进空军鼎新基地（酒泉补给）", desc: "品尝酒泉肃州糊锅，沿途驶离高速进入戈壁公路", subDetailKey: "d2_jiuquan_hポット", subDetailBadge: "🥢 肃州糊锅老字号" },
+          { time: "18:00", title: "抵达鼎新基地核验报备入住", desc: "严格遵守基地管理条例，享用基地特色晚餐" }
+        ]
+      },
+      {
+        dayIndex: 3,
+        tag: "Day 3",
+        date: "09月27日 · 周六",
+        title: "东风航天城 ➔ 额济纳黑城·怪树林日落",
+        km: "约 360 km往返",
+        driveTime: "车程约 4 h",
+        hotel: "空军鼎新基地内部宾馆（第二晚连住）",
+        spots: [
+          { name: "东风航天城(酒泉卫星发射中心)", lng: 100.2952, lat: 40.9633, desc: "中国航天摇篮：问天阁、载人发射架" },
+          { name: "黑城·弱水胡杨·怪树林", lng: 101.1448, lat: 41.7766, desc: "千年不死不倒不朽的金色胡杨与枯木日落" }
+        ],
+        timeline: [
+          { time: "08:00", title: "探访东风航天城（酒泉卫星发射中心）", desc: "瞻仰问天阁航天员出征仪式现场、垂直总装测试厂房", subDetailKey: "d3_spacecity", subDetailBadge: "🚀 航天城必看高地 (2处)" },
+          { time: "12:00", title: "基地午餐，随后前往额济纳旗", desc: "穿越巴丹吉林沙漠北缘荒漠公路，品尝正宗蒙餐", subDetailKey: "d3_mongol_food", subDetailBadge: "🥢 额济纳正宗蒙餐" },
+          { time: "15:00", title: "游览黑城弱水胡杨·怪树林", desc: "探访古丝路黑水城遗址，金秋胡杨初黄" },
+          { time: "17:30", title: "怪树林守候大漠日落", desc: "戈壁残阳照射千姿百态的枯木，摄影出大片的黄金时刻", subDetailKey: "d3_guaishulin", subDetailBadge: "📸 怪树林绝杀机位" },
+          { time: "19:30", title: "返回鼎新基地住宿", desc: "晚间整理照片，夜间戈壁星空银河清晰可见" }
+        ]
+      },
+      {
+        dayIndex: 4,
+        tag: "Day 4",
+        date: "09月28日 · 周日",
+        title: "鼎新 ➔ 嘉峪关三联景 ➔ 敦煌沙洲",
+        km: "约 420 km",
+        driveTime: "车程约 5 h",
+        hotel: "敦煌全季酒店 / 敦煌太阳大饭店（四星级/市中心）",
+        spots: [
+          { name: "嘉峪关关城景区", lng: 98.2198, lat: 39.7997, desc: "天下第一雄关，万里长城西端起点" },
+          { name: "长城第一墩", lng: 98.1752, lat: 39.7346, desc: "明代万里长城最西端的第一座烽燧" },
+          { name: "悬壁长城", lng: 98.2435, lat: 39.8458, desc: "陡峭如倒挂铁臂的明代石砌长城" },
+          { name: "敦煌沙洲夜市", lng: 94.6620, lat: 40.1421, desc: "抵达敦煌，逛夜市尝红柳烤肉、泡儿油糕" }
+        ],
+        timeline: [
+          { time: "08:00", title: "鼎新启程赴嘉峪关", desc: "途经酒泉，驶入雄伟的嘉峪关市区" },
+          { time: "10:30", title: "登临天下第一雄关·嘉峪关关城", desc: "抚摸明长城城砖，中午品尝嘉峪关传奇铁签烤肉", subDetailKey: "d4_jiayuguan_bbq", subDetailBadge: "🥢 嘉峪关烤肉传奇 (2家)" },
+          { time: "13:00", title: "连游长城第一墩与悬臂长城", desc: "立于讨赖河峡谷峭壁，感悟古代边关防御体系" },
+          { time: "15:00", title: "考斯特全速开拔敦煌（柳格高速）", desc: "途经瓜州大漠国际雕塑长廊，大漠直道连绵", subDetailKey: "d4_guazhou_sculpture", subDetailBadge: "🔭 大漠雕塑长廊 (2处)" },
+          { time: "19:30", title: "入住敦煌酒店，夜巡沙洲夜市", desc: "畅饮杏皮水，品尝敦煌烤羊排、大漠风情面食" }
+        ]
+      },
+      {
+        dayIndex: 5,
+        tag: "Day 5",
+        date: "09月29日 · 周一",
+        title: "敦煌全天 · 莫高千佛 ➔ 鸣沙夕照",
+        km: "约 60 km市郊",
+        driveTime: "全天市内漫游",
+        hotel: "敦煌全季酒店 / 敦煌太阳大饭店（连住）",
+        spots: [
+          { name: "莫高窟数字展示中心", lng: 94.7938, lat: 40.1437, desc: "世界文化遗产：双巨幕数字电影《千年莫高》" },
+          { name: "莫高窟窟区", lng: 94.8151, lat: 40.0425, desc: "专业讲师讲解经典实体洞窟、九层楼" },
+          { name: "鸣沙山月牙泉", lng: 94.6719, lat: 40.0883, desc: "山泉共处大漠奇观，骑骆驼、赏万人星空" }
+        ],
+        timeline: [
+          { time: "08:30", title: "莫高窟数字展示中心入场", desc: "观看球幕与宽银幕电影，感受飞天壁画起源" },
+          { time: "10:30", title: "乘坐摆渡车进窟区精细讲解", desc: "由资深讲解员带领瞻仰 8 个特选洞窟及九层楼大佛" },
+          { time: "13:30", title: "敦煌市区午休避开正午烈日", desc: "蓄备体力，品尝顺张/达记驴肉黄面或摘星阁下午茶", subDetailKey: "d5_dunhuang_food", subDetailBadge: "🥢 驴肉黄面与摘星阁 (3处)" },
+          { time: "16:00", title: "鸣沙山月牙泉入园", desc: "骑骆驼穿越金色沙丘，登顶鸣沙山俯瞰一泓月牙" },
+          { time: "18:45", title: "鸣沙山大漠落日与万人演唱会", desc: "夕阳染红沙脊，夜幕降临全场挥舞手机荧光大合唱" }
+        ]
+      },
+      {
+        dayIndex: 6,
+        tag: "Day 6",
+        date: "09月30日 · 周二",
+        title: "大穿越！翻当金山 ➔ 柴达木 ➔ 茶卡镇",
+        km: "约 650 km",
+        driveTime: "车程约 8 h（景观大道）",
+        hotel: "茶卡盐湖星空景美酒店 / 茶卡天境青年大酒店（四星品质）",
+        spots: [
+          { name: "当金山垭口(海拔3648m)", lng: 94.3415, lat: 39.3241, desc: "甘青分界线，阿尔金山与祁连山交汇险关" },
+          { name: "大柴旦翡翠湖", lng: 95.3057, lat: 37.8546, desc: "柴达木盆地深处的一颗绿宝石，晶莹剔透" },
+          { name: "茶卡镇", lng: 99.0838, lat: 36.7027, desc: "抵达高原盐城茶卡镇，备战次日天空之镜" }
+        ],
+        timeline: [
+          { time: "07:00", title: "考斯特满油自敦煌出发", desc: "全程最长的一天大穿越，沿途风貌由戈壁变为高原" },
+          { time: "09:30", title: "翻越当金山垭口（海拔3648m）", desc: "正式告别甘肃进入大青海，地貌瞬间转为苍茫高原", subDetailKey: "d6_dangjinshan", subDetailBadge: "🔭 当金山垭口观景" },
+          { time: "12:30", title: "大柴旦镇午餐与加油休整", desc: "补充热食，品尝青海特色炕锅羊肉", subDetailKey: "d6_dachaidan_food", subDetailBadge: "🥢 炕锅羊肉口碑榜首" },
+          { time: "13:30", title: "游览大柴旦翡翠湖（建议2h）", desc: "形态各异的盐池在阳光下呈现深浅不同的翠绿、碧蓝", subDetailKey: "d6_feicuihu", subDetailBadge: "💡 翡翠湖深度机位" },
+          { time: "16:00", title: "经德小高速向茶卡镇疾驰", desc: "远山如黛，夕阳洒在柴达木盆地戈壁之上" },
+          { time: "19:30", title: "抵达茶卡镇入住休整", desc: "海拔提升至3100m，动作宜放缓，早歇防高反" }
+        ]
+      },
+      {
+        dayIndex: 7,
+        tag: "Day 7",
+        date: "10月01日 · 周三",
+        title: "天空之镜 ➔ 蔚蓝青海湖二郎剑 ➔ 西宁",
+        km: "约 300 km",
+        driveTime: "车程约 4.5 h",
+        hotel: "西宁全季酒店（新宁广场或五四西路店）/ 西宁新华联索菲特",
+        spots: [
+          { name: "茶卡盐湖·天空之镜", lng: 99.0838, lat: 36.7027, desc: "国家旅游地理杂志必去之地，盐白倒影如梦境" },
+          { name: "青海湖二郎剑景区", lng: 100.4998, lat: 36.5779, desc: "中国最大内陆咸水湖，高原蓝宝石与经幡飞舞" },
+          { name: "日月山山口", lng: 101.2443, lat: 36.5645, desc: "文成公主进藏摔镜驻足处，农牧文明分界线" },
+          { name: "西宁市区", lng: 101.7789, lat: 36.6231, desc: "抵达青海省会西宁，享受国庆繁华夜景" }
+        ],
+        timeline: [
+          { time: "08:00", title: "早班进茶卡盐湖（避开大客流）", desc: "乘红皮小火车深入湖心，穿鲜艳裙子/冲锋衣拍出水天一色", subDetailKey: "d7_chaka_tips", subDetailBadge: "💡 天空之镜防坑秘籍" },
+          { time: "11:30", title: "向青海湖南线进发", desc: "沿青海湖环湖公路前行，视野里逐渐出现浩瀚高原蓝", subDetailKey: "d7_qinghaihu_road", subDetailBadge: "🔭 最美湖滨公路" },
+          { time: "13:30", title: "二郎剑景区游览青海湖", desc: "近距离触摸圣湖之水，与高原水鸟海鸥同框" },
+          { time: "16:30", title: "翻越日月山、倒淌河前往西宁", desc: "见证从高原草甸逐步过渡到西宁河谷盆地" },
+          { time: "19:00", title: "入住西宁市区全季酒店", desc: "国庆之夜聚餐庆祝大环线穿越成功，手抓羊肉、甜醅子畅享", subDetailKey: "d7_xining_feast", subDetailBadge: "🥢 西宁国庆庆功宴 (3家)" }
+        ]
+      },
+      {
+        dayIndex: 8,
+        tag: "Day 8",
+        date: "10月02日 · 周四",
+        title: "塔尔寺藏传法音 ➔ 曹家堡机场✈济南",
+        km: "约 60 km",
+        driveTime: "车程约 1 h + 飞行2.5h",
+        hotel: "返回温馨的家（济南）",
+        spots: [
+          { name: "塔尔寺景区", lng: 101.5683, lat: 36.4851, desc: "格鲁派六大寺之一：宗喀巴大师诞生地，藏艺三绝" },
+          { name: "西宁曹家堡国际机场", lng: 102.0435, lat: 36.5298, desc: "考斯特送机，满载回忆直飞济南，凯旋归来" }
+        ],
+        timeline: [
+          { time: "08:30", title: "前往湟中区瞻仰塔尔寺", desc: "顺时针转经，领略酥油花、壁画、堆绣「艺术三绝」", subDetailKey: "d8_taersi_tips", subDetailBadge: "💡 塔尔寺三绝与禁忌" },
+          { time: "11:30", title: "品尝西宁地道酸奶与酿皮", desc: "采购青海枸杞、牛肉干等特色特产手信，避免踩坑", subDetailKey: "d8_souvenir_tips", subDetailBadge: "🎁 特产手信防坑指南" },
+          { time: "14:00", title: "考斯特专车送抵曹家堡机场", desc: "办理退车与安检登机手续，团队挥手合影" },
+          { time: "16:30", title: "航班起飞返回济南", desc: "告别大西北壮阔山河，西行万里圆满收官！" }
+        ]
+      }
+    ];
+
+    // --------------------------------------------------------------------------
+    // A2. 第二层级深度规划与高德导航库 (Sub-level Details & Amap Navigation)
+    // --------------------------------------------------------------------------
+    const DAY_DETAILS = {
+      // Day 0: 兰州深夜老字号烧烤与暖胃补给
+      "d0_supper": {
+        title: "🥢 兰州深夜老字号烧烤与暖胃补给",
+        subtitle: "Day 0 · 济南 ✈ 兰州 丝路集结夜",
+        intro: "MU6283 预计 21:30 落地兰州中川机场，乘考斯特抵市区已近 23:00。此时正是老兰州宵夜最浓郁的时刻，精选 3 家市井老摊与清真旗舰。",
+        items: [
+          {
+            name: "老马爷牛奶鸡蛋醪糟（正宁路夜市 44 号摊）",
+            tag: "老街坊市井地道小吃",
+            story: "央视《舌尖上的中国》总导演陈晓卿力荐，正宁路夜市标志性老汉铜锅现煮。纯牛奶煮滚打入金黄蛋花，撒大勺黑白芝麻、葡萄干、花生碎。温热香甜，驱散飞机上的干燥疲乏。",
+            dishes: ["招牌牛奶鸡蛋醪糟（15元/碗）", "清真冬果梨汤"],
+            price: "约 15 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议步行/打车。正宁路为纯步行小吃街，夜间人流密集，考斯特无法开入。建议考斯特将全队送到酒店放好行李后，步行或分乘出租车前往。",
+            lng: 103.8242,
+            lat: 36.0531,
+            navName: "老马爷牛奶鸡蛋醪糟(正宁路店)"
+          },
+          {
+            name: "大胡子烤肉（老字号总店 · 箭道巷）",
+            tag: "市井老字号铁签烤肉",
+            story: "兰州本地老饕与出租车司机公认的铁签烤肉老字号，几十年老店。选用临夏草膘羊现穿现烤，肥瘦相间，外焦里嫩，充满炭火与胡麻油香气。",
+            dishes: ["铁签羊肉串（按把点）", "烤羊排", "传统白玉炒面片", "加糖三炮台盖碗茶"],
+            price: "约 65 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车/步行。箭道巷街巷狭窄，路边无大车位，考斯特切勿开入，建议打车直达店门口。",
+            lng: 103.8322,
+            lat: 36.0583,
+            navName: "大胡子烤肉(箭道巷店)"
+          },
+          {
+            name: "阿西娅清真羊肉馆（大沙坪总店）",
+            tag: "高品质清真羊肉旗舰",
+            story: "甘肃餐饮名片，被各路老饕誉为“羊肉天花板”，入围黑珍珠餐厅。主打地道靖远羊羔肉，肉质极嫩毫无腥膻，深夜依然营业。",
+            dishes: ["爆炒羊羔肉", "手抓羊肉", "酥皮烤包子", "特色胡辣羊头"],
+            price: "约 110~130 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。位于大沙坪高速入口附近，拥有大型独立大巴停车场，车队停靠极其方便。",
+            lng: 103.8185,
+            lat: 36.1042,
+            navName: "阿西娅大沙坪总店"
+          }
+        ]
+      },
+
+      // Day 1: 08:30 品尝正宗兰州牛肉面
+      "d1_beef_noodles": {
+        title: "🥢 正宗兰州牛肉面江湖顶流",
+        subtitle: "Day 1 · 兰州提车巡礼 ➔ 张掖",
+        intro: "老兰州吃面点单秘籍：必须选“肉蛋双飞”（一份面+一碗熟牛肉+一个蛋）。面条粗细首选“二细”（最筋道）或“韭叶”（扁平宽滑）。",
+        items: [
+          {
+            name: "磨沟沿老字号牛肉面（吴家园总店）",
+            tag: "老饕公认江湖顶流",
+            story: "兰州本地公认四大天王之首，早晨 7 点本地人就端碗坐路边开吃。牛骨原汤清澈见底却骨香浓郁，油泼辣子红亮香醇，萝卜软烂化渣。",
+            dishes: ["传统牛肉面（选二细）", "手切熟牛肉片", "凉拌萝卜干"],
+            price: "约 15~25 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议步行或靠边短停。吴家园老居民区道路较窄，早高峰车辆极多。考斯特可在临近主路临时靠边让全员下车，大巴开至开阔路段等待。",
+            lng: 103.7845,
+            lat: 36.0662,
+            navName: "磨沟沿老字号牛肉面(吴家园总店)"
+          },
+          {
+            name: "吾穆勒蓬灰牛肉面（北滨河西路总店）",
+            tag: "大块牛肉品质天花板",
+            story: "兰州吃牛肉的天花板。肉质精绝，每天现煮的大块牛腱子五香扑鼻，按斤手切装盘，浸入热腾腾的牛肉高汤里吃，软烂多汁。",
+            dishes: ["手切五香大块牛肉（按斤点）", "二细牛肉面", "自制老酸奶"],
+            price: "约 35~50 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。位于北滨河路开阔地段，门前路面宽，大巴路边临停较为从容。",
+            lng: 103.7548,
+            lat: 36.0825,
+            navName: "吾穆勒蓬灰牛肉面(总店)"
+          },
+          {
+            name: "安泊尔牛肉面（北滨河中路旗舰店）",
+            tag: "中华餐饮名店 · 黄河景观",
+            story: "全国首批“中华餐饮名店”，四层仿古建筑临黄河而立，星级就餐环境，传统风味与现代体验结合典范。",
+            dishes: ["传统牛肉面", "烤羊肉", "甜醅子", "特色西北凉菜"],
+            price: "约 35~60 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。拥有专属超大客车停车场，全队从容上下车。",
+            lng: 103.8291,
+            lat: 36.0697,
+            navName: "安泊尔牛肉面(北滨河中路旗舰店)"
+          }
+        ]
+      },
+
+      // Day 1: 13:30 连霍高速 G30 赴张掖沿途景观站
+      "d1_wushaoling": {
+        title: "🔭 连霍高速沿途公路景观站",
+        subtitle: "Day 1 · 兰州 ➔ 张掖 · 跨越乌鞘岭",
+        intro: "翻越河西走廊门户乌鞘岭（海拔 3052m），三大高原交汇，远眺终年积雪的马牙雪山峰峦叠嶂。",
+        items: [
+          {
+            name: "乌鞘岭长城观景台（海拔 3052m · 河西第一险关）",
+            tag: "真实绝美公路观景台",
+            story: "青藏高原、黄土高原与内蒙古高原交汇处。矗立有“天下第一险隘”石碑，保存有海拔最高的汉明长城烽燧并立遗迹，晴天远眺终年积雪的马牙雪山。",
+            dishes: ["高山木栈道全景", "天下第一险隘石碑", "汉明长城烽燧并立遗址"],
+            price: "免费开放",
+            trafficType: "coaster",
+            trafficText: "🚌 连霍高速主线在隧道群内，观景台不在高速主线上。考斯特需在 G30「安远/安门出口」下高速，沿老 G312 盘山观景道行驶约 8 公里直抵观景台（有大型木栈道和大巴平整车位）。",
+            lng: 102.8685,
+            lat: 37.1982,
+            navName: "乌鞘岭长城观景台"
+          },
+          {
+            name: "G30 安远服务区（连霍高速主线快速观景点）",
+            tag: "连霍高速快速休整站",
+            story: "若全队赶路不愿下高速，可停靠 G30 安远服务区。服务区后方直接正对马牙雪山连绵峰峦，可在停车场安全区拍照休整 15 分钟。",
+            dishes: ["马牙雪山雄姿拍照", "洗手间热水补给"],
+            price: "免费停靠",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。连霍高速服务区标准大客车停车区，进出极其便利。",
+            lng: 102.8845,
+            lat: 37.1721,
+            navName: "连霍高速安远服务区"
+          }
+        ]
+      },
+
+      // Day 2: 11:30 张掖午餐市井名店
+      "d2_zhangye_food": {
+        title: "🥢 张掖非遗市井名吃推荐",
+        subtitle: "Day 2 · 张掖七彩丹霞 ➔ 酒泉 ➔ 鼎新基地",
+        intro: "张掖老城区的硬核市井风味，拒绝千篇一律的旅游大团餐，品尝非遗面食与平底铁鏊爆炒羊杂。",
+        items: [
+          {
+            name: "孙记炒炮（青年西街老店）",
+            tag: "张掖非物质文化遗产",
+            story: "张掖非物质文化遗产。面条形如小鞭炮，手工寸断，煮熟捞出后在浓汁中爆炒，盖上大块红亮卤肉、豆芽与洋葱，极其筋道耐嚼。",
+            dishes: ["传统肉炒炮", "精制卤肉（按份加）", "油泼辣子", "原汤面汤"],
+            price: "约 25~35 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议步行/打车。青年西街老城区停车极紧张，考斯特很难停靠，建议停在开阔马路后全队步行 200 米前往。",
+            lng: 100.4498,
+            lat: 38.9325,
+            navName: "孙记炒炮(青年西街店)"
+          },
+          {
+            name: "甘州市场·特色炒拨拉（甘州夜市老摊位）",
+            tag: "河西走廊独家市井名吃",
+            story: "河西走廊独此一家的硬核市井小吃。平底铸铁鏊子上猛火爆炒新鲜羊肚、羊肠、羊心、羊肝，滋滋冒油，撒大量孜然与辣椒面，拌入白面饼碎吸透汤汁。",
+            dishes: ["招牌羊杂炒拨拉", "炒饼碎", "冰镇杏皮水"],
+            price: "约 45 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车/步行前往。市场内部为纯步行街区，大巴无法驶入。",
+            lng: 100.4562,
+            lat: 38.9318,
+            navName: "甘州市场小吃街"
+          }
+        ]
+      },
+
+      // Day 2: 酒泉市地标美食 · 肃州糊锅
+      "d2_jiuquan_hポット": {
+        title: "🥢 酒泉第一地标早餐名片 · 肃州糊锅",
+        subtitle: "Day 2 · 途经酒泉城区补给",
+        intro: "酒泉人刻在骨子里的非遗早餐。麻花半软半脆吸饱鸡汤，胡椒辛香暖胃，是戈壁自驾驱寒补给极品。",
+        items: [
+          {
+            name: "老马糊锅（福寿巷老字号）",
+            tag: "酒泉非遗早点老字号",
+            story: "酒泉市区最地道的非遗早餐。鲜鸡汤以蚕豆淀粉慢火勾芡成稠糊，放入炸至焦脆的大麻花、面筋、粉皮与小肉丸，撒大量辛香胡椒粉。麻花半软半脆吸饱鸡汤，胡椒辛香暖胃，是戈壁自驾驱寒极品。",
+            dishes: ["招牌牛肉粉皮麻花糊锅", "现炸油饼", "茶叶蛋"],
+            price: "约 15 元/碗",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车/步行。福寿巷为老居民街巷，路窄车多，大巴考斯特无法停靠，建议全队打车前往。",
+            lng: 98.5132,
+            lat: 39.7425,
+            navName: "老马糊锅(福寿巷店)"
+          }
+        ]
+      },
+
+      // Day 3: 东风航天城三大必看高地
+      "d3_spacecity": {
+        title: "🚀 东风航天城必看核心高地",
+        subtitle: "Day 3 · 探秘中国航天发祥地",
+        intro: "中国航天摇篮与大国重器见证地。所有参访人员严守保密与安检纪律，二代身份证原件随身。",
+        items: [
+          {
+            name: "问天阁出征大厅",
+            tag: "航天英雄宣誓出征圣地",
+            story: "杨利伟至历届神舟英雄出征宣誓现场，参观航天员起居区、圆桌会谈室与中外记者隔断墙，感受庄严肃穆的出征时刻。",
+            dishes: ["出征宣誓广场", "航天员问天阁会见厅", "神舟纪念展"],
+            price: "基地行程统一安排",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。凭报备名单由基地接引专车/考斯特按指定路线行驶并停靠于专属车位。",
+            lng: 100.2985,
+            lat: 40.9721,
+            navName: "东风航天城问天阁"
+          },
+          {
+            name: "南发射场百米载人航天发射塔架",
+            tag: "大国重器 · 钢铁巨塔",
+            story: "中国唯一载人航天发射塔架，近距离仰望百米钢铁巨塔与深邃导流槽，感受大国重器的工业震撼与苍穹探索征程。",
+            dishes: ["载人航天发射塔", "深邃导流槽", "火箭转运轨道"],
+            price: "基地行程统一安排",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。基地内部宽阔道路，考斯特可开至参观护栏隔离区指定停车点。",
+            lng: 100.2912,
+            lat: 40.9605,
+            navName: "东风航天城载人发射架"
+          }
+        ]
+      },
+
+      // Day 3: 额济纳旗正宗蒙餐
+      "d3_mongol_food": {
+        title: "🥢 额济纳达来呼布镇正宗蒙餐",
+        subtitle: "Day 3 · 穿越巴丹吉林北缘",
+        intro: "大众点评与自驾驴友公认的额济纳旗地道蒙餐老店，品尝正宗阿拉善戈壁滩羊与野生沙葱。",
+        items: [
+          {
+            name: "壹赫蒙餐馆（达来呼布镇老店）",
+            tag: "本地老饕口碑第一店",
+            story: "大众点评与自驾驴友公认的额济纳旗地道蒙餐老店。选用阿拉善本地滩羊手把肉（清汤白煮仅蘸椒盐，鲜香软嫩），烤羊排外脆里嫩，野生沙葱炒土鸡蛋极其爽口。",
+            dishes: ["传统手把羊肉", "大汗烤羊排", "沙漠野生沙葱炒土鸡蛋", "蒙古铜锅咸奶茶"],
+            price: "约 85~105 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特可直达。达来呼布镇区道路相对宽敞，门前路段及周边开阔地带可临时停放客车。",
+            lng: 101.0712,
+            lat: 41.9582,
+            navName: "壹赫蒙餐馆(达来呼布店)"
+          }
+        ]
+      },
+
+      // Day 3: 怪树林绝杀机位
+      "d3_guaishulin": {
+        title: "📸 怪树林大漠残阳绝杀机位秘笈",
+        subtitle: "Day 3 · 弱水胡杨 · 黑城 · 怪树林",
+        intro: "戈壁残阳照射千姿百态的枯木，摄影出大片的黄金时刻（17:30 ~ 18:30）。",
+        items: [
+          {
+            name: "黑城弱水怪树林景区",
+            tag: "大漠史诗级摄影圣地",
+            story: "提前穿过弱水胡杨林进入怪树林腹地。当夕阳降至地平线上 10 度，戈壁天空呈现紫粉与深橙色。寻找造型苍劲、如展翅或呐喊的枯死胡杨，采用【逆光剪影构图】，拍摄出壮美的大漠生死史诗大片。",
+            dishes: ["枯木逆光剪影", "黑水城古城遗址", "落日大漠风光"],
+            price: "景区门票包含",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。景区正门拥有超大型大巴停车场，车位充足，全队下车即入检票口。",
+            lng: 101.1512,
+            lat: 41.7645,
+            navName: "怪树林景区"
+          }
+        ]
+      },
+
+      // Day 4: 嘉峪关烤肉传奇
+      "d4_jiayuguan_bbq": {
+        title: "🥢 嘉峪关市井烤肉传奇",
+        subtitle: "Day 4 · 鼎新 ➔ 嘉峪关 ➔ 敦煌",
+        intro: "河西走廊烤肉之王，铁签慢烤小羯羊，不腌制、羊油封香，配羊油炒馒头与西凉啤酒绝配。",
+        items: [
+          {
+            name: "眼镜烤肉（富强市场老字号总店）",
+            tag: "市井老排档天花板",
+            story: "嘉峪关铁签烤肉活化石，隐藏在富强市场老居民区内，几十年老摊，本地人从小吃到大。烤肉师傅火候绝神，羊肉外酥里嫩，肉汁丰沛。",
+            dishes: ["烤羊肉串（按把点）", "烤羊肚", "烤羊皮", "羊油炒馒头", "冰镇西凉啤酒"],
+            price: "约 55~70 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车/步行。富强市场内部为夜市步行街区，周边老街停车极度拥堵，考斯特绝不可驶入，建议全队打车直达市场入口。",
+            lng: 98.2755,
+            lat: 39.7712,
+            navName: "眼镜烤肉(富强市场总店)"
+          },
+          {
+            name: "小党烤肉（胜利中路总店）",
+            tag: "老字号名店 · 服务规范",
+            story: "嘉峪关老字号名店，服务规范出餐快，兼顾红柳烤肉与全套河西特色小吃，就餐环境宽敞从容。",
+            dishes: ["红柳大串", "招牌烤羊排", "张掖炒拨拉", "牛奶鸡蛋醪糟"],
+            price: "约 75~90 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特可直达。胜利中路路面宽阔，门前及周边配有开阔停车带，大巴停靠便利。",
+            lng: 98.2882,
+            lat: 39.7825,
+            navName: "小党烤肉(胜利路总店)"
+          }
+        ]
+      },
+
+      // Day 4: 瓜州大漠国际雕塑长廊
+      "d4_guazhou_sculpture": {
+        title: "🔭 瓜州大漠国际雕塑长廊",
+        subtitle: "Day 4 · 连霍高速 G30 旁必停大地艺术",
+        intro: "位于 G30 瓜州出口转 X270 县道红山坡，完全免费、24小时开放、大巴停车场平整宽大。",
+        items: [
+          {
+            name: "《大地之子》巨型婴儿雕塑",
+            tag: "戈壁大地艺术地标",
+            story: "清华美院董书兵教授力作。红砂岩三维雕刻的巨型婴儿静卧茫茫戈壁熟睡，大漠苍凉与襁褓幼小生命的鲜明反差直击人心，令人震撼。",
+            dishes: ["大漠婴儿熟睡雕塑", "苍茫红山坡全景", "丝路人文打卡"],
+            price: "免费开放（24h）",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。拥有专属大巴平整硬化停车场，免费停靠，拍照 20 分钟即走。",
+            lng: 95.9925,
+            lat: 40.5285,
+            navName: "大地之子雕塑"
+          },
+          {
+            name: "《无界》海市蜃楼雕塑",
+            tag: "光影与空间视觉艺术",
+            story: "纯白脚手架金属线条在大漠光影中勾勒出的盛唐建筑轮廓，科技、现代与千年丝路虚实交错，在蓝天下极具通透感与未来感。",
+            dishes: ["盛唐轮廓金属线构", "光影穿透视角", "戈壁海市蜃楼"],
+            price: "免费开放（24h）",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。距离大地之子仅约 1 公里，大巴路边停车带极其宽敞。",
+            lng: 95.9812,
+            lat: 40.5312,
+            navName: "无界海市蜃楼雕塑"
+          }
+        ]
+      },
+
+      // Day 5: 敦煌驴肉黄面与摘星阁
+      "d5_dunhuang_food": {
+        title: "🥢 敦煌非遗驴肉黄面与大漠下午茶",
+        subtitle: "Day 5 · 莫高千佛 ➔ 鸣沙夕照",
+        intro: "俗话说“天上龙肉，地上驴肉”。敦煌黄面细如龙须，搭配酱驴肉，再登敦煌山庄摘星阁眺望沙山。",
+        items: [
+          {
+            name: "顺张黄面馆（金山路百年总店）",
+            tag: "百年非遗 · 面条控首选",
+            story: "敦煌非物质文化遗产传承老店。面条纯手工抻拉，鹅黄透亮爽滑筋道；浓郁的香菇豆腐肉丁臊子浇头是其灵魂，拌匀吃满口生香。",
+            dishes: ["传统驴肉黄面", "香菇豆腐臊子面", "手切酱驴肉", "自制杏皮水"],
+            price: "约 50~65 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议步行/打车。位于金山路老街区，周边商户密集路边难停车，建议全队从酒店步行或打车前往。",
+            lng: 94.6658,
+            lat: 40.1412,
+            navName: "顺张黄面馆(金山路店)"
+          },
+          {
+            name: "达记酱驴肉黄面馆（文庙巷总店）",
+            tag: "酱驴肉第一店 · 肉食者首选",
+            story: "本地老饕与出租车师傅一致公认的“酱驴肉第一店”。带皮驴肉按斤称重现切，卤汁深透骨肉，软烂多汁化渣，蘸油泼辣子香绝全城。",
+            dishes: ["招牌手切酱驴肉（按斤点）", "驴板肠", "原汤黄面", "敦煌春卷"],
+            price: "约 55~70 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议步行/打车。文庙巷为繁华狭窄小街，考斯特大巴无法进入，步行或分乘打车极方便。",
+            lng: 94.6712,
+            lat: 40.1435,
+            navName: "达记酱驴肉黄面馆(文庙巷总店)"
+          },
+          {
+            name: "敦煌山庄·摘星阁（4楼大漠露台）",
+            tag: "大漠景观神级体验",
+            story: "汉唐边关风格城堡建筑，紧邻鸣沙山月牙泉。4楼露台正对连绵起伏的金黄沙山，是傍晚看大漠日落、夜晚观满天繁星的绝美圣地。",
+            dishes: ["大漠杏皮水下午茶", "牛肉面", "精致冷餐与咖啡"],
+            price: "约 70~100 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达。敦煌山庄酒店大院内拥有专属大型客车车位，全队尊享从容。",
+            lng: 94.6745,
+            lat: 40.0982,
+            navName: "敦煌山庄摘星阁"
+          }
+        ]
+      },
+
+      // Day 6: 当金山垭口观景
+      "d6_dangjinshan": {
+        title: "🔭 翻越当金山垭口公路景观",
+        subtitle: "Day 6 · 敦煌 ➔ 当金山 ➔ 柴达木盆地",
+        intro: "敦当高速穿过壁画隧道进入青海境内的高原观景服务区。海拔骤升至 3648m，从干热沙漠瞬间跃入高寒草甸，远眺阿尔金山雪峰。",
+        items: [
+          {
+            name: "当金山垭口高原观景台（海拔 3648m）",
+            tag: "青甘分界 · 阿尔金山雪峰",
+            story: "甘青分界线与柴达木盆地北大门。从低海拔干燥沙漠瞬间跃入海拔 3600m+ 的高寒草原盆地，气温骤降 8~12℃，远眺阿尔金山雪峰。穿上三合一冲锋衣在界碑前合影极具仪式感。",
+            dishes: ["阿尔金山连绵雪峰", "青甘界碑与高山草甸", "高原急弯高架桥震撼全景"],
+            price: "免费开放",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。敦当高速（柳格高速 G3011）垭口服务区设有规范的大客车专用车位与平整观景步道。",
+            lng: 94.3125,
+            lat: 39.3142,
+            navName: "当金山垭口观景点"
+          }
+        ]
+      },
+
+      // Day 6: 大柴旦镇午餐 · 炕锅羊肉
+      "d6_dachaidan_food": {
+        title: "🥢 大柴旦镇午餐 · 高原炕锅羊肉第一店",
+        subtitle: "Day 6 · 柴达木盆地中部补给",
+        intro: "大众点评大柴旦美食榜常年榜首，翻越寒冷当金山后，一锅热腾腾的焦香炕锅羊肉是全队暖身回血神菜。",
+        items: [
+          {
+            name: "伊品轩炕锅烤肉（团结路翡翠步行街）",
+            tag: "老饕实证大柴旦口碑榜首",
+            story: "青海本地小羯羊排大火过油锁汁，配大块金黄土豆、炸面筋、洋葱，在铁平锅里炕出焦香金黄脆壳。翻过寒冷当金山后，一锅热腾腾的炕锅羊肉配热青砖奶茶，是全队暖身回血神菜。",
+            dishes: ["招牌炕锅羊排", "焦香炕锅土豆", "青海咸奶茶", "手工揪面片"],
+            price: "约 75~90 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特路边靠停/步行 100 米。团结路周边有正规车位，大巴靠边下客后全员步行可达。",
+            lng: 95.3485,
+            lat: 37.8525,
+            navName: "伊品轩炕锅烤肉(大柴旦店)"
+          }
+        ]
+      },
+
+      // Day 6: 大柴旦翡翠湖深度游
+      "d6_feicuihu": {
+        title: "💡 大柴旦翡翠湖深度湖心机位秘笈",
+        subtitle: "Day 6 · 柴达木绿宝石深度漫游",
+        intro: "形态各异的盐池在阳光下呈现深浅不同的翠绿、碧蓝与荧光绿，避开大客流直奔核心湖心。",
+        items: [
+          {
+            name: "大柴旦翡翠湖景区（5号/6号湖深处）",
+            tag: "柴达木晶莹绿宝石",
+            story: "进景区乘坐观光小火车直奔 5号湖与6号湖深处。避开入口拥挤泥泞处，深处盐池纯净如翡翠镜面，无风时水面宛如晶莹倒影镜，雪山倒影与翠绿盐层交融，出片率极高。",
+            dishes: ["翡翠镜面倒影", "小火车湖心栈道", "盐晶结晶晶花"],
+            price: "门票+小火车",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。景区大门配备标准客车大型停车场，进出通畅。",
+            lng: 95.3025,
+            lat: 37.8762,
+            navName: "大柴旦翡翠湖旅游景区"
+          }
+        ]
+      },
+
+      // Day 7: 茶卡盐湖小火车深入游
+      "d7_chaka_tips": {
+        title: "💡 茶卡盐湖天空之镜防踩坑秘笈",
+        subtitle: "Day 7 · 早班小火车深入湖心",
+        intro: "国家旅游地理杂志必去之地，盐白倒影如梦境。进景区直接乘红皮小火车到最深处的「天空之镜站」。",
+        items: [
+          {
+            name: "茶卡盐湖景区（天空之镜站）",
+            tag: "中国天空之镜",
+            story: "进景区直接乘红皮小火车到最深处的「天空之镜站」往外边走边拍，避开大客流。切记穿红色、黄色披肩或冲锋衣，【严禁穿白色】（背景全是白色盐花，穿白色拍照完全不显色）。备好鞋套踩入浅水区。",
+            dishes: ["红皮小火车铁轨", "盐湖倒影天空之镜", "大型盐雕群"],
+            price: "门票+小火车",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。景区建有规范的旅游客车专属大型停车场。",
+            lng: 99.0825,
+            lat: 36.6852,
+            navName: "茶卡盐湖景区"
+          }
+        ]
+      },
+
+      // Day 7: 青海湖南线最美湖滨公路
+      "d7_qinghaihu_road": {
+        title: "🔭 青海湖南线 · 最美湖滨公路观景",
+        subtitle: "Day 7 · 黑马河至二郎剑 80km 沿湖风光",
+        intro: "中国最美湖滨公路。公路紧贴高原深蓝湖面，五彩经幡飘扬，成群牦牛羊群信步，水鸟翻飞。",
+        items: [
+          {
+            name: "青海湖二郎剑与南线湖滨公路",
+            tag: "高原蓝宝石景观大道",
+            story: "公路紧贴高原深蓝湖面，五彩经幡飘扬，成群牦牛羊群信步，水鸟海鸥翻飞。沿途有合规的硬化公路观景台，可安全停车驻足眺望，感受大湖浩瀚如海的宽广胸怀。",
+            dishes: ["环湖公路深蓝湖面", "经幡与牦牛草甸", "二郎剑近湖亲水栈道"],
+            price: "公路观景免费 / 二郎剑门票",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。沿途有多处大客车安全观景停靠带，二郎剑景区停车场宽阔从容。",
+            lng: 100.1245,
+            lat: 36.6125,
+            navName: "青海湖二郎剑景区"
+          }
+        ]
+      },
+
+      // Day 7: 西宁国庆凯旋庆功宴
+      "d7_xining_feast": {
+        title: "🥢 西宁国庆凯旋庆功宴 · 央视舌尖手抓",
+        subtitle: "Day 7 · 凯旋抵西宁 · 国庆欢聚夜",
+        intro: "自驾环线大穿越成功凯旋！精选央视《舌尖上的中国》出镜手抓名店、百年非遗厚奶皮酸奶与高端宴请选址。",
+        items: [
+          {
+            name: "清真·益鑫羊肉手抓馆（花园北街总店）",
+            tag: "央视《舌尖上的中国》第2季出镜",
+            story: "央视《舌尖上的中国》第二季第 5 集专题报道。选用青海本地高寒藏羊，白条清水煮透仅撒细盐，羊肉酥烂化渣毫无膻味，蘸椒盐辣面入口即化。",
+            dishes: ["招牌黄焖羊肉（肉烂骨酥）", "白条手抓羊肉", "炸土豆条", "生汆面片"],
+            price: "约 85~110 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车/步行。花园北街老城区单行道路窄人多，考斯特极难停靠，建议全队从酒店分乘出租车直达门口。",
+            lng: 101.7965,
+            lat: 36.6215,
+            navName: "益鑫羊肉手抓馆(花园北街总店)"
+          },
+          {
+            name: "德禄酸奶（莫家街百年总店）",
+            tag: "青海老字号非遗金黄奶皮酸奶",
+            story: "青海老字号非遗酸奶代表。白瓷碗盛装，表面凝结一层厚实诱人的金黄奶皮，酸甜浓郁如天然奶酪，饭后解腻神物。",
+            dishes: ["金黄奶皮酸奶", "青稞甜醅子", "高原鲜奶糕"],
+            price: "约 12~18 元/碗",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车/步行。莫家街为繁华步行街区，大巴不可驶入，步行或打车极方便。",
+            lng: 101.7892,
+            lat: 36.6198,
+            navName: "德禄酸奶(莫家街总店)"
+          },
+          {
+            name: "雅君羊排手抓（海湖新区旗舰店）",
+            tag: "高端宽敞庆功宴请首选",
+            story: "西宁高端清真餐饮典范，环境雅致包间多，外焦里嫩的烤羊排和烤羊蹄是一绝，特别适合团队包间庆功聚餐。",
+            dishes: ["招牌烤羊排", "手抓羊肉", "青海酿皮", "狗浇尿油饼"],
+            price: "约 120~150 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。拥有专属大型客车停车场，全队国庆庆功大聚餐首选。",
+            lng: 101.7285,
+            lat: 36.6342,
+            navName: "雅君羊排手抓(海湖店)"
+          }
+        ]
+      },
+
+      // Day 8: 塔尔寺艺术三绝与藏传礼仪
+      "d8_taersi_tips": {
+        title: "💡 塔尔寺艺术三绝与藏传参访礼仪",
+        subtitle: "Day 8 · 塔尔寺 ➔ 曹家堡机场 ✈ 济南",
+        intro: "藏传佛教格鲁派六大寺之一，宗喀巴大师诞生地。领略酥油花、壁画、堆绣「艺术三绝」并严格遵循藏传参访礼仪。",
+        items: [
+          {
+            name: "塔尔寺景区（藏艺三绝）",
+            tag: "格鲁派六大寺 · 藏艺殿堂",
+            story: "核心看点：酥油花馆（零度冰水捏塑冷雕绝艺）、大金瓦殿（纯金覆盖佛塔）、大经堂真丝堆绣。参访礼仪：顺时针方向转经与参拜、殿堂内部严禁拍照录像、进入殿堂脱帽且严禁踩踏木质门槛。",
+            dishes: ["酥油花艺术馆", "大金瓦殿金顶", "八宝如意塔"],
+            price: "景区全价门票",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。塔尔寺游客服务中心配备规范的大客车停车场，车位充足。",
+            lng: 101.5685,
+            lat: 36.4875,
+            navName: "塔尔寺景区"
+          }
+        ]
+      },
+
+      // Day 8: 特产手信防坑与打包
+      "d8_souvenir_tips": {
+        title: "🎁 特产手信防坑与机场行李打包攻略",
+        subtitle: "Day 8 · 西宁采购 ➔ 曹家堡送机",
+        intro: "西宁市区采购牛肉干、黑枸杞、老酸奶实用指南，认准正宗品质，严防踩坑。",
+        items: [
+          {
+            name: "青海特产手信选购与航空打包须知",
+            tag: "特产防坑实战秘籍",
+            story: "1. 风干手撕牦牛肉干：认准粗纤维深红肉丝，拒绝淀粉合成肉；2. 柴达木黑枸杞：温水冲泡拉丝出深蓝紫色，严禁用开水（花青素遇高温失活变褐色）；3. 青海老酸奶：由于民航液体携带限制，必须在曹家堡机场办登机牌前打包放入托运行李箱，严禁随身携带登机。",
+            dishes: ["纯正风干牦牛肉干", "柴达木野生黑枸杞", "青海老酸奶托运包装"],
+            price: "按需采购",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特送机直接行李托运。考斯特接驳全队至曹家堡机场大厅外，现场装箱托运从容无忧。",
+            lng: 102.0435,
+            lat: 36.5298,
+            navName: "西宁曹家堡国际机场"
+          }
+        ]
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    // B. 行李清单与团队账目存储 (Local Persistence)
+    // --------------------------------------------------------------------------
+    const STORAGE_KEY_CHECKINS = "xy_trip_checkins";
+    const STORAGE_KEY_PACKING  = "xy_trip_packings";
+    const STORAGE_KEY_LEDGER   = "xy_trip_ledger";
+    const STORAGE_KEY_PEOPLE   = "xy_trip_people_num";
+
+    let stateCheckins = JSON.parse(localStorage.getItem(STORAGE_KEY_CHECKINS) || "{}");
+    let statePacking  = JSON.parse(localStorage.getItem(STORAGE_KEY_PACKING)  || "{}");
+    let stateLedger   = JSON.parse(localStorage.getItem(STORAGE_KEY_LEDGER)   || "[]");
+    let statePeople   = parseInt(localStorage.getItem(STORAGE_KEY_PEOPLE)     || "10", 10);
+
+    // --------------------------------------------------------------------------
+    // C. 页面初始化与渲染 (Renderer)
+    // --------------------------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      renderScheduleCards(-1);
+      renderPackingStatus();
+      renderLedgerList();
+    });
+
+    // 渲染路书卡片
+    function renderScheduleCards(targetDay) {
+      const container = document.getElementById("schedule-cards-container");
+      container.innerHTML = "";
+
+      const filtered = (targetDay === -1) 
+        ? TRIP_DAYS 
+        : TRIP_DAYS.filter(d => d.dayIndex === targetDay);
+
+      filtered.forEach(day => {
+        const isChecked = !!stateCheckins[day.dayIndex];
+        const card = document.createElement("div");
+        card.className = "liquid-glass day-card";
+        card.id = `day-card-${day.dayIndex}`;
+
+        let timelineHtml = "";
+        day.timeline.forEach(t => {
+          timelineHtml += `
+            <div class="timeline-node">
+              <div class="node-time">${t.time}</div>
+              <div class="node-title-row">
+                <div class="node-title">${t.title}</div>
+                ${t.subDetailKey ? `
+                  <button class="node-sub-capsule" onclick="openBottomSheet('${t.subDetailKey}')" title="点击展开深度探索与高德导航">
+                    <span>${t.subDetailBadge}</span>
+                    <span class="capsule-arrow">➔</span>
+                  </button>
+                ` : ''}
+              </div>
+              <div class="node-desc">${t.desc}</div>
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="day-card-header">
+            <div>
+              <div class="day-tag">${day.tag}</div>
+              <div class="day-title">${day.title}</div>
+              <div class="day-date">${day.date}</div>
+            </div>
+            <div class="day-meta-pill">🚗 ${day.km} · ${day.driveTime}</div>
+          </div>
+
+          <div class="timeline-list">
+            ${timelineHtml}
+          </div>
+
+          <div class="day-hotel-box">
+            <span class="hotel-icon">🏨</span>
+            <div>
+              <div style="font-size:11px; color:var(--text-dim);">建议住宿标准：</div>
+              <strong style="color:#fff;">${day.hotel}</strong>
+            </div>
+          </div>
+
+          <div class="day-actions">
+            <button class="btn-action btn-action-map" onclick="viewDayOnMap(${day.dayIndex})">
+              <span>🗺️ 地图查看路线</span>
+            </button>
+            <button class="btn-action btn-action-checkin ${isChecked ? 'checked' : ''}" 
+                    id="btn-check-${day.dayIndex}" 
+                    onclick="toggleDayCheckin(${day.dayIndex})">
+              <span>${isChecked ? '✓ 今日已打卡' : '⭕ 打卡此日'}</span>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      updateCheckinStats();
+    }
+
+    // 打卡切换
+    function toggleDayCheckin(dayIndex) {
+      if (stateCheckins[dayIndex]) {
+        delete stateCheckins[dayIndex];
+      } else {
+        stateCheckins[dayIndex] = true;
+        showToast(`🎉 恭喜完成 Day ${dayIndex} 的行程打卡！`);
+      }
+      localStorage.setItem(STORAGE_KEY_CHECKINS, JSON.stringify(stateCheckins));
+      
+      const btn = document.getElementById(`btn-check-${dayIndex}`);
+      if (btn) {
+        if (stateCheckins[dayIndex]) {
+          btn.classList.add("checked");
+          btn.innerHTML = "<span>✓ 今日已打卡</span>";
+        } else {
+          btn.classList.remove("checked");
+          btn.innerHTML = "<span>⭕ 打卡此日</span>";
+        }
+      }
+      updateCheckinStats();
+    }
+
+    function updateCheckinStats() {
+      const checkedCount = Object.keys(stateCheckins).length;
+      const total = TRIP_DAYS.length;
+      const pct = Math.round((checkedCount / total) * 100);
+
+      const textEl = document.getElementById("checkin-progress-text");
+      const fillEl = document.getElementById("checkin-progress-fill");
+      if (textEl) textEl.textContent = `已打卡 ${checkedCount} / ${total} 天 (${pct}%)`;
+      if (fillEl) fillEl.style.width = `${pct}%`;
+    }
+
+    // 过滤路书卡片
+    function filterScheduleDay(dayIndex, btnEl) {
+      document.querySelectorAll(".day-chip").forEach(c => c.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      renderScheduleCards(dayIndex);
+    }
+
+    // --------------------------------------------------------------------------
+    // D. 底部导航栏 Tab 切换控制
+    // --------------------------------------------------------------------------
+    function switchTab(tabIndex, btnEl) {
+      const tabs = ["view-schedule", "view-map", "view-tips"];
+      tabs.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (idx === tabIndex) {
+            el.classList.add("active");
+          } else {
+            el.classList.remove("active");
+          }
+        }
+      });
+
+      // 按钮高亮与滑块位移
+      document.querySelectorAll(".dock-btn").forEach((b, idx) => {
+        if (idx === tabIndex) b.classList.add("active");
+        else b.classList.remove("active");
+      });
+
+      const indicator = document.getElementById("dock-indicator");
+      if (indicator) {
+        indicator.style.left = `calc(6px + ${tabIndex} * ((100% - 12px) / 3))`;
+      }
+
+      // 如果切到地图，锁定 body 滚动并触发地图就绪与尺寸校准
+      if (tabIndex === 1) {
+        document.body.classList.add("map-mode");
+        window.scrollTo(0, 0);
+        ensureMapInit();
+        setTimeout(() => {
+          if (mapInstance) mapInstance.resize();
+        }, 60);
+      } else {
+        document.body.classList.remove("map-mode");
+        window.scrollTo(0, 0);
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // E. 高德地图引擎 (AMap 2.0 Real Highway Trajectory)
+    // --------------------------------------------------------------------------
+    let mapInstance = null;
+    let currentPolylines = [];
+    let currentDayActiveLine = null;
+    let currentMarkers = [];
+    let currentL2Markers = [];
+    let stateShowL2Markers = false; // 默认精简：隐藏二级探索点位，点击悬浮按钮后按需展开
+    let currentActiveMapDay = -1;
+    let l2InfoWindow = null;
+    let spotInfoWindow = null;
+    let lastInfoWindowOpenTime = 0; // 防抖时间戳：彻底避免图钉点击与地图空白点击/移动事件冲突导致弹窗瞬间自动消失
+    let isSatellite = false; // 默认采用高德浅色标准公路地图（白底白天公路矢量图），卫星图作为点击切换功能
+    let satelliteLayer = null;
+    let roadNetLayer = null;
+    let drivingService = null;
+    let mapInitialized = false;
+    let pendingMapInitCallbacks = [];
+    let isMapInitializing = false;
+
+    // 8 段全真高速/国道自驾路段定义 (G30连霍、G3011敦当、德小、G109等真实线网)
+    const DAY_LEGS = [
+      { day: 1, from: [103.8152, 36.0682], to: [100.4552, 38.9328], waypoints: [] }, // 兰州 -> 张掖 (G30连霍高速)
+      { day: 2, from: [100.4552, 38.9328], to: [100.0465, 40.2978], waypoints: [[100.1293, 38.9754], [98.5111, 39.7443]] }, // 张掖 -> 丹霞 -> 酒泉 -> 鼎新
+      { day: 3, from: [100.0465, 40.2978], to: [101.1448, 41.7766], waypoints: [[100.2952, 40.9633]] }, // 鼎新 -> 航天城 -> 额济纳怪树林
+      { day: 4, from: [100.0465, 40.2978], to: [94.6620, 40.1421], waypoints: [[98.2198, 39.7997], [95.9925, 40.5285]] }, // 鼎新 -> 嘉峪关 -> 瓜州 -> 敦煌
+      { day: 5, from: [94.6620, 40.1421], to: [94.6719, 40.0883], waypoints: [[94.7938, 40.1437]] }, // 敦煌市内
+      { day: 6, from: [94.6620, 40.1421], to: [99.0838, 36.7027], waypoints: [[94.3415, 39.3241], [95.3057, 37.8546]] }, // 敦煌 -> 当金山 -> 翡翠湖 -> 茶卡
+      { day: 7, from: [99.0838, 36.7027], to: [101.7789, 36.6231], waypoints: [[100.4998, 36.5779]] }, // 茶卡 -> 青海湖二郎剑 -> 西宁
+      { day: 8, from: [101.7789, 36.6231], to: [102.0435, 36.5298], waypoints: [[101.5683, 36.4851]] } // 西宁 -> 塔尔寺 -> 机场
+    ];
+
+    // 全程总览 12 大核心枢纽城市/地理节点 (用于全览大尺度下防堆叠)
+    const HUB_CITIES = [
+      { name: "兰州", lng: 103.8152, lat: 36.0682, tag: "集结提车" },
+      { name: "张掖", lng: 100.4552, lat: 38.9328, tag: "七彩丹霞" },
+      { name: "酒泉", lng: 98.5111, lat: 39.7443, tag: "肃州名城" },
+      { name: "东风航天城", lng: 100.2952, lat: 40.9633, tag: "问天出征" },
+      { name: "额济纳", lng: 101.1448, lat: 41.7766, tag: "胡杨残阳" },
+      { name: "嘉峪关", lng: 98.2198, lat: 39.7997, tag: "第一雄关" },
+      { name: "瓜州", lng: 95.9925, lat: 40.5285, tag: "雕塑长廊" },
+      { name: "敦煌", lng: 94.6620, lat: 40.1421, tag: "莫高千佛" },
+      { name: "大柴旦", lng: 95.3057, lat: 37.8546, tag: "翡翠秘境" },
+      { name: "茶卡", lng: 99.0838, lat: 36.7027, tag: "天空之镜" },
+      { name: "青海湖", lng: 100.4998, lat: 36.5779, tag: "高原明珠" },
+      { name: "西宁", lng: 101.7789, lat: 36.6231, tag: "塔尔寺/收官" }
+    ];
+
+    const ROUTE_CACHE_KEY = 'silkroad_highway_cache_v2';
+    let routeCache = {};
+    try {
+      const saved = localStorage.getItem(ROUTE_CACHE_KEY);
+      if (saved) routeCache = JSON.parse(saved);
+    } catch(e) {}
+
+    function ensureMapInit(targetDayIndex, callback) {
+      if (typeof targetDayIndex === 'function') {
+        callback = targetDayIndex;
+        targetDayIndex = undefined;
+      }
+
+      if (mapInitialized && mapInstance) {
+        mapInstance.resize();
+        requestAnimationFrame(() => {
+          if (mapInstance) mapInstance.resize();
+        });
+        if (callback) callback();
+        return;
+      }
+
+      if (callback) {
+        pendingMapInitCallbacks.push(callback);
+      }
+
+      if (isMapInitializing) return;
+
+      const container = document.getElementById("amap-container");
+      if (!container || container.clientWidth === 0 || container.clientHeight === 0) {
+        setTimeout(() => ensureMapInit(targetDayIndex), 50);
+        return;
+      }
+
+      isMapInitializing = true;
+      initMap(targetDayIndex);
+    }
+
+    function initMap(initialDayIndex) {
+      try {
+        if (typeof AMap === "undefined") {
+          showMapFallback();
+          isMapInitializing = false;
+          return;
+        }
+
+        mapInstance = new AMap.Map("amap-container", {
+          zoom: 6,
+          center: [98.5111, 39.7443], // 居中于河西走廊
+          viewMode: "3D",
+          pitch: 35,
+          resizeEnable: true,
+          dragEnable: true,
+          zoomEnable: true,
+          touchZoom: true,
+          mapStyle: "amap://styles/normal" // 默认高德浅色标准地图（白底白天公路矢量图）
+        });
+
+        // 缩放条
+        mapInstance.addControl(new AMap.Scale());
+
+        // 点击地图空白处或移动时自动关闭信息标签（受控防抖保护）
+        mapInstance.on('click', (e) => {
+          if (Date.now() - lastInfoWindowOpenTime < 400) return;
+          closeL2InfoWindow(e, true);
+          closeSpotInfoWindow(e, true);
+        });
+
+        // DOM 级别兜底：用户点击或触摸地图背景任意非气泡区域均关闭
+        const containerEl = document.getElementById("amap-container");
+        if (containerEl) {
+          containerEl.addEventListener("click", (e) => {
+            if (Date.now() - lastInfoWindowOpenTime < 400) return;
+            if (!e.target.closest(".l2-map-infowindow") && 
+                !e.target.closest(".l2-map-pin") && 
+                !e.target.closest(".custom-marker-pill") && 
+                !e.target.closest(".hub-marker-pill") &&
+                !e.target.closest(".starlight-marker-dot")) {
+              closeL2InfoWindow(e, true);
+              closeSpotInfoWindow(e, true);
+            }
+          }, { passive: true });
+        }
+
+        // 初始化真实自驾规划插件
+        AMap.plugin(["AMap.Driving"], function () {
+          drivingService = new AMap.Driving({
+            policy: AMap.DrivingPolicy.LEAST_TIME,
+            showTraffic: false
+          });
+
+          mapInitialized = true;
+          isMapInitializing = false;
+
+          // 强制 resize 确保视口就绪
+          mapInstance.resize();
+          setTimeout(() => { if (mapInstance) mapInstance.resize(); }, 80);
+
+          // 确定渲染目标：如果外部指定了特定天数，优先渲染该天，绝不强行覆盖为全程总览(-1)
+          const targetDay = (typeof initialDayIndex === 'number') ? initialDayIndex : -1;
+          renderMapDayView(targetDay);
+
+          // 执行所有等待的排队回调
+          const cbs = pendingMapInitCallbacks.slice();
+          pendingMapInitCallbacks = [];
+          cbs.forEach(cb => {
+            try { cb(); } catch(err) { console.error("map callback error:", err); }
+          });
+
+          // 后台预热缺失路段，完成后增量刷新折线
+          warmupRouteCache(() => {
+            refreshFullHighwayPolyline();
+          });
+        });
+
+      } catch (e) {
+        console.warn("高德地图初始化异常:", e);
+        showMapFallback();
+        isMapInitializing = false;
+      }
+    }
+
+    function showMapFallback() {
+      const banner = document.getElementById("map-fallback-banner");
+      if (banner) banner.style.display = "block";
+    }
+
+    // 卫星地图切换 (浅色标准公路地图 与 真实高清卫星实景 双模切换)
+    function toggleMapSatellite() {
+      if (!mapInstance) return;
+      isSatellite = !isSatellite;
+      const btn = document.getElementById("btn-toggle-satellite");
+      if (!satelliteLayer) {
+        satelliteLayer = new AMap.TileLayer.Satellite();
+        roadNetLayer = new AMap.TileLayer.RoadNet();
+      }
+      if (isSatellite) {
+        satelliteLayer.setMap(mapInstance);
+        roadNetLayer.setMap(mapInstance);
+        if (btn) btn.classList.add("active");
+        showToast("🛰️ 已切换到高清卫星/地貌实景");
+      } else {
+        satelliteLayer.setMap(null);
+        roadNetLayer.setMap(null);
+        mapInstance.setMapStyle("amap://styles/normal");
+        if (btn) btn.classList.remove("active");
+        showToast("🗺️ 已切换到浅色标准公路地图");
+      }
+    }
+
+    // 实时定位：获取我的当前地理位置
+    let geolocationPlugin = null;
+    let userLocationMarker = null;
+    let userAccuracyCircle = null;
+    let userLocationInfoWindow = null;
+    let userLocationTimer = null;
+    let mapDismissListenersBound = false;
+
+    function bindMapDismissListeners() {
+      if (mapDismissListenersBound || !mapInstance) return;
+      mapDismissListenersBound = true;
+      mapInstance.on('dragstart', dismissLocationInfoWindow);
+      mapInstance.on('movestart', dismissLocationInfoWindow);
+      mapInstance.on('zoomstart', dismissLocationInfoWindow);
+      mapInstance.on('touchstart', dismissLocationInfoWindow);
+    }
+
+    function dismissLocationInfoWindow() {
+      if (userLocationInfoWindow) {
+        userLocationInfoWindow.close();
+      }
+      if (userLocationTimer) {
+        clearTimeout(userLocationTimer);
+        userLocationTimer = null;
+      }
+    }
+
+    function locateUserPosition() {
+      if (!mapInstance) {
+        showToast("地图正在加载中，请稍后再试");
+        return;
+      }
+      bindMapDismissListeners();
+
+      const btn = document.getElementById("btn-location");
+      if (btn) btn.style.transform = "scale(1.2)";
+
+      showToast("🛰️ 正在获取高精度卫星定位...");
+
+      function doLocate() {
+        geolocationPlugin.getCurrentPosition(function (status, result) {
+          if (btn) btn.style.transform = "scale(1)";
+          if (status === 'complete' && result.position) {
+            const userLng = result.position.lng;
+            const userLat = result.position.lat;
+
+            if (userLocationMarker) mapInstance.remove(userLocationMarker);
+            if (userAccuracyCircle) mapInstance.remove(userAccuracyCircle);
+
+            const markerDiv = document.createElement("div");
+            markerDiv.className = "user-location-marker";
+            markerDiv.innerHTML = `
+              <div class="user-location-pulse"></div>
+              <div class="user-location-core"></div>
+            `;
+
+            userLocationMarker = new AMap.Marker({
+              position: [userLng, userLat],
+              content: markerDiv,
+              offset: new AMap.Pixel(-10, -10),
+              zIndex: 200
+            });
+            userLocationMarker.setMap(mapInstance);
+
+            if (result.accuracy) {
+              userAccuracyCircle = new AMap.Circle({
+                center: [userLng, userLat],
+                radius: Math.min(result.accuracy, 1200),
+                strokeColor: "#38bdf8",
+                strokeOpacity: 0.7,
+                strokeWeight: 1,
+                fillColor: "#38bdf8",
+                fillOpacity: 0.18,
+                zIndex: 50
+              });
+              userAccuracyCircle.setMap(mapInstance);
+            }
+
+            mapInstance.panTo([userLng, userLat]);
+            mapInstance.setZoom(13);
+
+            // 计算距离行程中最近的打卡点
+            let nearestSpot = null;
+            let minDis = Infinity;
+            TRIP_DAYS.forEach(d => {
+              d.spots.forEach(sp => {
+                if (typeof AMap.GeometryUtil !== "undefined") {
+                  const dis = AMap.GeometryUtil.distance([userLng, userLat], [sp.lng, sp.lat]);
+                  if (dis < minDis) {
+                    minDis = dis;
+                    nearestSpot = sp;
+                  }
+                }
+              });
+            });
+
+            let disText = "";
+            if (nearestSpot && minDis !== Infinity) {
+              const disKm = (minDis / 1000).toFixed(1);
+              disText = `<span style="color:#64748b;">|</span><span style="color:#f6ad55;">距「${nearestSpot.name}」约 ${disKm} km</span>`;
+              showToast(`📍 定位成功！距「${nearestSpot.name}」约 ${disKm} km`);
+            } else {
+              showToast("📍 已定位当前位置");
+            }
+
+            // 极简单行胶囊，绝不换行变高，点击或拖动地图即消失
+            userLocationInfoWindow = new AMap.InfoWindow({
+              isCustom: true,
+              content: `
+                <div style="padding:6px 14px; background:rgba(28,18,11,0.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid rgba(251,191,36,0.6); border-radius:9999px; color:#fff; font-size:12px; font-weight:600; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; box-shadow:0 8px 24px rgba(0,0,0,0.6); pointer-events:none;">
+                  <span style="color:#fbbf24;">📍 当前位置</span>
+                  ${disText}
+                </div>
+              `,
+              offset: new AMap.Pixel(0, -16)
+            });
+            userLocationInfoWindow.open(mapInstance, [userLng, userLat]);
+
+            // 点击蓝点可重新短暂唤出气泡
+            userLocationMarker.on('click', () => {
+              userLocationInfoWindow.open(mapInstance, [userLng, userLat]);
+              if (userLocationTimer) clearTimeout(userLocationTimer);
+              userLocationTimer = setTimeout(dismissLocationInfoWindow, 3500);
+            });
+
+            // 3.5秒自动淡出消失，拖拽地图更是立即消失
+            if (userLocationTimer) clearTimeout(userLocationTimer);
+            userLocationTimer = setTimeout(() => {
+              dismissLocationInfoWindow();
+            }, 3500);
+
+          } else {
+            let msg = "定位超时，请确认手机已开启GPS并允许浏览器定位";
+            if (result && result.message && result.message.includes("permission denied")) {
+              msg = "手机浏览器位置权限被拒绝，请在手机设置中开启";
+            }
+            showToast("⚠️ " + msg);
+          }
+        });
+      }
+
+      if (!geolocationPlugin) {
+        AMap.plugin(["AMap.Geolocation"], function () {
+          geolocationPlugin = new AMap.Geolocation({
+            enableHighAccuracy: true,
+            timeout: 10000,
+            needAddress: false, // 无需解析冗长街道文本，加快定位响应并节省流量
+            zoomToAccuracy: false
+          });
+          doLocate();
+        });
+      } else {
+        doLocate();
+      }
+    }
+
+    // 视野自适应 (避让顶部悬浮 Header/药丸栏与底部悬浮面板/Dock)
+    function fitMapFullView() {
+      if (!mapInstance) return;
+      if (currentActiveMapDay === -1) {
+        if (currentMarkers.length > 0) {
+          mapInstance.setFitView(currentMarkers, false, [110, 24, 130, 24]);
+        } else {
+          mapInstance.setCenter([98.5111, 39.7443]);
+          mapInstance.setZoom(6);
+        }
+      } else {
+        // 单天模式：自适应到当前天的公路高光实线及景点标签，排除全环线底线
+        const fitTargets = [currentDayActiveLine, ...currentMarkers].filter(Boolean);
+        if (fitTargets.length > 0) {
+          mapInstance.setFitView(fitTargets, false, [110, 24, 130, 24]);
+        } else {
+          mapInstance.setCenter([98.5111, 39.7443]);
+          mapInstance.setZoom(7);
+        }
+      }
+    }
+
+    // 地图切换天数
+    function switchMapDay(dayIndex, btnEl) {
+      document.querySelectorAll(".map-pill-btn").forEach(b => b.classList.remove("active"));
+      if (btnEl) {
+        btnEl.classList.add("active");
+        try {
+          btnEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } catch(e) {}
+      }
+      renderMapDayView(dayIndex);
+    }
+
+    // 从路书直接点击跳转地图指定天
+    function viewDayOnMap(dayIndex) {
+      switchTab(1, document.querySelectorAll(".dock-btn")[1]);
+      ensureMapInit(dayIndex, () => {
+        const pillBtns = document.querySelectorAll(".map-pill-btn");
+        const targetBtn = pillBtns[dayIndex + 1];
+        if (targetBtn) {
+          document.querySelectorAll(".map-pill-btn").forEach(b => b.classList.remove("active"));
+          targetBtn.classList.add("active");
+          try {
+            targetBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          } catch(e) {}
+        }
+        renderMapDayView(dayIndex);
+        setTimeout(() => {
+          if (mapInstance) {
+            mapInstance.resize();
+            fitMapFullView();
+          }
+        }, 120);
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    // 地图绘制核心逻辑 (Highway Polyline & Marker Hierarchy & L2 Pins)
+    // --------------------------------------------------------------------------
+
+    // 后台预热/动态获取真实公路自驾路线
+    let isWarmingUpRouteCache = false;
+    function warmupRouteCache(onLegLoaded) {
+      if (!drivingService || isWarmingUpRouteCache) return;
+      const missing = DAY_LEGS.filter(l => !routeCache[l.day] || !routeCache[l.day].length);
+      if (missing.length === 0) {
+        if (onLegLoaded) onLegLoaded();
+        return;
+      }
+
+      isWarmingUpRouteCache = true;
+      let p = Promise.resolve();
+      missing.forEach((leg, idx) => {
+        p = p.then(() => new Promise(resolve => {
+          setTimeout(() => {
+            const wps = (leg.waypoints || []).map(w => new AMap.LngLat(w[0], w[1]));
+            drivingService.search(
+              new AMap.LngLat(leg.from[0], leg.from[1]),
+              new AMap.LngLat(leg.to[0], leg.to[1]),
+              { waypoints: wps },
+              (status, result) => {
+                if (status === 'complete' && result.routes && result.routes[0]) {
+                  const pts = [];
+                  result.routes[0].steps.forEach(s => {
+                    s.path.forEach(pt => pts.push([+pt.lng.toFixed(5), +pt.lat.toFixed(5)]));
+                  });
+                  // 采样抽稀，兼顾高曲率与渲染性能
+                  const sampled = pts.filter((_, i) => i % 2 === 0 || i === pts.length - 1);
+                  routeCache[leg.day] = sampled;
+                  try { localStorage.setItem(ROUTE_CACHE_KEY, JSON.stringify(routeCache)); } catch(e){}
+                  if (onLegLoaded) onLegLoaded(leg.day);
+                }
+                resolve();
+              }
+            );
+          }, idx === 0 ? 0 : 250);
+        }));
+      });
+      p.finally(() => {
+        isWarmingUpRouteCache = false;
+      });
+    }
+
+    // 二级探索点位微光图钉渲染 (美食老字号/观景台/机位/秘籍)
+    function renderL2Markers(targetDayIndex) {
+      if (!mapInstance) return;
+      mapInstance.remove(currentL2Markers);
+      currentL2Markers = [];
+      if (!stateShowL2Markers) return;
+
+      const itemsToRender = [];
+      Object.keys(DAY_DETAILS).forEach(key => {
+        // 单天模式下只保留今日对应的二级点位 (d0_, d1_, d2_...)
+        if (targetDayIndex !== -1) {
+          if (!key.startsWith(`d${targetDayIndex}_`)) return;
+        }
+        const group = DAY_DETAILS[key];
+        if (group && group.items) {
+          group.items.forEach(item => {
+            itemsToRender.push({
+              ...item,
+              detailKey: key,
+              groupTitle: group.title
+            });
+          });
+        }
+      });
+
+      itemsToRender.forEach(item => {
+        let icon = "📍";
+        let styleClass = "l2-pin-food";
+
+        const k = item.detailKey.toLowerCase();
+        if (k.includes('beef_noodles') || k.includes('food') || k.includes('supper') || k.includes('bbq') || k.includes('hポット') || k.includes('mongol')) {
+          icon = "🥢";
+          styleClass = "l2-pin-food";
+        } else if (k.includes('wushaoling') || k.includes('sculpture') || k.includes('dangjinshan') || k.includes('road')) {
+          icon = "🔭";
+          styleClass = "l2-pin-view";
+        } else if (k.includes('spacecity')) {
+          icon = "🚀";
+          styleClass = "l2-pin-space";
+        } else if (k.includes('guaishulin')) {
+          icon = "📸";
+          styleClass = "l2-pin-photo";
+        } else if (k.includes('tips') || k.includes('feicuihu')) {
+          icon = "💡";
+          styleClass = "l2-pin-secret";
+        }
+
+        const pinEl = document.createElement("div");
+        pinEl.className = `l2-map-pin ${styleClass}`;
+        pinEl.title = `${item.name} · ${item.tag}`;
+        pinEl.innerHTML = `
+          <div class="l2-pin-pulse"></div>
+          <div class="l2-pin-core">${icon}</div>
+        `;
+
+        const marker = new AMap.Marker({
+          position: [item.lng, item.lat],
+          content: pinEl,
+          offset: new AMap.Pixel(-13, -13),
+          zIndex: 170
+        });
+
+        marker.on("click", (e) => {
+          if (e && e.originEvent) {
+            e.originEvent.stopPropagation();
+          }
+          if (activeL2PinName === item.name) {
+            closeL2InfoWindow(e, true);
+          } else {
+            openL2InfoWindow(item);
+          }
+        });
+
+        marker.setMap(mapInstance);
+        currentL2Markers.push(marker);
+      });
+    }
+
+    let activeL2PinName = null;
+
+    function closeL2InfoWindow(e, force = false) {
+      if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+      }
+      if (!force && (Date.now() - lastInfoWindowOpenTime < 400)) {
+        return;
+      }
+      if (l2InfoWindow) {
+        l2InfoWindow.close();
+      }
+      activeL2PinName = null;
+    }
+
+    function closeSpotInfoWindow(e, force = false) {
+      if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+      }
+      if (!force && (Date.now() - lastInfoWindowOpenTime < 400)) {
+        return;
+      }
+      if (spotInfoWindow) {
+        spotInfoWindow.close();
+      }
+    }
+
+    // 弹出二级点位定制液态玻璃信息窗
+    function openL2InfoWindow(item) {
+      if (!mapInstance) return;
+      lastInfoWindowOpenTime = Date.now();
+      if (l2InfoWindow) l2InfoWindow.close();
+      if (spotInfoWindow) spotInfoWindow.close();
+      activeL2PinName = item.name;
+
+      const navUrl = `https://uri.amap.com/marker?position=${item.lng},${item.lat}&name=${encodeURIComponent(item.navName || item.name)}&coordinate=gaode&callnative=1`;
+      const isCoaster = item.trafficType === 'coaster';
+
+      const content = `
+        <div class="l2-map-infowindow" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
+          <div class="l2-info-header">
+            <span class="l2-info-tag">${item.tag}</span>
+            <span class="l2-info-traffic ${item.trafficType}">
+              ${isCoaster ? '🚌 考斯特直达' : '🚕 建议打车'}
+            </span>
+            <button class="l2-info-close" onclick="closeL2InfoWindow(event, true)" title="关闭">✕</button>
+          </div>
+          <div class="l2-info-title">${item.name}</div>
+          <div class="l2-info-story">${item.story}</div>
+          <div class="l2-info-actions">
+            <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="l2-btn-nav">
+              🧭 高德导航
+            </a>
+            <button class="l2-btn-sheet" onclick="openBottomSheet('${item.detailKey}')">
+              📖 深度攻略 ➔
+            </button>
+          </div>
+        </div>
+      `;
+
+      l2InfoWindow = new AMap.InfoWindow({
+        isCustom: true,
+        autoMove: false,
+        closeWhenClickMap: false,
+        content: content,
+        offset: new AMap.Pixel(0, -18)
+      });
+      l2InfoWindow.open(mapInstance, [item.lng, item.lat]);
+    }
+
+    // 二级点位图钉显示/隐藏切换
+    function toggleL2Markers() {
+      stateShowL2Markers = !stateShowL2Markers;
+      const btn = document.getElementById("btn-toggle-l2");
+      if (btn) {
+        if (stateShowL2Markers) btn.classList.add("active");
+        else btn.classList.remove("active");
+      }
+      renderL2Markers(currentActiveMapDay);
+      showToast(stateShowL2Markers ? "✨ 已开启沿途二级探索图钉 (美食/观景/机位)" : "已精简隐藏二级图钉");
+    }
+
+    // 地图绘制总调度
+    function renderMapDayView(dayIndex) {
+      if (!mapInstance) return;
+      currentActiveMapDay = dayIndex;
+
+      // 清除旧点与旧线
+      mapInstance.remove(currentMarkers);
+      mapInstance.remove(currentPolylines);
+      mapInstance.remove(currentL2Markers);
+      currentMarkers = [];
+      currentPolylines = [];
+      currentDayActiveLine = null;
+      currentL2Markers = [];
+      if (l2InfoWindow) l2InfoWindow.close();
+      if (spotInfoWindow) spotInfoWindow.close();
+
+      const routeTitle = document.getElementById("map-route-title");
+      const routeDetail = document.getElementById("map-route-detail");
+
+      // 提取点位
+      let targetDays = (dayIndex === -1) 
+        ? TRIP_DAYS.slice(1) // 全程不含济南直飞段点位
+        : TRIP_DAYS.filter(d => d.dayIndex === dayIndex);
+
+      if (dayIndex === -1) {
+        routeTitle.textContent = "全线 2800km 自驾大环线轨迹";
+        routeDetail.textContent = "连霍高速G30 ➔ 柴达木穿越 ➔ 青海湖";
+
+        // 1. 全程总览：仅标注 12 大地理枢纽城市徽章 (防堆叠核心)
+        HUB_CITIES.forEach(hub => {
+          const el = document.createElement("div");
+          el.className = "hub-marker-pill";
+          el.innerHTML = `<span class="hub-dot"></span><span>${hub.name}</span>`;
+          const m = new AMap.Marker({
+            position: [hub.lng, hub.lat],
+            content: el,
+            offset: new AMap.Pixel(-24, -12),
+            zIndex: 150
+          });
+          m.on("click", () => {
+            showToast(`📍 核心节点：${hub.name} · ${hub.tag}`);
+          });
+          m.setMap(mapInstance);
+          currentMarkers.push(m);
+        });
+
+        // 2. 细分景点以星芒微光点呈现 (精致不遮挡文字)
+        targetDays.forEach(d => {
+          d.spots.forEach(sp => {
+            const dotEl = document.createElement("div");
+            dotEl.className = "starlight-marker-dot";
+            dotEl.title = `${d.tag} ${sp.name}`;
+            dotEl.innerHTML = `<div class="starlight-core"></div>`;
+            const m = new AMap.Marker({
+              position: [sp.lng, sp.lat],
+              content: dotEl,
+              offset: new AMap.Pixel(-8, -8),
+              zIndex: 110
+            });
+            m.on("click", (e) => {
+              if (e && e.originEvent) e.originEvent.stopPropagation();
+              openSpotInfoWindow(sp, d);
+            });
+            m.setMap(mapInstance);
+            currentMarkers.push(m);
+          });
+        });
+
+        // 3. 二级探索图钉同步呈现
+        renderL2Markers(-1);
+
+        // 4. 绘制全线真实高速/国道轨迹
+        drawFullHighwayLoop();
+        fitMapFullView();
+
+      } else {
+        const d = TRIP_DAYS.find(item => item.dayIndex === dayIndex);
+        routeTitle.textContent = `${d.tag} ${d.title}`;
+        routeDetail.textContent = `当日路程：${d.km} · 耗时：${d.driveTime}`;
+
+        // 单天模式：当前天全部景点完整药丸展开 (大比例尺下空间充裕)
+        targetDays[0].spots.forEach(sp => {
+          const markerContent = document.createElement("div");
+          markerContent.className = "custom-marker-pill";
+          markerContent.innerHTML = `
+            <div class="marker-dot"></div>
+            <span>${sp.name}</span>
+          `;
+
+          const marker = new AMap.Marker({
+            position: [sp.lng, sp.lat],
+            content: markerContent,
+            offset: new AMap.Pixel(-20, -15),
+            zIndex: 180,
+            extData: { spot: sp, day: d }
+          });
+
+          marker.on("click", (e) => {
+            if (e && e.originEvent) e.originEvent.stopPropagation();
+            openSpotInfoWindow(sp, d);
+          });
+
+          marker.setMap(mapInstance);
+          currentMarkers.push(marker);
+        });
+
+        // 二级探索图钉同步呈现 (当日对应点位)
+        renderL2Markers(dayIndex);
+
+        // 绘制全线微光背景线 + 今日高光自驾轨迹
+        drawDayHighwayRoute(dayIndex);
+      }
+    }
+
+    // 绘制全程真实高速大环线 (Apple Maps Liquid Glass Navigation Style)
+    function drawFullHighwayLoop() {
+      let combinedPath = [];
+      for (let day = 1; day <= 8; day++) {
+        if (routeCache[day] && routeCache[day].length) {
+          combinedPath.push(...routeCache[day]);
+        }
+      }
+
+      if (combinedPath.length > 0) {
+        // 底层：液态玻璃电光蓝柔和光晕
+        const glowLine = new AMap.Polyline({
+          path: combinedPath,
+          isOutline: false,
+          strokeColor: "#0284c7",
+          strokeOpacity: 0.32,
+          strokeWeight: 9,
+          lineJoin: "round",
+          lineCap: "round"
+        });
+        glowLine.setMap(mapInstance);
+        currentPolylines.push(glowLine);
+
+        // 表层：苹果地图导航高对比电光天蓝实线（带纯白晶体描边，与国道黄色产生极致对比）
+        const highwayLine = new AMap.Polyline({
+          path: combinedPath,
+          isOutline: true,
+          outlineColor: "rgba(255, 255, 255, 0.85)",
+          borderWeight: 1.5,
+          strokeColor: "#0091ff",
+          strokeOpacity: 0.98,
+          strokeWeight: 4.5,
+          lineJoin: "round",
+          lineCap: "round"
+        });
+        highwayLine.setMap(mapInstance);
+        currentPolylines.push(highwayLine);
+      } else {
+        // 容错平滑线
+        fallbackSimplePolyline(TRIP_DAYS.slice(1).flatMap(d => d.spots));
+      }
+    }
+
+    // 增量刷新全程真实公路折线（无递归）
+    function refreshFullHighwayPolyline() {
+      if (!mapInstance || currentActiveMapDay !== -1) return;
+      mapInstance.remove(currentPolylines);
+      currentPolylines = [];
+      drawFullHighwayLoop();
+    }
+
+    // 绘制单天高光真实路线及全局微光底图
+    function drawDayHighwayRoute(dayIndex) {
+      // 1. 全环线微光底图 (冰蓝半透玻璃微光底线)
+      let fullBgPath = [];
+      for (let day = 1; day <= 8; day++) {
+        if (routeCache[day] && routeCache[day].length) {
+          fullBgPath.push(...routeCache[day]);
+        }
+      }
+      if (fullBgPath.length > 0) {
+        const bgLine = new AMap.Polyline({
+          path: fullBgPath,
+          isOutline: false,
+          strokeColor: "rgba(56, 189, 248, 0.32)",
+          strokeOpacity: 0.7,
+          strokeWeight: 2.5,
+          lineJoin: "round",
+          lineCap: "round"
+        });
+        bgLine.setMap(mapInstance);
+        currentPolylines.push(bgLine);
+      }
+
+      // 2. 当日真实自驾高光线 (苹果电光蓝 Liquid Glass 导航光带)
+      if (routeCache[dayIndex] && routeCache[dayIndex].length) {
+        // 底层漫反射光晕
+        const glowLine = new AMap.Polyline({
+          path: routeCache[dayIndex],
+          isOutline: false,
+          strokeColor: "#0284c7",
+          strokeOpacity: 0.42,
+          strokeWeight: 12,
+          lineJoin: "round",
+          lineCap: "round"
+        });
+        glowLine.setMap(mapInstance);
+        currentPolylines.push(glowLine);
+
+        // 表层苹果导航核心光带 (高对比纯白外边，极度醒目)
+        const activeLine = new AMap.Polyline({
+          path: routeCache[dayIndex],
+          isOutline: true,
+          outlineColor: "#ffffff",
+          borderWeight: 2,
+          strokeColor: "#0091ff",
+          strokeOpacity: 1,
+          strokeWeight: 6,
+          lineJoin: "round",
+          lineCap: "round"
+        });
+        activeLine.setMap(mapInstance);
+        currentPolylines.push(activeLine);
+        currentDayActiveLine = activeLine;
+        mapInstance.setFitView([activeLine, ...currentMarkers], false, [110, 24, 130, 24]);
+      } else {
+        // 若当日暂未生成缓存，即时调用 drivingService 计算
+        const d = TRIP_DAYS.find(item => item.dayIndex === dayIndex);
+        if (d && d.spots.length >= 2 && drivingService) {
+          const origin = new AMap.LngLat(d.spots[0].lng, d.spots[0].lat);
+          const destination = new AMap.LngLat(d.spots[d.spots.length - 1].lng, d.spots[d.spots.length - 1].lat);
+          let waypoints = [];
+          for (let i = 1; i < d.spots.length - 1; i++) {
+            waypoints.push(new AMap.LngLat(d.spots[i].lng, d.spots[i].lat));
+          }
+          drivingService.search(origin, destination, { waypoints: waypoints }, (status, result) => {
+            if (status === 'complete' && result.routes && result.routes.length) {
+              const path = [];
+              result.routes[0].steps.forEach(s => s.path.forEach(p => path.push([+p.lng.toFixed(5), +p.lat.toFixed(5)])));
+              routeCache[dayIndex] = path;
+              try { localStorage.setItem(ROUTE_CACHE_KEY, JSON.stringify(routeCache)); } catch(e){}
+
+              // 仅当用户依然处于当日视图时才渲染，避免异步覆盖
+              if (currentActiveMapDay === dayIndex && mapInstance) {
+                const glowLine = new AMap.Polyline({
+                  path: path,
+                  isOutline: false,
+                  strokeColor: "#0284c7",
+                  strokeOpacity: 0.42,
+                  strokeWeight: 12,
+                  lineJoin: "round",
+                  lineCap: "round"
+                });
+                glowLine.setMap(mapInstance);
+                currentPolylines.push(glowLine);
+
+                const activeLine = new AMap.Polyline({
+                  path: path,
+                  isOutline: true,
+                  outlineColor: "#ffffff",
+                  borderWeight: 2,
+                  strokeColor: "#0091ff",
+                  strokeOpacity: 1,
+                  strokeWeight: 6,
+                  lineJoin: "round",
+                  lineCap: "round"
+                });
+                activeLine.setMap(mapInstance);
+                currentPolylines.push(activeLine);
+                currentDayActiveLine = activeLine;
+                mapInstance.setFitView([activeLine, ...currentMarkers], false, [110, 24, 130, 24]);
+              }
+            } else {
+              if (currentActiveMapDay === dayIndex) {
+                fallbackSimplePolyline(d.spots);
+              }
+            }
+          });
+        } else if (d) {
+          fallbackSimplePolyline(d.spots);
+        }
+      }
+    }
+
+    // 容错平滑线 (苹果导航质感)
+    function fallbackSimplePolyline(spots) {
+      if (spots.length < 2) {
+        fitMapFullView();
+        return;
+      }
+      const coords = spots.map(s => [s.lng, s.lat]);
+      const simpleLine = new AMap.Polyline({
+        path: coords,
+        isOutline: true,
+        outlineColor: "#ffffff",
+        borderWeight: 1.5,
+        strokeColor: "#0091ff",
+        strokeOpacity: 0.95,
+        strokeWeight: 4.5,
+        lineJoin: "round",
+        lineCap: "round"
+      });
+      simpleLine.setMap(mapInstance);
+      currentPolylines.push(simpleLine);
+      fitMapFullView();
+    }
+
+    // 弹出景点主信息窗 (带关闭按钮与苹果液态玻璃质感)
+    function openSpotInfoWindow(spot, day) {
+      if (!mapInstance) return;
+      lastInfoWindowOpenTime = Date.now();
+      if (l2InfoWindow) l2InfoWindow.close();
+      if (spotInfoWindow) spotInfoWindow.close();
+      const navUrl = `https://uri.amap.com/marker?position=${spot.lng},${spot.lat}&name=${encodeURIComponent(spot.name)}&coordinate=gaode&callnative=1`;
+      
+      const content = `
+        <div class="l2-map-infowindow" style="max-width: 250px;" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <div style="font-size:11px; color:#38bdf8; font-weight:700;">${day.tag} · ${day.title.split('·')[0]}</div>
+            <button class="l2-info-close" onclick="closeSpotInfoWindow(event, true)" title="关闭">✕</button>
+          </div>
+          <div style="font-size:14px; font-weight:800; margin:3px 0 5px 0; color:#fff;">${spot.name}</div>
+          <div style="font-size:11px; color:var(--text-sub); line-height:1.45; margin-bottom:10px;">${spot.desc}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="l2-btn-nav" style="padding:6px 10px;">
+              <span>🧭 高德导航 ➔</span>
+            </a>
+            <span style="font-size:10px; color:#94a3b8; font-weight:600;">🚌 考斯特路线</span>
+          </div>
+        </div>
+      `;
+
+      spotInfoWindow = new AMap.InfoWindow({
+        isCustom: true,
+        autoMove: false,
+        closeWhenClickMap: false,
+        content: content,
+        offset: new AMap.Pixel(0, -25)
+      });
+      spotInfoWindow.open(mapInstance, [spot.lng, spot.lat]);
+    }
+
+
+    // --------------------------------------------------------------------------
+    // F. 行李清单交互 (Packing Checklist)
+    // --------------------------------------------------------------------------
+    function togglePackingItem(el, id) {
+      if (statePacking[id]) {
+        delete statePacking[id];
+        el.classList.remove("checked");
+      } else {
+        statePacking[id] = true;
+        el.classList.add("checked");
+      }
+      localStorage.setItem(STORAGE_KEY_PACKING, JSON.stringify(statePacking));
+    }
+
+    function renderPackingStatus() {
+      document.querySelectorAll(".packing-item").forEach(item => {
+        const onclickAttr = item.getAttribute("onclick") || "";
+        const match = onclickAttr.match(/'([^']+)'\)$/);
+        if (match && match[1]) {
+          const id = match[1];
+          if (statePacking[id]) {
+            item.classList.add("checked");
+          } else {
+            item.classList.remove("checked");
+          }
+        }
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    // G. 团队公共 AA 记账器 (Team Expense Ledger)
+    // --------------------------------------------------------------------------
+    function renderLedgerList() {
+      const container = document.getElementById("expense-list-container");
+      const totalNumEl = document.getElementById("ledger-total-num");
+      const perPersonEl = document.getElementById("per-person-amount");
+      const peopleNumEl = document.getElementById("people-count-num");
+
+      peopleNumEl.textContent = statePeople;
+
+      let total = 0;
+      container.innerHTML = "";
+
+      if (stateLedger.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:18px; color:var(--text-dim); font-size:12px;">
+            暂无公共开销，点击上方按钮记录第一笔吧 🧾
+          </div>
+        `;
+      } else {
+        stateLedger.forEach((item, idx) => {
+          total += parseFloat(item.amount || 0);
+          const div = document.createElement("div");
+          div.className = "expense-item";
+          div.innerHTML = `
+            <div class="expense-left">
+              <div class="exp-title">${item.title}</div>
+              <div class="exp-sub">
+                <span class="badge-coaster" style="font-size:10px; padding:1px 6px;">${item.category}</span>
+                <span>经手: ${item.payer || '全队'}</span>
+                <span>· ${item.time || ''}</span>
+              </div>
+            </div>
+            <div class="expense-right">
+              <div class="expense-amount">¥ ${parseFloat(item.amount).toFixed(2)}</div>
+              <span class="expense-del" onclick="deleteExpenseItem(${idx})">删除</span>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      totalNumEl.textContent = total.toFixed(2);
+      const per = statePeople > 0 ? (total / statePeople).toFixed(2) : "0.00";
+      perPersonEl.textContent = per;
+    }
+
+    function adjustPeopleCount(delta) {
+      statePeople = Math.max(1, statePeople + delta);
+      localStorage.setItem(STORAGE_KEY_PEOPLE, statePeople.toString());
+      renderLedgerList();
+    }
+
+    function openExpenseModal() {
+      document.getElementById("expense-modal").classList.add("active");
+    }
+
+    function closeExpenseModal() {
+      document.getElementById("expense-modal").classList.remove("active");
+      document.getElementById("exp-title-input").value = "";
+      document.getElementById("exp-amount-input").value = "";
+      document.getElementById("exp-payer-input").value = "";
+    }
+
+    function saveExpenseItem() {
+      const title = document.getElementById("exp-title-input").value.trim();
+      const amount = parseFloat(document.getElementById("exp-amount-input").value.trim());
+      const category = document.getElementById("exp-cat-select").value;
+      const payer = document.getElementById("exp-payer-input").value.trim();
+
+      if (!title || isNaN(amount) || amount <= 0) {
+        alert("请填写准确的项目名称和大于0的金额！");
+        return;
+      }
+
+      const now = new Date();
+      const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${(now.getMinutes() < 10 ? '0' : '') + now.getMinutes()}`;
+
+      stateLedger.unshift({
+        title,
+        amount,
+        category,
+        payer: payer || "全队",
+        time: timeStr
+      });
+
+      localStorage.setItem(STORAGE_KEY_LEDGER, JSON.stringify(stateLedger));
+      closeExpenseModal();
+      renderLedgerList();
+      showToast("✓ 成功添加一笔公共支出");
+    }
+
+    function deleteExpenseItem(index) {
+      if (confirm("确定删除该笔支出记录吗？")) {
+        stateLedger.splice(index, 1);
+        localStorage.setItem(STORAGE_KEY_LEDGER, JSON.stringify(stateLedger));
+        renderLedgerList();
+        showToast("已删除支出项");
+      }
+    }
+
+    // 复制微信群汇总文本
+    function copyWeChatSummary() {
+      if (stateLedger.length === 0) {
+        alert("暂无账目记录，无法生成汇总！");
+        return;
+      }
+
+      let total = 0;
+      let itemsText = "";
+      stateLedger.forEach((item, idx) => {
+        total += item.amount;
+        itemsText += `${idx + 1}. [${item.category}] ${item.title}：¥${item.amount.toFixed(2)} (${item.payer})\n`;
+      });
+
+      const per = (total / statePeople).toFixed(2);
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+
+      const text = 
+`【西行计划 · 考斯特团队 AA 账目公示】
+📅 统计日期：${dateStr}
+👥 出行总人数：${statePeople} 人
+💰 团队公共总支出：¥${total.toFixed(2)}
+💵 每人人均应分摊：¥${per}
+-------------------------
+支出明细清单：
+${itemsText}-------------------------
+*由「西行计划·丝路自驾路书」自动计算生成`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("📋 已复制群格式文本，快粘贴发到群里吧！");
+        }).catch(() => {
+          promptCopyFallback(text);
+        });
+      } else {
+        promptCopyFallback(text);
+      }
+    }
+
+    function promptCopyFallback(text) {
+      window.prompt("请长按全选复制下方微信群账目文本：", text);
+    }
+
+    // Toast 浮动提示条
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2500);
+    }
+
+    // --------------------------------------------------------------------------
+    // H. 底部半屏悬浮抽屉交互控制 (Bottom Sheet Controller)
+    // --------------------------------------------------------------------------
+    let currentDetailKey = null;
+
+    function openBottomSheet(detailKey) {
+      if (spotInfoWindow) {
+        spotInfoWindow.close();
+      }
+      const data = DAY_DETAILS[detailKey];
+      if (!data) {
+        console.warn("未找到第二层级数据:", detailKey);
+        return;
+      }
+
+      currentDetailKey = detailKey;
+      const backdrop = document.getElementById("bottom-sheet-backdrop");
+      const modal = document.getElementById("bottom-sheet-modal");
+      const titleEl = document.getElementById("sheet-title");
+      const subTitleEl = document.getElementById("sheet-subtitle");
+      const contentEl = document.getElementById("sheet-content");
+
+      titleEl.innerHTML = `<span style="color:var(--accent-amber); font-size:16px;">💡</span><span>${data.title}</span>`;
+      subTitleEl.textContent = data.subtitle;
+
+      let html = "";
+      if (data.intro) {
+        html += `
+          <div class="sheet-intro-card">
+            💡 <strong>深度导读</strong>：${data.intro}
+          </div>
+        `;
+      }
+
+      data.items.forEach(item => {
+        const navUrl = `https://uri.amap.com/marker?position=${item.lng},${item.lat}&name=${encodeURIComponent(item.navName || item.name)}&coordinate=gaode&callnative=1`;
+        
+        let dishesHtml = "";
+        if (item.dishes && item.dishes.length) {
+          dishesHtml = item.dishes.map(d => `<span class="sheet-dish-badge">✓ ${d}</span>`).join("");
+        }
+
+        const isTaxi = item.trafficType === "taxi";
+        const trafficCalloutClass = isTaxi ? "sheet-traffic-callout taxi" : "sheet-traffic-callout coaster";
+        const trafficCalloutIcon = isTaxi ? "🚕" : "🚌";
+
+        html += `
+          <div class="sheet-card">
+            <div class="sheet-card-top">
+              <div class="sheet-card-title">${item.name}</div>
+              <div class="sheet-card-tag">${item.tag}</div>
+            </div>
+
+            <div class="sheet-section-block">
+              <div class="sheet-section-label">📖 风味故事与核心看点</div>
+              <div class="sheet-section-desc">${item.story}</div>
+            </div>
+
+            ${dishesHtml ? `
+              <div class="sheet-section-block">
+                <div class="sheet-section-label">🌟 招牌必点 / 核心体验</div>
+                <div>${dishesHtml}</div>
+              </div>
+            ` : ''}
+
+            ${item.price ? `
+              <div class="sheet-price-row">
+                <span style="color:var(--text-dim);">参考标准</span>
+                <span class="sheet-price-val">${item.price}</span>
+              </div>
+            ` : ''}
+
+            <div class="${trafficCalloutClass}">
+              <span class="traffic-callout-icon">${trafficCalloutIcon}</span>
+              <div>${item.trafficText}</div>
+            </div>
+
+            <div class="sheet-nav-action-row">
+              <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="amap-nav-btn">
+                <span class="nav-icon">🧭</span>
+                <span>高德地图一键导航</span>
+                <span class="nav-arrow">➔</span>
+              </a>
+            </div>
+          </div>
+        `;
+      });
+
+      contentEl.innerHTML = html;
+      contentEl.scrollTop = 0;
+
+      backdrop.classList.add("active");
+      modal.classList.add("active");
+      modal.style.transform = "translateY(0)";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeBottomSheet() {
+      const backdrop = document.getElementById("bottom-sheet-backdrop");
+      const modal = document.getElementById("bottom-sheet-modal");
+      if (!modal) return;
+
+      modal.style.transform = "translateY(105%)";
+      modal.classList.remove("active");
+      backdrop.classList.remove("active");
+      document.body.style.overflow = "";
+      currentDetailKey = null;
+    }
+
+    // 下拉手势拖拽关闭支持
+    (function initBottomSheetGestures() {
+      let touchStartY = 0;
+      let touchCurrentY = 0;
+      let isDragging = false;
+      const modal = document.getElementById("bottom-sheet-modal");
+      const handle = document.getElementById("sheet-drag-handle");
+      const header = document.querySelector(".sheet-header");
+
+      function onTouchStart(e) {
+        touchStartY = e.touches[0].clientY;
+        touchCurrentY = touchStartY;
+        isDragging = true;
+        modal.style.transition = "none";
+      }
+
+      function onTouchMove(e) {
+        if (!isDragging) return;
+        touchCurrentY = e.touches[0].clientY;
+        const delta = touchCurrentY - touchStartY;
+        if (delta > 0) {
+          modal.style.transform = `translateY(${delta}px)`;
+        }
+      }
+
+      function onTouchEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        modal.style.transition = "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)";
+        const delta = touchCurrentY - touchStartY;
+        if (delta > 75) {
+          closeBottomSheet();
+        } else {
+          modal.style.transform = "translateY(0)";
+        }
+      }
+
+      if (handle) {
+        handle.addEventListener("touchstart", onTouchStart, { passive: true });
+        handle.addEventListener("touchmove", onTouchMove, { passive: true });
+        handle.addEventListener("touchend", onTouchEnd);
+      }
+      if (header) {
+        header.addEventListener("touchstart", (e) => {
+          if (e.target.closest(".sheet-close-btn")) return;
+          onTouchStart(e);
+        }, { passive: true });
+        header.addEventListener("touchmove", onTouchMove, { passive: true });
+        header.addEventListener("touchend", onTouchEnd);
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeBottomSheet();
+      });
+    })();
+  </script>
+</body>
+</html>
