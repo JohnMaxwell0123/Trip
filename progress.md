@@ -16,8 +16,16 @@
    - 二级探索知识库：`d:\Document\Project\Pilgrimage to the West\路书第二层级规划.md`
 3. **验证与部署规范**：
    - 桌面/移动端预览：使用 Chrome DevTools MCP（移动端建议模拟 `390×844`, `deviceScaleFactor: 3`, `hasTouch: true`）；
-   - 代码同步铁律：修改 `trip-map/index.html` 后，**必须执行命令强制同步至根目录 `index.html`**，保持字节大小 100% 一致；
-   - 线上发布：直接将 `trip-map` 文件夹拖入 Cloudflare Pages 项目后台。
+   - 代码同步铁律：修改 `trip-map/index.html` 后，**必须执行命令强制同步至根目录 `index.html`**，保持字节大小 100% 一致：
+     ```powershell
+     Copy-Item -Path "trip-map\index.html" -Destination "index.html" -Force
+     ```
+   - 自动化部署铁律：自动执行 Git 提交并推送到远端 `origin main`，触发 Cloudflare Pages (`https://trip-cts.pages.dev`) 自动化构建与秒级全球上线：
+     ```powershell
+     git add .
+     git commit -m "feat/fix: <简要改动说明>"
+     git push origin main
+     ```
 
 ---
 
@@ -31,7 +39,7 @@
 | **Web端 Key** | `15d8ab014e31b56f285e8425bf05e78f` | `<script src="https://webapi.amap.com/maps?v=2.0&key=..."></script>` |
 | **安全密钥 securityJsCode** | `bbeb02ef5fd2ffb3079e5c8cdbbdb165` | **必须在加载高德地图脚本前注入**，挂载于 `window._AMapSecurityConfig` |
 | **搭载插件** | `AMap.Driving, AMap.Scale, AMap.ToolBar, AMap.Geolocation` | 作为 URL 参数一次性引入 |
-| **生产白名单** | 留空（全域免鉴权直开） | 允许本地 `file://`、`localhost`、局域网及 `journeytothewest.pages.dev` 访问 |
+| **生产白名单** | 留空（全域免鉴权直开） | 允许本地 `file://`、`localhost`、局域网及 `trip-cts.pages.dev` 访问 |
 
 ### 代码标准注入代码段
 ```html
@@ -154,20 +162,24 @@ Pilgrimage to the West/
 
 ---
 
-## 五、发布与运维实战 (Deployment Runbook)
+## 五、发布与持续部署实战 (CI/CD Deployment Runbook)
 
 ### 5.1 正式生产环境配置
-- **生产托管平台**：Cloudflare Pages
-- **正式访问地址**：👉 **`https://journeytothewest.pages.dev`**
+- **托管与边缘网络**：Cloudflare Pages
+- **正式生产发布地址**：👉 **`https://trip-cts.pages.dev`**
+- **关联 GitHub 仓库**：`JohnMaxwell0123/Trip` (分支: `main`)
 - **技术优势**：纯静态全球 CDN 边缘节点直连，彻底规避大陆境内访问未备案域名的 `401 Unauthorized` 拦截，秒级加载无任何白屏等待。
 
-### 5.2 10 秒发布操作规程
-每次本地更新测试完毕后：
-1. 打开浏览器登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)；
-2. 进入 **Compute (Workers & Pages)** ➔ 选中项目 **`journeytothewest`**；
-3. 点击 **Create deployment**（或 Upload assets）；
-4. 将本地项目的 **`trip-map` 文件夹** 直接拖入页面中的虚线框中；
-5. 点击 **Save and Deploy**，10 秒内全球节点自动部署生效。
+### 5.2 全自动 CI/CD 发布规程
+本项目已彻底告别手动打包与拖拽上传：
+1. 本地代码修改自测完成后，Agent 自动执行镜像同步：`Copy-Item trip-map\index.html -> index.html`；
+2. 自动提交并推送到远端：`git push origin main`；
+3. Cloudflare Pages 自动接收 Webhook 并在 15 秒内构建部署生效至全球边缘节点；
+4. 构建参数规范：
+   - 框架预设：`None`
+   - 构建命令：留空（无需打包）
+   - 构建输出目录：`trip-map`
+   - 生产分支：`main`
 
 ---
 
