@@ -210,6 +210,11 @@ Pilgrimage to the West/
   - **根目录导航与防混淆规范**：建立工程级 `README.md` 与 `.gitignore`，全面厘清单文件 SPA 架构、资源镜像关系与未来多项目子目录演进标准；
   - **Cloudflare Pages Git 持续集成流水线**：打通 GitHub ➔ Cloudflare Pages 自动构建 Webhook，免去手动拖拽文件夹上传的旧模式（零构建配置：Build command 留空，输出目录 `trip-map` 或 `/`，构建耗时仅约 15 秒）；
   - **Agent 自动提交与远端推送铁律**：在 `GEMINI.md` 固化「代码改动 ➔ 镜像同步 ➔ progress.md 记录 ➔ git push 触发上线」四步一体自动化闭环。
+- **v2.9 (全机型/触摸屏手势与横向胶囊滚动彻底解耦，根治地图无法拖动)**：
+  - **线上环境诊断**：确认 `journeytothewest.pages.dev` 此前仍停留在手动拖拽部署的旧包，未生效 v2.7 补丁，导致用户访问线上旧版时依旧触发 Bug；
+  - **CSS 触摸手势阻断清除**：移除了 `#view-map`、`#amap-container` 与 `body.map-mode` 上的 `touch-action: none` 与 `height: 100vh !important`，交还高德原生引擎的触摸与双指缩放手势判定，解决 WebKit/移动浏览器下全局手势被吃掉的问题；
+  - **横向胶囊容器滚动隔离**：将原 `targetBtn.scrollIntoView()` 彻底重构为独立容器位移 `pillsContainer.scrollTo({ left: ... })`，根除 `scrollIntoView` 冒泡导致外层祖先视口产生隐式偏移的顽疾；
+  - **Tab 与单日模式单一数据流**：重构 `switchTab(1, btn, dayIndex)`，切入地图前优先彻底重置 `window.scrollTo(0, 0)`、`document.documentElement.scrollTop = 0`、`document.body.scrollTop = 0`，并将单日索引直通传递，彻底消灭初始化竞态。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：
