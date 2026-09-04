@@ -227,6 +227,18 @@ Pilgrimage to the West/
   - **CSS 触摸手势阻断清除**：移除了 `#view-map`、`#amap-container` 与 `body.map-mode` 上的 `touch-action: none` 与 `height: 100vh !important`，交还高德原生引擎的触摸与双指缩放手势判定，解决 WebKit/移动浏览器下全局手势被吃掉的问题；
   - **横向胶囊容器滚动隔离**：将原 `targetBtn.scrollIntoView()` 彻底重构为独立容器位移 `pillsContainer.scrollTo({ left: ... })`，根除 `scrollIntoView` 冒泡导致外层祖先视口产生隐式偏移的顽疾；
   - **Tab 与单日模式单一数据流**：重构 `switchTab(1, btn, dayIndex)`，切入地图前优先彻底重置 `window.scrollTo(0, 0)`、`document.documentElement.scrollTop = 0`、`document.body.scrollTop = 0`，并将单日索引直通传递，彻底消灭初始化竞态。
+- **v3.0 (二次切入地图卡死与 Pixel NaN 致命异常根治)**：
+  - **现象溯源**：用户从行程路书首次点击“地图查看路线”时正常，但切换回行程路书、再次返回路线地图（无论通过底部 Dock 还是再次点击其他天查看路线）后，地图彻底卡死无法拖拽、缩放；
+  - **深层根因定位 (Stack Trace 铁证)**：
+    1. **`display: none` 摧毁地图几何尺寸**：`#view-map` 原隶属于 `.tab-view`，离开地图 Tab 时无条件被赋予 `display: none`，导致内部 `#amap-container` 的宽和高瞬间塌陷为 `0×0`（`getBoundingClientRect` 均为 0）；
+    2. **滚动监听触发致命投射异常**：高德地图 AMap 2.0 在 `window` 上挂载了全局 `scroll` 监听以便联动更新覆盖物坐标。当用户在行程路书页面滚动长列表时，AMap 内部触发 `updateOverlay` ➔ `lngLatToContainer`；
+    3. **`Pixel(NaN, NaN)` 抛出未捕获异常**：因地图容器长宽为 0，高德相机投影矩阵计算得出 `0/0 = NaN`，执行 `new AMap.Pixel(NaN, NaN)` 触发源码防御检测，直接抛出 `Uncaught Error: Invalid Object: Pixel(NaN, NaN)`；
+    4. **事件与渲染循环永久阵亡**：该未捕获异常发生在高德地图的 `requestAnimationFrame` 核心帧循环中，导致整个 AMap 渲染与手势交互流水线彻底崩溃，第二次返回地图时即使容器恢复显示，底层事件循环早已死亡。
+  - **四重系统化根治措施**：
+    1. **CSS 维度彻底解耦 `display: none`**：为 `#view-map` 声明 `display: block !important; visibility: hidden; opacity: 0; pointer-events: none; z-index: -10;`，激活时赋予 `visibility: visible; opacity: 1; pointer-events: auto; z-index: 10;`。使地图容器几何物理尺寸全时保持 `100vw × 100vh`，从物理根源上彻底消灭投影矩阵除以 0 产生 `NaN` 的条件；
+    2. **行程路书浏览位置记忆恢复**：切出路书时记录当前阅读滚动深度 `scheduleScrollY`，切回路书时通过 `requestAnimationFrame` 自动平滑恢复，避免每次返回路书都被强制踢回顶部；
+    3. **手势挂起清除与状态重置强保障**：在 `renderMapDayView` 与 `switchTab(1)` 入口处显式注入 `mapInstance.setStatus({ dragEnable: true, zoomEnable: true })`，并调用 `fitMapFullView()` 确保镜头自动居中；
+    4. **胶囊滑块横向位移优化**：将 `viewDayOnMap` 联动胶囊栏的滑动行为由容易在切页瞬间挂起手势的 `behavior: 'smooth'` 改为即时到位的 `behavior: 'auto'`，杜绝移动端事件拦截。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：

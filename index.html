@@ -641,15 +641,27 @@
        6. 视图 2：【🗺 路线地图】
        ========================================================================== */
     #view-map {
-      padding: 0;
+      display: block !important; /* 彻底解耦 display: none，杜绝容器几何尺寸塌陷为 0 导致 AMap 内部 Pixel(NaN, NaN) 崩溃 */
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
       position: fixed;
       inset: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 10;
+      z-index: -10;
+      padding: 0;
       overflow: hidden;
       animation: none !important;
       transform: none !important;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #view-map.active {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 10;
     }
 
     #amap-container {
@@ -3043,6 +3055,10 @@
       renderScheduleCards(-1);
       renderPackingStatus();
       renderLedgerList();
+      // 后台静默预热地图（此时容器 visibility: hidden 且拥有 100vw/100vh 真实几何尺寸）
+      setTimeout(() => {
+        ensureMapInit();
+      }, 300);
     });
 
     // 渲染路书卡片
@@ -3162,7 +3178,14 @@
     // --------------------------------------------------------------------------
     // D. 底部导航栏 Tab 切换控制
     // --------------------------------------------------------------------------
+    let currentActiveTab = 0;
+    let scheduleScrollY = 0;
+
     function switchTab(tabIndex, btnEl, targetDayIndex) {
+      if (currentActiveTab === 0 && tabIndex !== 0) {
+        scheduleScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      }
+
       const tabs = ["view-schedule", "view-map", "view-tips"];
       tabs.forEach((id, idx) => {
         const el = document.getElementById(id);
@@ -3186,19 +3209,35 @@
         indicator.style.left = `calc(6px + ${tabIndex} * ((100% - 12px) / 3))`;
       }
 
-      // 如果切到地图，彻底重置滚动并锁定，优先指定天数
+      currentActiveTab = tabIndex;
+
+      // 如果切到地图，瞬间归位视口并锁定 body，确保悬浮全屏地图命中盒 100% 精确对齐
       if (tabIndex === 1) {
         window.scrollTo(0, 0);
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
         document.body.classList.add("map-mode");
-        ensureMapInit(targetDayIndex);
+        
+        ensureMapInit(targetDayIndex, () => {
+          if (typeof targetDayIndex === 'number') {
+            renderMapDayView(targetDayIndex);
+          }
+        });
+
         setTimeout(() => {
-          if (mapInstance) mapInstance.resize();
+          if (mapInstance) {
+            mapInstance.setStatus({ dragEnable: true, zoomEnable: true });
+            mapInstance.resize();
+            fitMapFullView();
+          }
         }, 60);
       } else {
         document.body.classList.remove("map-mode");
-        window.scrollTo(0, 0);
+        if (tabIndex === 0 && scheduleScrollY > 0) {
+          requestAnimationFrame(() => {
+            window.scrollTo(0, scheduleScrollY);
+          });
+        }
       }
     }
 
@@ -3308,6 +3347,7 @@
           touchZoom: true,
           mapStyle: "amap://styles/normal" // 默认高德浅色标准地图（白底白天公路矢量图）
         });
+        window.mapInstance = mapInstance;
 
         // 缩放条
         mapInstance.addControl(new AMap.Scale());
@@ -3607,12 +3647,13 @@
           const pillsContainer = document.querySelector(".map-day-pills");
           if (pillsContainer) {
             const scrollLeft = targetBtn.offsetLeft - (pillsContainer.clientWidth / 2) + (targetBtn.clientWidth / 2);
-            pillsContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+            pillsContainer.scrollTo({ left: scrollLeft, behavior: 'auto' });
           }
         }
         renderMapDayView(dayIndex);
         setTimeout(() => {
           if (mapInstance) {
+            mapInstance.setStatus({ dragEnable: true, zoomEnable: true });
             mapInstance.resize();
             fitMapFullView();
           }
@@ -3833,6 +3874,7 @@
     function renderMapDayView(dayIndex) {
       if (!mapInstance) return;
       currentActiveMapDay = dayIndex;
+      mapInstance.setStatus({ dragEnable: true, zoomEnable: true });
 
       // 清除旧点与旧线
       mapInstance.remove(currentMarkers);
