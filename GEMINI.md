@@ -18,6 +18,16 @@
   ```
 
 ## 4. 架构与设计铁律
-- **免构建单文件**：坚持单文件 HTML/CSS/JS、零后端、免打包纯静态架构，直接拖入 Cloudflare Pages 部署上线；
+- **免构建单文件**：坚持单文件 HTML/CSS/JS、零后端、免打包纯静态架构，由 Cloudflare Pages 监听 GitHub 自动构建与秒级上线；
 - **苹果液态玻璃（Liquid Glass）**：视觉体系严格遵循高斯模糊、高透磨砂折射与五层层级架构（地图全屏满铺，控件高透悬浮）；
 - **高德地图规范**：基于高德 JS API 2.0，默认采用高德浅色标准公路矢量图，卫星图作为悬浮按钮 `🛰️` 随时无缝切换。
+
+## 5. 自动提交与远端推送铁律 (Git Auto-Push Rule)
+- 每次完成功能改动、镜像同步与 `progress.md` 更新后，必须自动执行 Git 提交并推送远端 `origin main`，触发 Cloudflare Pages 自动化全球部署：
+  ```powershell
+  git add .
+  git commit -m "feat/fix: <简要改动说明>"
+  git push origin main
+  ```
+- 确保远端仓库 `JohnMaxwell0123/Trip` 与本地工作区始终保持 100% 同步。
+
