@@ -164,7 +164,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.3s ease;
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s ease;
+    }
+
+    body.header-hidden .app-header {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(-24px);
     }
 
     .brand-block h1 {
@@ -210,6 +217,11 @@
       z-index: 10;
       padding-top: calc(78px + env(safe-area-inset-top, 0px));
       padding-bottom: calc(88px + var(--safe-bottom));
+      transition: padding-top 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.header-hidden .main-container {
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
     }
 
     .tab-view {
@@ -731,7 +743,7 @@
     /* 地图上方悬浮日期切换栏 (Apple Liquid Glass Pills Bar) */
     .map-top-bar {
       position: absolute;
-      top: calc(78px + env(safe-area-inset-top, 0px) + 8px);
+      top: calc(10px + env(safe-area-inset-top, 0px));
       left: 14px;
       right: 14px;
       z-index: 200;
@@ -2066,7 +2078,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.0</span>
+          <span class="version-num">v3.1</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -2116,7 +2128,6 @@
         <div class="map-ctrl-btn" id="btn-toggle-l2" onclick="toggleL2Markers()" title="探索图钉开关 (美食/观景/机位)">✨</div>
         <div class="map-ctrl-btn" id="btn-location" onclick="locateUserPosition()" title="实时定位我在哪">📍</div>
         <div class="map-ctrl-btn" id="btn-toggle-satellite" onclick="toggleMapSatellite()" title="卫星/公路图层切换">🛰️</div>
-        <div class="map-ctrl-btn" onclick="fitMapFullView()" title="居中全景">🎯</div>
       </div>
     </section>
 
@@ -3274,6 +3285,13 @@
 
       currentActiveTab = tabIndex;
 
+      // 顶部 Header 悬浮岛仅在【行程路书】展示，切换至【路线地图】与【贴士备忘】自动隐藏
+      if (tabIndex === 0) {
+        document.body.classList.remove("header-hidden");
+      } else {
+        document.body.classList.add("header-hidden");
+      }
+
       // 如果切到地图，瞬间归位视口并锁定 body，确保悬浮全屏地图命中盒 100% 精确对齐
       if (tabIndex === 1) {
         window.scrollTo(0, 0);
@@ -3665,7 +3683,7 @@
       if (!mapInstance) return;
       if (currentActiveMapDay === -1) {
         if (currentMarkers.length > 0) {
-          mapInstance.setFitView(currentMarkers, false, [110, 24, 130, 24]);
+          mapInstance.setFitView(currentMarkers, false, [60, 20, 130, 20]);
         } else {
           mapInstance.setCenter([98.5111, 39.7443]);
           mapInstance.setZoom(6);
@@ -3674,7 +3692,7 @@
         // 单天模式：自适应到当前天的公路高光实线及景点标签，排除全环线底线
         const fitTargets = [currentDayActiveLine, ...currentMarkers].filter(Boolean);
         if (fitTargets.length > 0) {
-          mapInstance.setFitView(fitTargets, false, [110, 24, 130, 24]);
+          mapInstance.setFitView(fitTargets, false, [60, 20, 130, 20]);
         } else {
           mapInstance.setCenter([98.5111, 39.7443]);
           mapInstance.setZoom(7);
@@ -4152,7 +4170,7 @@
         activeLine.setMap(mapInstance);
         currentPolylines.push(activeLine);
         currentDayActiveLine = activeLine;
-        mapInstance.setFitView([activeLine, ...currentMarkers], false, [110, 24, 130, 24]);
+        mapInstance.setFitView([activeLine, ...currentMarkers], false, [60, 20, 130, 20]);
       } else {
         // 若当日暂未生成缓存，即时调用 drivingService 计算
         const d = TRIP_DAYS.find(item => item.dayIndex === dayIndex);
@@ -4198,7 +4216,7 @@
                 activeLine.setMap(mapInstance);
                 currentPolylines.push(activeLine);
                 currentDayActiveLine = activeLine;
-                mapInstance.setFitView([activeLine, ...currentMarkers], false, [110, 24, 130, 24]);
+                mapInstance.setFitView([activeLine, ...currentMarkers], false, [60, 20, 130, 20]);
               }
             } else {
               if (currentActiveMapDay === dayIndex) {
