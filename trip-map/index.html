@@ -419,12 +419,17 @@
     }
 
     .day-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       border-bottom: 1px solid rgba(251, 191, 36, 0.12);
       padding-bottom: 12px;
+    }
+
+    .day-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .day-tag {
@@ -437,31 +442,34 @@
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.20));
       border: 1px solid rgba(251, 191, 36, 0.45);
       color: #fef08a;
-      display: inline-block;
-      margin-bottom: 4px;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
     }
 
     .day-title {
       font-size: 17px;
       font-weight: 700;
       color: #fff;
-      line-height: 1.35;
+      line-height: 1.38;
+      word-break: break-word;
     }
 
     .day-date {
       font-size: 12px;
       color: var(--text-dim);
-      margin-top: 2px;
+      margin-top: 3px;
     }
 
     .day-meta-pill {
       font-size: 11px;
-      padding: 4px 9px;
+      padding: 3px 9px;
       background: rgba(245, 158, 11, 0.18);
       border: 1px solid rgba(251, 191, 36, 0.45);
       color: #fef08a;
       border-radius: var(--radius-full);
       white-space: nowrap;
+      line-height: 1.35;
     }
 
     /* 时间轴节点 */
@@ -2233,7 +2241,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.3</span>
+          <span class="version-num">v3.3.1</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -2521,8 +2529,8 @@
         tag: "Day 0",
         date: "09月24日 · 周三",
         title: "济南 ✈ 兰州 · 丝路集结夜",
-        km: "飞行 1400km + 接机 70km",
-        driveTime: "飞行2.5h + 车程约55min",
+        km: "直飞 1400km + 接机 70km",
+        driveTime: "约 3.5 h",
         hotel: "水岸云上酒店（兰州中山桥店）",
         hotelStatus: "confirmed",
         hotelAddress: "兰州市城关区南滨河东路873号（中山桥东侧）",
@@ -3520,12 +3528,12 @@
 
         card.innerHTML = `
           <div class="day-card-header">
-            <div>
-              <div class="day-tag">${day.tag}</div>
-              <div class="day-title">${day.title}</div>
-              <div class="day-date">${day.date}</div>
+            <div class="day-header-top">
+              <span class="day-tag">${day.tag}</span>
+              <span class="day-meta-pill">${day.dayIndex === 0 ? '✈️' : '🚗'} ${day.km} · ${day.driveTime}</span>
             </div>
-            <div class="day-meta-pill">🚗 ${day.km} · ${day.driveTime}</div>
+            <div class="day-title">${day.title}</div>
+            <div class="day-date">${day.date}</div>
           </div>
 
           <div class="timeline-list">

@@ -268,6 +268,14 @@ Pilgrimage to the West/
     - 同步更新 [`路书第二层级规划.md`](file:///d:/Document/Project/Pilgrimage%20to%20the%20West/路书第二层级规划.md) 章节三，建立完整的自驾考斯特全行程时间熔断库；
     - 根目录 `index.html` 镜像同步；
     - 行程路书底部版本号正式发布为 `RELEASE v3.3 · 2026.09`。
+- **v3.3.1 (行程路书卡片头部 Flexbox 挤压错乱根治与全宽排版重构)**：
+  - **根因深度定位**：原 `.day-card-header` 将（`day-tag`、`day-title`、`day-date`）统包在一个 `<div>` 容器中并与右侧 `.day-meta-pill` 处于同一水平 Flex 轴。当 Day 0 里程标签字数较长且设置了 `white-space: nowrap` 时，右侧药丸占满 75% 宽度，将左侧标题容器极限挤压至 50px 窄缝，导致标题汉字被迫 1~2 字一折行排版严重错乱；
+  - **DOM 结构与视觉层次重构**：
+    1. 引入 `.day-header-top` 横向工具栏，将 `day-tag`（如 `DAY 0`）与 `day-meta-pill` 规范对齐于卡片首行，两端对齐、自适应收敛；
+    2. 将 `day-title` 与 `day-date` 释放为全宽块级元素，坐拥 100% 卡片横向视野，字号 17px/行高 1.38/天然折行；
+    3. Day 0 标签提炼优化为 `✈️ 直飞 1400km + 接机 70km · 约 3.5 h`，首发引入民航飞机图标，信息精练准确；
+  - **真机/模拟器多端验证**：使用 Chrome DevTools 模拟移动端 390×844 截图复验，标题舒展饱满，无任何折行畸变与越界溢出；
+  - **版本递增**：底部徽章正式发布为 `RELEASE v3.3.1 · 2026.09`。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：
