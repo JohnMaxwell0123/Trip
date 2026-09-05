@@ -589,6 +589,125 @@
       line-height: 1.45;
     }
 
+    /* ⏱️ 弹性时间熔断与决策检视点 (Liquid Glass Time Cutoff Box) */
+    .time-cutoff-box {
+      margin-top: 8px;
+      margin-bottom: 4px;
+      background: rgba(26, 17, 10, 0.55);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      border-radius: var(--radius-sm);
+      padding: 9px 11px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.25s ease;
+    }
+
+    .cutoff-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: 7px;
+    }
+
+    .cutoff-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 6px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+
+    .cutoff-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cutoff-hint {
+      font-size: 10px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      opacity: 0.85;
+    }
+
+    .time-cutoff-box.collapsed {
+      padding-top: 6px;
+      padding-bottom: 6px;
+      opacity: 0.85;
+    }
+
+    .time-cutoff-box.collapsed .cutoff-header {
+      margin-bottom: 0;
+    }
+
+    .time-cutoff-box.collapsed .cutoff-zones {
+      display: none;
+    }
+
+    .cutoff-zones {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .cutoff-zone {
+      padding: 6px 9px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      line-height: 1.4;
+    }
+
+    .cutoff-zone.zone-green {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 3px solid #10b981;
+    }
+    .cutoff-zone.zone-green .cutoff-zone-title {
+      color: #34d399;
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .cutoff-zone.zone-amber {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #f59e0b;
+    }
+    .cutoff-zone.zone-amber .cutoff-zone-title {
+      color: #fbbf24;
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .cutoff-zone.zone-red {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid #ef4444;
+    }
+    .cutoff-zone.zone-red .cutoff-zone-title {
+      color: #f87171;
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .cutoff-zone-desc {
+      color: var(--text-sub);
+      font-size: 11px;
+      opacity: 0.95;
+    }
+
     /* 卡片底部功能条（酒店、打卡、地图查看） */
     .day-hotel-box {
       background: rgba(0, 0, 0, 0.25);
@@ -2114,7 +2233,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.2</span>
+          <span class="version-num">v3.3</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -2440,7 +2559,30 @@
           { time: "08:30", title: "品尝正宗兰州牛肉面", desc: "「一清二白三红四绿五黄」，肉蛋双飞能量拉满（安泊尔/磨沟沿）", subDetailKey: "d1_beef_noodles", subDetailBadge: "🥢 正宗牛肉面江湖 (3家)" },
           { time: "09:30", title: "甘肃省博物馆（建议2h）", desc: "镇馆之宝马踏飞燕、丝绸之路文明展（需提前预约）" },
           { time: "12:00", title: "午间简餐与考斯特车队整备", desc: "考斯特全员集合、装运随身补给，启程进入河西走廊" },
-          { time: "13:30", title: "考斯特启程赴张掖（G30连霍高速）", desc: "翻越乌鞘岭进入河西走廊，感受山河壮丽", subDetailKey: "d1_wushaoling", subDetailBadge: "🔭 乌鞘岭公路观景台 (2处)" },
+          { 
+            time: "13:30", 
+            title: "考斯特启程赴张掖（G30连霍高速）", 
+            desc: "翻越乌鞘岭进入河西走廊，感受山河壮丽", 
+            subDetailKey: "d1_wushaoling", 
+            subDetailBadge: "🔭 乌鞘岭公路观景台 (2处)",
+            cutoff: {
+              title: "乌鞘岭长城公路观景决策",
+              zones: {
+                green: {
+                  condition: "若 ≤ 13:15 已驶上 G30 高速",
+                  desc: "【按计划 A 走】时间宽裕，考斯特驶下安远出口，沿老盘山公路登乌鞘岭长城观景台停留 40min，俯瞰马牙雪山与长城烽燧；19:15 暮色初现安抵张掖。"
+                },
+                amber: {
+                  condition: "若 13:15 ~ 13:35 驶上 G30 高速",
+                  desc: "【弹性缓冲裁量】车队保持定速巡航，由领队视乌鞘岭当日云雾能见度与全员体能裁量；若天清气朗可做 20min 快速打卡，或顺推至安远服务区远眺。"
+                },
+                red: {
+                  condition: "若 > 13:35 才驶上 G30 高速",
+                  desc: "【启动降级 Fallback】不下高速走盘山路，车队直接驶入 G30 安远服务区（全国海拔最高高速服务区之一）休整 15min，隔隔离网远眺雪山与长城；约 19:40 天黑前安抵张掖市区。"
+                }
+              }
+            }
+          },
           { time: "19:30", title: "抵达张掖，入住高品质酒店", desc: "晚餐推荐张掖特色搓鱼面、炒拨拉" }
         ]
       },
@@ -2470,8 +2612,8 @@
         tag: "Day 3",
         date: "09月27日 · 周六",
         title: "东风航天城 ➔ 额济纳黑城·怪树林日落",
-        km: "约 360 km往返",
-        driveTime: "车程约 4 h",
+        km: "约 400 km往返",
+        driveTime: "车程约 4.5 h",
         hotel: "空军鼎新基地内部宾馆（第二晚连住）",
         hotelStatus: "tentative",
         spots: [
@@ -2481,7 +2623,28 @@
         timeline: [
           { time: "08:00", title: "探访东风航天城（酒泉卫星发射中心）", desc: "瞻仰问天阁航天员出征仪式现场、垂直总装测试厂房", subDetailKey: "d3_spacecity", subDetailBadge: "🚀 航天城必看高地 (2处)" },
           { time: "12:00", title: "基地午餐，随后前往额济纳旗", desc: "穿越巴丹吉林沙漠北缘荒漠公路，品尝正宗蒙餐", subDetailKey: "d3_mongol_food", subDetailBadge: "🥢 额济纳正宗蒙餐" },
-          { time: "15:00", title: "游览黑城弱水胡杨·怪树林", desc: "探访古丝路黑水城遗址，金秋胡杨初黄" },
+          { 
+            time: "15:00", 
+            title: "游览黑城弱水胡杨·怪树林", 
+            desc: "探访古丝路黑水城遗址，金秋胡杨初黄",
+            cutoff: {
+              title: "黑城古遗址 vs 怪树林落日占位决策",
+              zones: {
+                green: {
+                  condition: "若 ≤ 14:30 抵达额济纳景区大门",
+                  desc: "【按计划 A 走】全量深度游览黑水城古遗址（打卡覆钵式白塔与古城堞）+ 漫步弱水胡杨七彩林；17:30 准时转场怪树林核心区架机位，拍摄 18:30~19:15 大漠残阳枯木奇观。"
+                },
+                amber: {
+                  condition: "若 14:30 ~ 15:15 抵达额济纳景区大门",
+                  desc: "【黑城快线模式】乘景区摆渡车直达黑城遗址后，压缩内部徒步时间，外围城墙取景 25min 即刻转往怪树林；保障 17:45 前抵达怪树林占据落日拍摄有利点位。"
+                },
+                red: {
+                  condition: "若 > 15:15 才抵达额济纳景区大门",
+                  desc: "【启动降级 Fallback】果断舍弃黑水城古遗址摆渡大圈（节省摆渡排队与环线 1.5h），直奔弱水胡杨岛与怪树林核心区，抢占落日余晖金黄时刻；避免因赶场错失核心视觉奇观。"
+                }
+              }
+            }
+          },
           { time: "17:30", title: "怪树林守候大漠日落", desc: "戈壁残阳照射千姿百态的枯木，摄影出大片的黄金时刻", subDetailKey: "d3_guaishulin", subDetailBadge: "📸 怪树林绝杀机位" },
           { time: "19:30", title: "返回鼎新基地住宿", desc: "晚间整理照片，夜间戈壁星空银河清晰可见" }
         ]
@@ -2491,8 +2654,8 @@
         tag: "Day 4",
         date: "09月28日 · 周日",
         title: "鼎新 ➔ 嘉峪关三联景 ➔ 敦煌沙洲",
-        km: "约 420 km",
-        driveTime: "车程约 5 h",
+        km: "约 560 km",
+        driveTime: "车程约 6.5 h",
         hotel: "敦煌全季酒店 / 敦煌太阳大饭店（四星级/市中心）",
         hotelStatus: "tentative",
         spots: [
@@ -2503,7 +2666,30 @@
         ],
         timeline: [
           { time: "08:00", title: "鼎新启程赴嘉峪关", desc: "途经酒泉，驶入雄伟的嘉峪关市区" },
-          { time: "10:30", title: "登临天下第一雄关·嘉峪关关城", desc: "抚摸明长城城砖，中午品尝嘉峪关传奇铁签烤肉", subDetailKey: "d4_jiayuguan_bbq", subDetailBadge: "🥢 嘉峪关烤肉传奇 (2家)" },
+          { 
+            time: "10:30", 
+            title: "登临天下第一雄关·嘉峪关关城", 
+            desc: "抚摸明长城城砖，中午品尝嘉峪关传奇铁签烤肉", 
+            subDetailKey: "d4_jiayuguan_bbq", 
+            subDetailBadge: "🥢 嘉峪关烤肉传奇 (2家)",
+            cutoff: {
+              title: "嘉峪关三联景取舍与瓜州落日调度",
+              zones: {
+                green: {
+                  condition: "若 ≤ 12:30 游毕关城且体能充沛",
+                  desc: "【精简版计划 A】品尝嘉峪关铁签烤肉后，顺路加游悬壁长城（约 40min，舍弃路途偏远的讨赖河第一墩）；14:00 启程奔赴瓜州，16:30 抵达大地之子雕塑长廊。"
+                },
+                amber: {
+                  condition: "若 12:30 ~ 13:15 游毕关城/用餐中",
+                  desc: "【现场举手表决】考量午后攀爬悬壁长城暴晒与体力消耗，由全队表决：是爬长城还是早点启程前往瓜州服务区吹风吃免费西瓜、漫步大地之子雕塑。"
+                },
+                red: {
+                  condition: "若 > 13:15 离开关城或用餐较晚",
+                  desc: "【启动降级 Fallback】坚决舍弃第一墩与悬壁长城，吃完烤肉立即上高速；14:00 准点开拔瓜州，16:45 阳光柔和时打卡大地之子与无界，19:30 伴随西北暮色从容进驻敦煌沙洲夜市。"
+                }
+              }
+            }
+          },
           { time: "13:00", title: "连游长城第一墩与悬臂长城", desc: "立于讨赖河峡谷峭壁，感悟古代边关防御体系" },
           { time: "15:00", title: "考斯特全速开拔敦煌（柳格高速）", desc: "途经瓜州大漠国际雕塑长廊，大漠直道连绵", subDetailKey: "d4_guazhou_sculpture", subDetailBadge: "🔭 大漠雕塑长廊 (2处)" },
           { time: "19:30", title: "入住敦煌酒店，夜巡沙洲夜市", desc: "畅饮杏皮水，品尝敦煌烤羊排、大漠风情面食" }
@@ -2549,7 +2735,30 @@
           { time: "07:00", title: "考斯特满油自敦煌出发", desc: "全程最长的一天大穿越，沿途风貌由戈壁变为高原" },
           { time: "09:30", title: "翻越当金山垭口（海拔3648m）", desc: "正式告别甘肃进入大青海，地貌瞬间转为苍茫高原", subDetailKey: "d6_dangjinshan", subDetailBadge: "🔭 当金山垭口观景" },
           { time: "12:30", title: "大柴旦镇午餐与加油休整", desc: "补充热食，品尝青海特色炕锅羊肉", subDetailKey: "d6_dachaidan_food", subDetailBadge: "🥢 炕锅羊肉口碑榜首" },
-          { time: "13:30", title: "游览大柴旦翡翠湖（建议2h）", desc: "形态各异的盐池在阳光下呈现深浅不同的翠绿、碧蓝", subDetailKey: "d6_feicuihu", subDetailBadge: "💡 翡翠湖深度机位" },
+          { 
+            time: "13:30", 
+            title: "游览大柴旦翡翠湖（建议2h）", 
+            desc: "形态各异的盐池在阳光下呈现深浅不同的翠绿、碧蓝", 
+            subDetailKey: "d6_feicuihu", 
+            subDetailBadge: "💡 翡翠湖深度机位",
+            cutoff: {
+              title: "大柴旦翡翠湖大漫游与穿越节奏决策",
+              zones: {
+                green: {
+                  condition: "若 ≤ 14:40 结束翡翠湖游览",
+                  desc: "【按计划 A 走】翡翠湖深度环游（小火车深入 4-6 号湖心区），15:00 前驶入德小高速/G3011；途中可在德令哈西服务区休整 25min 喝杯热茶，约 19:30 暮色初降时安抵茶卡镇。"
+                },
+                amber: {
+                  condition: "若 14:40 ~ 15:15 离开翡翠湖",
+                  desc: "【高速定速巡航】沿 G3011 柳格高速开阔段由老司机稳定提速巡航，中途精简服务区休整为 10min 纯如厕补水；19:45 西北天空尚有余晖时抵达茶卡酒店办理入住。"
+                },
+                red: {
+                  condition: "若 > 15:15 才离开翡翠湖",
+                  desc: "【启动降级 Fallback】全线紧锁 G3011 柴达木主线高速疾驰，坚决不拐进德令哈市区；保障在 19:55 西北暮光彻底褪去前安全抵达茶卡镇，避免在高原山丘区走夜路。"
+                }
+              }
+            }
+          },
           { time: "16:00", title: "经德小高速向茶卡镇疾驰", desc: "远山如黛，夕阳洒在柴达木盆地戈壁之上" },
           { time: "19:30", title: "抵达茶卡镇入住休整", desc: "海拔提升至3100m，动作宜放缓，早歇防高反" }
         ]
@@ -2572,7 +2781,28 @@
         timeline: [
           { time: "08:00", title: "早班进茶卡盐湖（避开大客流）", desc: "乘红皮小火车深入湖心，穿鲜艳裙子/冲锋衣拍出水天一色", subDetailKey: "d7_chaka_tips", subDetailBadge: "💡 天空之镜防坑秘籍" },
           { time: "11:30", title: "向青海湖南线进发", desc: "沿青海湖环湖公路前行，视野里逐渐出现浩瀚高原蓝", subDetailKey: "d7_qinghaihu_road", subDetailBadge: "🔭 最美湖滨公路" },
-          { time: "13:30", title: "二郎剑景区游览青海湖", desc: "近距离触摸圣湖之水，与高原水鸟海鸥同框" },
+          { 
+            time: "13:30", 
+            title: "二郎剑景区游览青海湖", 
+            desc: "近距离触摸圣湖之水，与高原水鸟海鸥同框",
+            cutoff: {
+              title: "国庆首日青海湖二郎剑避堵与亲水决策",
+              zones: {
+                green: {
+                  condition: "若高德路况全绿且 ≤ 12:45 抵湖畔",
+                  desc: "【按计划 A 走】全员购票进入二郎剑景区核心游船码头与木栈道，近距离触摸圣湖碧波；15:45 准时集合翻越日月山，19:00 前抵达西宁新宁广场开国庆盛宴。"
+                },
+                amber: {
+                  condition: "若遇轻度缓行（延误 15~25min，12:45~13:30）",
+                  desc: "【领队实地路况评估】领队通过高德实时航拍路况观察二郎剑大门排队车龙；若停车场积压，立即全员表决是否转投二郎剑外围观景平台或湖滨牧道。"
+                },
+                red: {
+                  condition: "若严重拥堵（延误 > 30min 或 > 13:30）",
+                  desc: "【启动降级 Fallback】坚决不进二郎剑收费景区排队大门！沿 G109 湖南线开阔观景台或当地藏民开辟的湖滨便道（祭海台附近）亲水拍照 40min（免票免堵无客流）；14:45 提前反超大车流开拔翻越日月山，17:30 顺风顺水进西宁，悠然开庆功宴。"
+                }
+              }
+            }
+          },
           { time: "16:30", title: "翻越日月山、倒淌河前往西宁", desc: "见证从高原草甸逐步过渡到西宁河谷盆地" },
           { time: "19:00", title: "入住西宁市区全季酒店", desc: "国庆之夜聚餐庆祝大环线穿越成功，手抓羊肉、甜醅子畅享", subDetailKey: "d7_xining_feast", subDetailBadge: "🥢 西宁国庆庆功宴 (3家)" }
         ]
@@ -3240,6 +3470,36 @@
 
         let timelineHtml = "";
         day.timeline.forEach(t => {
+          let cutoffHtml = "";
+          if (t.cutoff) {
+            const c = t.cutoff;
+            cutoffHtml = `
+              <div class="time-cutoff-box">
+                <div class="cutoff-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                  <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                    <span class="cutoff-badge">⏱️ 弹性时间熔断检视</span>
+                    <span class="cutoff-title">${c.title}</span>
+                  </div>
+                  <span class="cutoff-hint">折叠/展开 ▾</span>
+                </div>
+                <div class="cutoff-zones">
+                  <div class="cutoff-zone zone-green">
+                    <div class="cutoff-zone-title">🟢 ${c.zones.green.condition} · 主线方案 A</div>
+                    <div class="cutoff-zone-desc">${c.zones.green.desc}</div>
+                  </div>
+                  <div class="cutoff-zone zone-amber">
+                    <div class="cutoff-zone-title">🟡 ${c.zones.amber.condition} · 弹性缓冲期</div>
+                    <div class="cutoff-zone-desc">${c.zones.amber.desc}</div>
+                  </div>
+                  <div class="cutoff-zone zone-red">
+                    <div class="cutoff-zone-title">🔴 ${c.zones.red.condition} · 熔断降级 Fallback</div>
+                    <div class="cutoff-zone-desc">${c.zones.red.desc}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
           timelineHtml += `
             <div class="timeline-node">
               <div class="node-time">${t.time}</div>
@@ -3253,6 +3513,7 @@
                 ` : ''}
               </div>
               <div class="node-desc">${t.desc}</div>
+              ${cutoffHtml}
             </div>
           `;
         });
