@@ -597,6 +597,100 @@
       line-height: 1.45;
     }
 
+    /* 🚗 赶路区间里程与预估时间指示胶囊 (Apple Liquid Glass Navigation Style) */
+    .timeline-transit-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 9px 0 6px 0;
+      padding: 7px 11px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.22) 0%, rgba(14, 165, 233, 0.09) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.38);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(186, 230, 253, 0.22);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-transit-badge::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3.5px;
+      height: 100%;
+      background: linear-gradient(to bottom, #38bdf8, #0284c7);
+    }
+
+    .transit-badge-main {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      font-size: 11.5px;
+      color: #f0f9ff;
+    }
+
+    .transit-badge-icon {
+      font-size: 13px;
+      filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.45));
+    }
+
+    .transit-badge-action {
+      color: #bae6fd;
+      font-weight: 500;
+    }
+
+    .transit-badge-km {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .transit-badge-dot {
+      color: rgba(186, 230, 253, 0.45);
+    }
+
+    .transit-badge-time {
+      font-weight: 700;
+      color: #fef08a;
+    }
+
+    .transit-badge-route {
+      font-size: 10.5px;
+      color: #7dd3fc;
+      background: rgba(2, 132, 199, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+    }
+
+    /* 飞行航线专用风格 */
+    .timeline-transit-badge.transit-flight {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(168, 85, 247, 0.10) 100%);
+      border-color: rgba(165, 180, 252, 0.40);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(224, 231, 255, 0.22);
+    }
+
+    .timeline-transit-badge.transit-flight::before {
+      background: linear-gradient(to bottom, #a855f7, #6366f1);
+    }
+
+    .timeline-transit-badge.transit-flight .transit-badge-action {
+      color: #e0e7ff;
+    }
+
+    .timeline-transit-badge.transit-flight .transit-badge-route {
+      color: #c7d2fe;
+      background: rgba(99, 102, 241, 0.24);
+      border-color: rgba(165, 180, 252, 0.32);
+    }
+
     /* ⏱️ 弹性时间熔断与决策检视点 (Liquid Glass Time Cutoff Box) */
     .time-cutoff-box {
       margin-top: 8px;
@@ -2241,7 +2335,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.3.1</span>
+          <span class="version-num">v3.4</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -2542,8 +2636,32 @@
         ],
         timeline: [
           { time: "17:00", title: "济南遥墙机场集合", desc: "办理乘机手续与行李托运，全队核对证件" },
-          { time: "19:00", title: "MU6283 航班起飞", desc: "起飞前往甘肃兰州，开启西行万里路" },
-          { time: "21:30", title: "抵达兰州中川国际机场", desc: "接驾考斯特专车就位，装运大件行李" },
+          { 
+            time: "19:00", 
+            title: "MU6283 航班起飞", 
+            desc: "起飞前往甘肃兰州，开启西行万里路",
+            transitNext: {
+              icon: "✈️",
+              action: "接下来直飞",
+              timeLabel: "预估飞行",
+              km: "约 1400 km",
+              time: "约 2.5 h",
+              route: "济南遥墙 ✈ 兰州中川"
+            }
+          },
+          { 
+            time: "21:30", 
+            title: "抵达兰州中川国际机场", 
+            desc: "接驾考斯特专车就位，装运大件行李",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 70 km",
+              time: "约 1 h",
+              route: "中川机场高速 ➔ 南滨河东路"
+            }
+          },
           { time: "22:30", title: "入住水岸云上酒店（中山桥店）", desc: "专车抵南滨河东路873号，开窗即赏黄河中山铁桥夜景，卸行李休整", subDetailKey: "d0_hotel", subDetailBadge: "🏨 已订酒店与周边指南" },
           { time: "23:00", title: "深夜老字号宵夜暖胃补给（自选）", desc: "近邻大众巷与正宁路，老马爷鸡蛋醪糟、大胡子烤肉驱散疲乏", subDetailKey: "d0_supper", subDetailBadge: "🥢 深夜老字号与烧烤 (3家)" }
         ]
@@ -2573,6 +2691,14 @@
             desc: "翻越乌鞘岭进入河西走廊，感受山河壮丽", 
             subDetailKey: "d1_wushaoling", 
             subDetailBadge: "🔭 乌鞘岭公路观景台 (2处)",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 500 km",
+              time: "约 5.5 h",
+              route: "G30 连霍高速 · 翻越乌鞘岭"
+            },
             cutoff: {
               title: "乌鞘岭长城公路观景决策",
               zones: {
@@ -2610,8 +2736,36 @@
         ],
         timeline: [
           { time: "07:30", title: "游览张掖七彩丹霞", desc: "晨间柔和光影，1至4号观景台色彩最为震撼" },
-          { time: "11:30", title: "张掖午餐与驱车经G30赴酒泉", desc: "品尝张掖炒炮与特色炒拨拉，酒泉休整补给", subDetailKey: "d2_zhangye_food", subDetailBadge: "🥢 张掖市井名吃 (2家)" },
-          { time: "14:30", title: "挺进空军鼎新基地（酒泉补给）", desc: "品尝酒泉肃州糊锅，沿途驶离高速进入戈壁公路", subDetailKey: "d2_jiuquan_hポット", subDetailBadge: "🥢 肃州糊锅老字号" },
+          { 
+            time: "11:30", 
+            title: "张掖午餐与驱车经G30赴酒泉", 
+            desc: "品尝张掖炒炮与特色炒拨拉，酒泉休整补给", 
+            subDetailKey: "d2_zhangye_food", 
+            subDetailBadge: "🥢 张掖市井名吃 (2家)",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 220 km",
+              time: "约 2.5 h",
+              route: "G30 连霍高速（张掖 ➔ 酒泉）"
+            }
+          },
+          { 
+            time: "14:30", 
+            title: "挺进空军鼎新基地（酒泉补给）", 
+            desc: "品尝酒泉肃州糊锅，沿途驶离高速进入戈壁公路", 
+            subDetailKey: "d2_jiuquan_hポット", 
+            subDetailBadge: "🥢 肃州糊锅老字号",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 160 km",
+              time: "约 2 h",
+              route: "S315 戈壁沙漠公路"
+            }
+          },
           { time: "18:00", title: "抵达鼎新基地核验报备入住", desc: "严格遵守基地管理条例，享用基地特色晚餐" }
         ]
       },
@@ -2630,7 +2784,21 @@
         ],
         timeline: [
           { time: "08:00", title: "探访东风航天城（酒泉卫星发射中心）", desc: "瞻仰问天阁航天员出征仪式现场、垂直总装测试厂房", subDetailKey: "d3_spacecity", subDetailBadge: "🚀 航天城必看高地 (2处)" },
-          { time: "12:00", title: "基地午餐，随后前往额济纳旗", desc: "穿越巴丹吉林沙漠北缘荒漠公路，品尝正宗蒙餐", subDetailKey: "d3_mongol_food", subDetailBadge: "🥢 额济纳正宗蒙餐" },
+          { 
+            time: "12:00", 
+            title: "基地午餐，随后前往额济纳旗", 
+            desc: "穿越巴丹吉林沙漠北缘荒漠公路，品尝正宗蒙餐", 
+            subDetailKey: "d3_mongol_food", 
+            subDetailBadge: "🥢 额济纳正宗蒙餐",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 150 km",
+              time: "约 2 h",
+              route: "航天路 ➔ 额济纳旗（大漠公路）"
+            }
+          },
           { 
             time: "15:00", 
             title: "游览黑城弱水胡杨·怪树林", 
@@ -2653,7 +2821,21 @@
               }
             }
           },
-          { time: "17:30", title: "怪树林守候大漠日落", desc: "戈壁残阳照射千姿百态的枯木，摄影出大片的黄金时刻", subDetailKey: "d3_guaishulin", subDetailBadge: "📸 怪树林绝杀机位" },
+          { 
+            time: "17:30", 
+            title: "怪树林守候大漠日落", 
+            desc: "戈壁残阳照射千姿百态的枯木，摄影出大片的黄金时刻", 
+            subDetailKey: "d3_guaishulin", 
+            subDetailBadge: "📸 怪树林绝杀机位",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 200 km",
+              time: "约 2.5 h",
+              route: "额济纳旗 ➔ 鼎新基地（星空夜行）"
+            }
+          },
           { time: "19:30", title: "返回鼎新基地住宿", desc: "晚间整理照片，夜间戈壁星空银河清晰可见" }
         ]
       },
@@ -2673,7 +2855,19 @@
           { name: "敦煌沙洲夜市", lng: 94.6620, lat: 40.1421, desc: "抵达敦煌，逛夜市尝红柳烤肉、泡儿油糕" }
         ],
         timeline: [
-          { time: "08:00", title: "鼎新启程赴嘉峪关", desc: "途经酒泉，驶入雄伟的嘉峪关市区" },
+          { 
+            time: "08:00", 
+            title: "鼎新启程赴嘉峪关", 
+            desc: "途经酒泉，驶入雄伟的嘉峪关市区",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 180 km",
+              time: "约 2.5 h",
+              route: "S315 ➔ G30 连霍高速"
+            }
+          },
           { 
             time: "10:30", 
             title: "登临天下第一雄关·嘉峪关关城", 
@@ -2699,7 +2893,21 @@
             }
           },
           { time: "13:00", title: "连游长城第一墩与悬臂长城", desc: "立于讨赖河峡谷峭壁，感悟古代边关防御体系" },
-          { time: "15:00", title: "考斯特全速开拔敦煌（柳格高速）", desc: "途经瓜州大漠国际雕塑长廊，大漠直道连绵", subDetailKey: "d4_guazhou_sculpture", subDetailBadge: "🔭 大漠雕塑长廊 (2处)" },
+          { 
+            time: "15:00", 
+            title: "考斯特全速开拔敦煌（柳格高速）", 
+            desc: "途经瓜州大漠国际雕塑长廊，大漠直道连绵", 
+            subDetailKey: "d4_guazhou_sculpture", 
+            subDetailBadge: "🔭 大漠雕塑长廊 (2处)",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 380 km",
+              time: "约 4 h",
+              route: "G30 连霍高速 ➔ G3011 柳格高速"
+            }
+          },
           { time: "19:30", title: "入住敦煌酒店，夜巡沙洲夜市", desc: "畅饮杏皮水，品尝敦煌烤羊排、大漠风情面食" }
         ]
       },
@@ -2720,7 +2928,21 @@
         timeline: [
           { time: "08:30", title: "莫高窟数字展示中心入场", desc: "观看球幕与宽银幕电影，感受飞天壁画起源" },
           { time: "10:30", title: "乘坐摆渡车进窟区精细讲解", desc: "由资深讲解员带领瞻仰 8 个特选洞窟及九层楼大佛" },
-          { time: "13:30", title: "敦煌市区午休避开正午烈日", desc: "蓄备体力，品尝顺张/达记驴肉黄面或摘星阁下午茶", subDetailKey: "d5_dunhuang_food", subDetailBadge: "🥢 驴肉黄面与摘星阁 (3处)" },
+          { 
+            time: "13:30", 
+            title: "敦煌市区午休避开正午烈日", 
+            desc: "蓄备体力，品尝顺张/达记驴肉黄面或摘星阁下午茶", 
+            subDetailKey: "d5_dunhuang_food", 
+            subDetailBadge: "🥢 驴肉黄面与摘星阁 (3处)",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 15 km",
+              time: "约 25 min",
+              route: "鸣山路 · 驶向鸣沙山月牙泉"
+            }
+          },
           { time: "16:00", title: "鸣沙山月牙泉入园", desc: "骑骆驼穿越金色沙丘，登顶鸣沙山俯瞰一泓月牙" },
           { time: "18:45", title: "鸣沙山大漠落日与万人演唱会", desc: "夕阳染红沙脊，夜幕降临全场挥舞手机荧光大合唱" }
         ]
@@ -2740,8 +2962,34 @@
           { name: "茶卡镇", lng: 99.0838, lat: 36.7027, desc: "抵达高原盐城茶卡镇，备战次日天空之镜" }
         ],
         timeline: [
-          { time: "07:00", title: "考斯特满油自敦煌出发", desc: "全程最长的一天大穿越，沿途风貌由戈壁变为高原" },
-          { time: "09:30", title: "翻越当金山垭口（海拔3648m）", desc: "正式告别甘肃进入大青海，地貌瞬间转为苍茫高原", subDetailKey: "d6_dangjinshan", subDetailBadge: "🔭 当金山垭口观景" },
+          { 
+            time: "07:00", 
+            title: "考斯特满油自敦煌出发", 
+            desc: "全程最长的一天大穿越，沿途风貌由戈壁变为高原",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 220 km",
+              time: "约 2.5 h",
+              route: "G3011 柳格高速 · 翻越当金山"
+            }
+          },
+          { 
+            time: "09:30", 
+            title: "翻越当金山垭口（海拔3648m）", 
+            desc: "正式告别甘肃进入大青海，地貌瞬间转为苍茫高原", 
+            subDetailKey: "d6_dangjinshan", 
+            subDetailBadge: "🔭 当金山垭口观景",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 160 km",
+              time: "约 2 h",
+              route: "G3011 柳格高速 · 柴达木北缘"
+            }
+          },
           { time: "12:30", title: "大柴旦镇午餐与加油休整", desc: "补充热食，品尝青海特色炕锅羊肉", subDetailKey: "d6_dachaidan_food", subDetailBadge: "🥢 炕锅羊肉口碑榜首" },
           { 
             time: "13:30", 
@@ -2767,7 +3015,19 @@
               }
             }
           },
-          { time: "16:00", title: "经德小高速向茶卡镇疾驰", desc: "远山如黛，夕阳洒在柴达木盆地戈壁之上" },
+          { 
+            time: "16:00", 
+            title: "经德小高速向茶卡镇疾驰", 
+            desc: "远山如黛，夕阳洒在柴达木盆地戈壁之上",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 260 km",
+              time: "约 3.5 h",
+              route: "S20 德小高速 ➔ G3011 ➔ G6 京藏高速"
+            }
+          },
           { time: "19:30", title: "抵达茶卡镇入住休整", desc: "海拔提升至3100m，动作宜放缓，早歇防高反" }
         ]
       },
@@ -2788,7 +3048,21 @@
         ],
         timeline: [
           { time: "08:00", title: "早班进茶卡盐湖（避开大客流）", desc: "乘红皮小火车深入湖心，穿鲜艳裙子/冲锋衣拍出水天一色", subDetailKey: "d7_chaka_tips", subDetailBadge: "💡 天空之镜防坑秘籍" },
-          { time: "11:30", title: "向青海湖南线进发", desc: "沿青海湖环湖公路前行，视野里逐渐出现浩瀚高原蓝", subDetailKey: "d7_qinghaihu_road", subDetailBadge: "🔭 最美湖滨公路" },
+          { 
+            time: "11:30", 
+            title: "向青海湖南线进发", 
+            desc: "沿青海湖环湖公路前行，视野里逐渐出现浩瀚高原蓝", 
+            subDetailKey: "d7_qinghaihu_road", 
+            subDetailBadge: "🔭 最美湖滨公路",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 140 km",
+              time: "约 2 h",
+              route: "共茶高速 ➔ G109 湖南线 · 翻越橡皮山"
+            }
+          },
           { 
             time: "13:30", 
             title: "二郎剑景区游览青海湖", 
@@ -2811,7 +3085,19 @@
               }
             }
           },
-          { time: "16:30", title: "翻越日月山、倒淌河前往西宁", desc: "见证从高原草甸逐步过渡到西宁河谷盆地" },
+          { 
+            time: "16:30", 
+            title: "翻越日月山、倒淌河前往西宁", 
+            desc: "见证从高原草甸逐步过渡到西宁河谷盆地",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 150 km",
+              time: "约 2.5 h",
+              route: "G109 ➔ G6 京藏高速 · 翻越日月山"
+            }
+          },
           { time: "19:00", title: "入住西宁市区全季酒店", desc: "国庆之夜聚餐庆祝大环线穿越成功，手抓羊肉、甜醅子畅享", subDetailKey: "d7_xining_feast", subDetailBadge: "🥢 西宁国庆庆功宴 (3家)" }
         ]
       },
@@ -2829,10 +3115,48 @@
           { name: "西宁曹家堡国际机场", lng: 102.0435, lat: 36.5298, desc: "考斯特送机，满载回忆直飞济南，凯旋归来" }
         ],
         timeline: [
-          { time: "08:30", title: "前往湟中区瞻仰塔尔寺", desc: "顺时针转经，领略酥油花、壁画、堆绣「艺术三绝」", subDetailKey: "d8_taersi_tips", subDetailBadge: "💡 塔尔寺三绝与禁忌" },
+          { 
+            time: "08:30", 
+            title: "前往湟中区瞻仰塔尔寺", 
+            desc: "顺时针转经，领略酥油花、壁画、堆绣「艺术三绝」", 
+            subDetailKey: "d8_taersi_tips", 
+            subDetailBadge: "💡 塔尔寺三绝与禁忌",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 25 km",
+              time: "约 35 min",
+              route: "西塔高速 S104（西宁 ➔ 湟中）"
+            }
+          },
           { time: "11:30", title: "品尝西宁地道酸奶与酿皮", desc: "采购青海枸杞、牛肉干等特色特产手信，避免踩坑", subDetailKey: "d8_souvenir_tips", subDetailBadge: "🎁 特产手信防坑指南" },
-          { time: "14:00", title: "考斯特专车送抵曹家堡机场", desc: "办理退车与安检登机手续，团队挥手合影" },
-          { time: "16:30", title: "航班起飞返回济南", desc: "告别大西北壮阔山河，西行万里圆满收官！" }
+          { 
+            time: "14:00", 
+            title: "考斯特专车送抵曹家堡机场", 
+            desc: "办理退车与安检登机手续，团队挥手合影",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 35 km",
+              time: "约 40 min",
+              route: "西宁机场高速（市区 ➔ 曹家堡机场）"
+            }
+          },
+          { 
+            time: "16:30", 
+            title: "航班起飞返回济南", 
+            desc: "告别大西北壮阔山河，西行万里圆满收官！",
+            transitNext: {
+              icon: "✈️",
+              action: "接下来直飞",
+              timeLabel: "预估飞行",
+              km: "约 1450 km",
+              time: "约 2.5 h",
+              route: "西宁曹家堡 ✈ 济南遥墙"
+            }
+          }
         ]
       }
     ];
@@ -3508,6 +3832,26 @@
             `;
           }
 
+          let transitHtml = "";
+          if (t.transitNext) {
+            const tr = t.transitNext;
+            const isFlight = (tr.icon === '✈️');
+            const actionLabel = tr.action || (isFlight ? '接下来直飞' : '接下来行驶');
+            const timeLabel = tr.timeLabel || (isFlight ? '预估飞行' : '预估车程');
+            transitHtml = `
+              <div class="timeline-transit-badge ${isFlight ? 'transit-flight' : ''}">
+                <div class="transit-badge-main">
+                  <span class="transit-badge-icon">${tr.icon || '🚗'}</span>
+                  <span class="transit-badge-action">${actionLabel}</span>
+                  <strong class="transit-badge-km">${tr.km}</strong>
+                  <span class="transit-badge-dot">·</span>
+                  <span class="transit-badge-time">${timeLabel} ${tr.time}</span>
+                </div>
+                ${tr.route ? `<div class="transit-badge-route">${tr.route}</div>` : ''}
+              </div>
+            `;
+          }
+
           timelineHtml += `
             <div class="timeline-node">
               <div class="node-time">${t.time}</div>
@@ -3521,6 +3865,7 @@
                 ` : ''}
               </div>
               <div class="node-desc">${t.desc}</div>
+              ${transitHtml}
               ${cutoffHtml}
             </div>
           `;
