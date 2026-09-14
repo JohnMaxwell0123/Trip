@@ -2082,6 +2082,55 @@
       font-weight: 700;
     }
 
+    .btn-mp-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.32) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      color: #a7f3d0;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .btn-mp-copy:hover, .btn-mp-copy:active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(5, 150, 105, 0.5) 100%);
+      color: #fff;
+    }
+    .btn-mp-copy .copy-hint-pill {
+      font-size: 9.5px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.35);
+      color: #6ee7b7;
+      margin-left: 2px;
+    }
+
+    .btn-official-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(14, 165, 233, 0.32) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      color: #bae6fd;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn-official-link:hover, .btn-official-link:active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.4) 0%, rgba(14, 165, 233, 0.5) 100%);
+      color: #fff;
+    }
+
     .ticket-bought-toggle {
       display: inline-flex;
       align-items: center;
@@ -2723,7 +2772,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.5</span>
+          <span class="version-num">v3.5.1</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -2779,30 +2828,61 @@
     <!-- ==================== TAB 3: ⚠️ 贴士备忘与团队工具 ==================== -->
     <section id="view-tips" class="tab-view">
       
-      <!-- 模块 1: 🚨 核心预约与通行强提醒 -->
-      <div class="section-title">通行报备与重要预约提醒</div>
+      <!-- 模块 1: 🎫 环线景点门票速查与军人优待手册 -->
+      <div class="section-title">环线景点门票速查与军人优待手册</div>
       
-      <div class="alert-card danger">
-        <div class="alert-header">🚀 东风航天城与鼎新基地（Day 3）特别纪律</div>
-        <div class="alert-desc">
-          1. <strong>证件原件</strong>：所有人员必须随身携带<strong>二代身份证原件</strong>，严禁假借他人证件；<br>
-          2. <strong>拍摄限制</strong>：军事管制与涉密区域绝对严禁拍照、录像、飞无人机（航拍器建议放车内不携带）；<br>
-          3. <strong>报备车辆</strong>：考斯特车辆与司机身份必须已完成提前报备核验，听从随车向导统一指挥。
-        </div>
-      </div>
+      <div class="tickets-dashboard">
+        <!-- 进度与统计卡片 -->
+        <div class="liquid-glass tickets-summary-card">
+          <div class="tickets-summary-top">
+            <div class="tickets-stat-title">
+              <span>🎟️ 全程景点已出票进度</span>
+            </div>
+            <div class="tickets-progress-count" id="tickets-progress-text">已购 0 / 11 处 (0%)</div>
+          </div>
+          <div class="tickets-progress-bar-bg">
+            <div class="tickets-progress-bar-fill" id="tickets-progress-fill"></div>
+          </div>
 
-      <div class="alert-card">
-        <div class="alert-header">🎨 敦煌莫高窟 A类票抢票（Day 5）</div>
-        <div class="alert-desc">
-          莫高窟实行严格预约制，提前30天放票。首选包含两部高清球幕电影+8个实体洞窟的<strong>A类正常票</strong>（需按预约场次提前30分钟抵达数字展示中心）。
+          <!-- 渠道分类过滤胶囊 -->
+          <div class="tickets-filter-row">
+            <button class="tickets-filter-chip active" onclick="filterTickets('all', this)">全部景点 (11)</button>
+            <button class="tickets-filter-chip" onclick="filterTickets('ota', this)">🟢 美团/飞猪均可提前买 (7)</button>
+            <button class="tickets-filter-chip" onclick="filterTickets('official', this)">🔴 官方抢票/禁区报备 (3)</button>
+            <button class="tickets-filter-chip" onclick="filterTickets('free', this)">🟡 2026全民免大门票 (1)</button>
+          </div>
         </div>
-      </div>
 
-      <div class="alert-card cyan">
-        <div class="alert-header">🏜️ 穿越柴达木无人区与高原温差（Day 6-7）</div>
-        <div class="alert-desc">
-          1. <strong>戈壁物资</strong>：Day 6 穿越 650km 柴达木戈壁，车上备足 2 箱饮用水与高热量零食；离开敦煌前务必将考斯特加满油；<br>
-          2. <strong>高反与防晒</strong>：茶卡盐湖（3100m）、青海湖（3200m），备好红景天/散利痛。紫外线强烈，SPF50+防晒与墨镜不可离身。
+        <!-- 现役与退役军人优待实战作战指南 (可折叠) -->
+        <div class="military-handbook-card" id="military-handbook-card">
+          <div class="military-handbook-header" onclick="toggleMilitaryHandbook()">
+            <div class="military-handbook-title">
+              <span>🎖️ 现役与退役军人优待作战指南</span>
+            </div>
+            <span class="military-handbook-toggle" id="military-handbook-toggle-text">收起 ▴</span>
+          </div>
+          <div class="military-handbook-body">
+            <div style="margin-bottom: 8px;">
+              <span class="military-rule-badge rule-exempt">✓ 免首道大门票</span>
+              <div style="color: #ecfdf5; font-size: 11.5px;">
+                持本人<strong>《现役军官证/士兵证》</strong>或<strong>《退役军人优待证》+ 二代身份证原件</strong>，在张掖七彩丹霞、怪树林、嘉峪关、鸣沙山、翡翠湖、茶卡盐湖、青海湖二郎剑<strong>均享免大门票</strong>（单人累计可减免超 <strong>600 元</strong>）。
+              </div>
+            </div>
+            <div style="margin-bottom: 8px;">
+              <span class="military-rule-badge rule-selfpay">⚠️ 免大门票 ≠ 免特许交通车</span>
+              <div style="color: #fef3c7; font-size: 11.5px;">
+                景区特许经营的<strong>内部交通车、小火车、摆渡车（七彩丹霞39元、怪树林50元、翡翠湖60元、茶卡100元）不属于免票范围</strong>，军人队员需自行购票乘车。
+              </div>
+            </div>
+            <div style="color: #a7f3d0; font-size: 11px; border-top: 1px dashed rgba(52,211,153,0.25); padding-top: 6px;">
+              💡 <strong>购票建议</strong>：普通队员在美团/飞猪直接买“门票+车票”联票；军人队员在平台提前单独购买车票或到景区凭证办优待。
+            </div>
+          </div>
+        </div>
+
+        <!-- 11 大景点购票卡片容器 -->
+        <div id="tickets-cards-container">
+          <!-- 由 JS 动态渲染 -->
         </div>
       </div>
 
@@ -2891,65 +2971,7 @@
         </div>
       </div>
 
-      <!-- 模块 3: 🎫 环线景点门票速查与军人优待手册 -->
-      <div class="section-title">环线景点门票速查与军人优待手册</div>
-      
-      <div class="tickets-dashboard">
-        <!-- 进度与统计卡片 -->
-        <div class="liquid-glass tickets-summary-card">
-          <div class="tickets-summary-top">
-            <div class="tickets-stat-title">
-              <span>🎟️ 全程景点已出票进度</span>
-            </div>
-            <div class="tickets-progress-count" id="tickets-progress-text">已购 0 / 11 处 (0%)</div>
-          </div>
-          <div class="tickets-progress-bar-bg">
-            <div class="tickets-progress-bar-fill" id="tickets-progress-fill"></div>
-          </div>
-
-          <!-- 渠道分类过滤胶囊 -->
-          <div class="tickets-filter-row">
-            <button class="tickets-filter-chip active" onclick="filterTickets('all', this)">全部景点 (11)</button>
-            <button class="tickets-filter-chip" onclick="filterTickets('ota', this)">🟢 美团/飞猪均可提前买 (7)</button>
-            <button class="tickets-filter-chip" onclick="filterTickets('official', this)">🔴 官方抢票/禁区报备 (3)</button>
-            <button class="tickets-filter-chip" onclick="filterTickets('free', this)">🟡 2026全民免大门票 (1)</button>
-          </div>
-        </div>
-
-        <!-- 现役与退役军人优待实战作战指南 (可折叠) -->
-        <div class="military-handbook-card" id="military-handbook-card">
-          <div class="military-handbook-header" onclick="toggleMilitaryHandbook()">
-            <div class="military-handbook-title">
-              <span>🎖️ 现役与退役军人优待作战指南</span>
-            </div>
-            <span class="military-handbook-toggle" id="military-handbook-toggle-text">收起 ▴</span>
-          </div>
-          <div class="military-handbook-body">
-            <div style="margin-bottom: 8px;">
-              <span class="military-rule-badge rule-exempt">✓ 免首道大门票</span>
-              <div style="color: #ecfdf5; font-size: 11.5px;">
-                持本人<strong>《现役军官证/士兵证》</strong>或<strong>《退役军人优待证》+ 二代身份证原件</strong>，在张掖七彩丹霞、怪树林、嘉峪关、鸣沙山、翡翠湖、茶卡盐湖、青海湖二郎剑<strong>均享免大门票</strong>（单人累计可减免超 <strong>600 元</strong>）。
-              </div>
-            </div>
-            <div style="margin-bottom: 8px;">
-              <span class="military-rule-badge rule-selfpay">⚠️ 免大门票 ≠ 免特许交通车</span>
-              <div style="color: #fef3c7; font-size: 11.5px;">
-                景区特许经营的<strong>内部交通车、小火车、摆渡车（七彩丹霞39元、怪树林50元、翡翠湖60元、茶卡100元）不属于免票范围</strong>，军人队员需自行购票乘车。
-              </div>
-            </div>
-            <div style="color: #a7f3d0; font-size: 11px; border-top: 1px dashed rgba(52,211,153,0.25); padding-top: 6px;">
-              💡 <strong>购票建议</strong>：普通队员在美团/飞猪直接买“门票+车票”联票；军人队员在平台提前单独购买车票或到景区凭证办优待。
-            </div>
-          </div>
-        </div>
-
-        <!-- 11 大景点购票卡片容器 -->
-        <div id="tickets-cards-container">
-          <!-- 由 JS 动态渲染 -->
-        </div>
-      </div>
-
-      <!-- 模块 4: 💰 考斯特团队公共 AA 记账器 -->
+      <!-- 模块 3: 💰 考斯特团队公共 AA 记账器 -->
       <div class="section-title">考斯特团队公共 AA 记账器</div>
       <div class="liquid-glass ledger-summary-card">
         <div class="ledger-top-row">
@@ -5517,6 +5539,8 @@
         flyUrl: null,
         meituanHint: "微信小程序预约",
         channelBadge: "小程序「甘肃省博物馆」",
+        mpName: "甘肃省博物馆",
+        officialUrl: "https://www.gansumuseum.com",
         militaryActive: "持现役军官证/士兵证走绿色通道免排队",
         militaryVeteran: "持退役军人优待证+身份证原件走绿色通道",
         trafficNote: "馆内无特许收费交通，常设展全免",
@@ -5551,6 +5575,8 @@
         flyUrl: null,
         meituanHint: "军事涉密禁区，严禁第三方购票",
         channelBadge: "基地接待特许报备",
+        mpName: null,
+        officialUrl: null,
         militaryActive: "免收服务管理费",
         militaryVeteran: "免收服务管理费",
         trafficNote: "必须搭乘基地统一专用摆渡大巴并由讲解员带队",
@@ -5602,6 +5628,8 @@
         flyUrl: null,
         meituanHint: "⚠️第三方无散客票！严禁OTA",
         channelBadge: "官网/小程序「莫高窟参观预约网」",
+        mpName: "莫高窟参观预约网",
+        officialUrl: "https://www.mgk.org.cn",
         militaryActive: "享特惠票约 68元 (免门票与电影，收服务费)",
         militaryVeteran: "享特惠票约 68元 (免门票与电影，收服务费)",
         trafficNote: "数字中心至实体洞窟特许摆渡大巴已包含",
@@ -5687,6 +5715,8 @@
         flyUrl: null,
         meituanHint: "微信小程序预约，无需付门票款",
         channelBadge: "小程序「青海文旅通」预约",
+        mpName: "青海文旅通",
+        officialUrl: null,
         militaryActive: "全员免门票，军人走便民绿色通道",
         militaryVeteran: "全员免门票，军人走便民绿色通道",
         trafficNote: "内部讲解费或电瓶车按需自理",
@@ -5759,10 +5789,24 @@
                     <span>美团可买</span>
                   </span>
                 ` : `
-                  <span class="btn-official-badge">
-                    <span>🏛️</span>
-                    <span>${t.category === 'free' ? '官方免费预约' : '官方唯一渠道'}</span>
-                  </span>
+                  ${t.officialUrl ? `
+                    <a href="${t.officialUrl}" target="_blank" rel="noopener noreferrer" class="btn-official-link" title="官方网站直达预约">
+                      <span>🌐</span>
+                      <span>官网预约直达</span>
+                    </a>
+                  ` : ''}
+                  ${t.mpName ? `
+                    <button type="button" class="btn-mp-copy" onclick="copyMiniProgramName('${t.mpName}', '${t.name}', event)" title="点击自动复制小程序名称前往微信搜索">
+                      <span>💬</span>
+                      <span>微信小程序</span>
+                      <span class="copy-hint-pill">点此复制</span>
+                    </button>
+                  ` : `
+                    <span class="btn-official-badge">
+                      <span>🛡️</span>
+                      <span>特许接待政审报备</span>
+                    </span>
+                  `}
                 `}
               </div>
 
@@ -5823,6 +5867,53 @@
       if (toggleText) {
         toggleText.textContent = card.classList.contains("collapsed") ? "展开 ▾" : "收起 ▴";
       }
+    }
+
+    // 官方小程序名称一键复制并自动唤起微信
+    function copyMiniProgramName(mpName, spotName, event) {
+      if (event) event.stopPropagation();
+      const textToCopy = mpName || spotName;
+
+      const notifyUser = () => {
+        showToast(`📋 已复制「${textToCopy}」！请打开微信搜索粘贴`);
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          setTimeout(() => {
+            try {
+              window.location.href = "weixin://";
+            } catch(e) {}
+          }, 400);
+        }
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(notifyUser).catch(() => {
+          fallbackCopyText(textToCopy, notifyUser);
+        });
+      } else {
+        fallbackCopyText(textToCopy, notifyUser);
+      }
+    }
+
+    function fallbackCopyText(text, onSuccess) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.top = "-9999px";
+        textarea.style.left = "-9999px";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        if (successful && onSuccess) {
+          onSuccess();
+          return;
+        }
+      } catch (e) {}
+      window.prompt("请长按全选复制小程序搜索名称：", text);
     }
 
     // --------------------------------------------------------------------------
