@@ -2772,7 +2772,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.5.1</span>
+          <span class="version-num">v3.5.2</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -4239,6 +4239,9 @@
     let stateCheckins = JSON.parse(localStorage.getItem(STORAGE_KEY_CHECKINS) || "{}");
     let statePacking  = JSON.parse(localStorage.getItem(STORAGE_KEY_PACKING)  || "{}");
     let stateTickets  = JSON.parse(localStorage.getItem(STORAGE_KEY_TICKETS)  || "{}");
+    if (stateTickets["d5_mogaoku"] === undefined) {
+      stateTickets["d5_mogaoku"] = true; // 莫高窟A类票团队已由组织者官方预约锁定，默认标记已出票
+    }
     let stateLedger   = JSON.parse(localStorage.getItem(STORAGE_KEY_LEDGER)   || "[]");
     let statePeople   = parseInt(localStorage.getItem(STORAGE_KEY_PEOPLE)     || "10", 10);
     let currentTicketFilter = "all";
@@ -5538,13 +5541,13 @@
         priceAdultNote: "常设展免费 (需提前微信小程序实名预约)",
         flyUrl: null,
         meituanHint: "微信小程序预约",
-        channelBadge: "小程序「甘肃省博物馆」",
-        mpName: "甘肃省博物馆",
-        officialUrl: "https://www.gansumuseum.com",
+        channelBadge: "小程序「甘博预约」",
+        mpName: "甘博预约",
+        officialUrl: null,
         militaryActive: "持现役军官证/士兵证走绿色通道免排队",
         militaryVeteran: "持退役军人优待证+身份证原件走绿色通道",
         trafficNote: "馆内无特许收费交通，常设展全免",
-        tips: "普通队员提前 1~3 天在微信小程序预约；军人队员备齐有效证件原件可由绿色通道优先核验入馆，无需随大流排队。"
+        tips: "普通队员提前 1~3 天在微信小程序「甘博预约」预约；军人队员备齐有效证件原件可由绿色通道优先核验入馆，无需随大流排队。"
       },
       {
         id: "d2_danxia",
@@ -5622,18 +5625,19 @@
         dayName: "敦煌",
         name: "敦煌莫高窟 (A类票)",
         category: "official",
-        categoryLabel: "🔴 官方唯一抢票 (严禁OTA)",
+        categoryLabel: "🔴 官方已锁定 A类票",
         priceAdult: "238 元",
         priceAdultNote: "A类8窟 + 双球幕电影 + 专用车 + 讲解",
         flyUrl: null,
-        meituanHint: "⚠️第三方无散客票！严禁OTA",
-        channelBadge: "官网/小程序「莫高窟参观预约网」",
-        mpName: "莫高窟参观预约网",
-        officialUrl: "https://www.mgk.org.cn",
+        meituanHint: "团队已官方预约锁定A类票",
+        channelBadge: "官方已锁定 A类票",
+        mpName: null,
+        officialUrl: null,
+        isPreBooked: true,
         militaryActive: "享特惠票约 68元 (免门票与电影，收服务费)",
         militaryVeteran: "享特惠票约 68元 (免门票与电影，收服务费)",
         trafficNote: "数字中心至实体洞窟特许摆渡大巴已包含",
-        tips: "【全行程最顶级紧急】散客唯一官方渠道！提前 30 天早晨 07:00 准时在官网抢票！现役/退役军人必须同步提前抢订特惠票名额，现场绝不补发！"
+        tips: "【已大功告成】全行程最紧张之莫高窟 A 类票已由团队官方预约锁定成功！含数字中心双球幕、8个实体特窟及往返特许摆渡大巴。军人队员入场请随身携带军官证/退役优待证与身份证原件备查。"
       },
       {
         id: "d5_mingshashan",
@@ -5801,12 +5805,17 @@
                       <span>微信小程序</span>
                       <span class="copy-hint-pill">点此复制</span>
                     </button>
+                  ` : (t.isPreBooked ? `
+                    <span class="btn-official-badge" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(52, 211, 153, 0.45); color: #6ee7b7;">
+                      <span>✅</span>
+                      <span>已官方预约锁定 A 类票</span>
+                    </span>
                   ` : `
                     <span class="btn-official-badge">
                       <span>🛡️</span>
                       <span>特许接待政审报备</span>
                     </span>
-                  `}
+                  `)}
                 `}
               </div>
 
