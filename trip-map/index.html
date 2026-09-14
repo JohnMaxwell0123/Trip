@@ -1717,6 +1717,394 @@
       margin-left: 8px;
     }
 
+    /* ==========================================================================
+       6.3 环线景点门票速查与军人优待手册 (Tickets & Military Handbook)
+       ========================================================================== */
+    .tickets-dashboard {
+      margin-bottom: 24px;
+    }
+
+    /* 顶部进度与统计卡片 */
+    .tickets-summary-card {
+      padding: 16px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tickets-summary-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tickets-stat-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tickets-progress-count {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .tickets-progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .tickets-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #38bdf8, #fbbf24);
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* 渠道过滤胶囊条 */
+    .tickets-filter-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .tickets-filter-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tickets-filter-chip {
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-dim);
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tickets-filter-chip.active {
+      background: rgba(245, 158, 11, 0.22);
+      border-color: rgba(251, 191, 36, 0.6);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+
+    /* 军人优待实战作战指南卡片 */
+    .military-handbook-card {
+      background: linear-gradient(135deg, rgba(20, 35, 25, 0.75) 0%, rgba(12, 22, 16, 0.85) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(6, 78, 59, 0.2);
+    }
+
+    .military-handbook-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .military-handbook-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #6ee7b7;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .military-handbook-toggle {
+      font-size: 11px;
+      color: #a7f3d0;
+      opacity: 0.8;
+    }
+
+    .military-handbook-body {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(52, 211, 153, 0.25);
+      font-size: 12px;
+      line-height: 1.55;
+      color: #d1fae5;
+    }
+
+    .military-handbook-card.collapsed .military-handbook-body {
+      display: none;
+    }
+
+    .military-rule-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .rule-exempt {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #34d399;
+    }
+
+    .rule-selfpay {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+
+    /* 景点门票卡片 */
+    .ticket-card {
+      background: var(--glass-surface);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 14px 15px;
+      margin-bottom: 12px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      transition: all 0.25s ease;
+      position: relative;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .ticket-card.ticket-bought {
+      border-color: rgba(52, 211, 153, 0.45);
+      background: linear-gradient(135deg, rgba(20, 35, 25, 0.65) 0%, rgba(15, 25, 18, 0.75) 100%);
+    }
+
+    .ticket-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .ticket-day-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 6px;
+      padding: 1.5px 7px;
+      margin-bottom: 4px;
+    }
+
+    .ticket-spot-name {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.35;
+    }
+
+    .ticket-channel-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2.5px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .channel-ota {
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #34d399;
+    }
+
+    .channel-official {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(248, 113, 113, 0.45);
+      color: #f87171;
+    }
+
+    .channel-free {
+      background: rgba(56, 189, 248, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #38bdf8;
+    }
+
+    /* 票价行 */
+    .ticket-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .price-adult-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .price-label {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .price-adult-val {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    /* 军人优待细则框 */
+    .ticket-military-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 3px solid #10b981;
+      border-radius: 0 8px 8px 0;
+      padding: 7px 10px;
+      margin-bottom: 8px;
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+
+    .military-sub-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      color: #a7f3d0;
+      margin-bottom: 3px;
+    }
+    .military-sub-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .military-sub-row strong {
+      color: #34d399;
+      white-space: nowrap;
+    }
+
+    /* 交通车自理/特殊提醒 */
+    .ticket-traffic-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-sub);
+      background: rgba(245, 158, 11, 0.08);
+      border-radius: 8px;
+      padding: 6px 9px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      border: 1px solid rgba(245, 158, 11, 0.15);
+    }
+
+    /* 底部操作区：平台直达与已购勾选 */
+    .ticket-actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .ticket-links-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-flyai-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.25) 0%, rgba(245, 100, 0, 0.35) 100%);
+      border: 1px solid rgba(251, 146, 60, 0.5);
+      color: #fed7aa;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-flyai-link:hover, .btn-flyai-link:active {
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.45) 0%, rgba(245, 100, 0, 0.55) 100%);
+      color: #fff;
+    }
+
+    .btn-meituan-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(254, 240, 138, 0.15);
+      border: 1px solid rgba(253, 224, 71, 0.35);
+      color: #fef08a;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn-official-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: #fca5a5;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .ticket-bought-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .ticket-bought-toggle.checked {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(52, 211, 153, 0.5);
+      color: #6ee7b7;
+    }
+
     /* 记账输入模态窗 */
     .modal-overlay {
       position: fixed;
@@ -2335,7 +2723,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.4</span>
+          <span class="version-num">v3.5</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -2503,7 +2891,65 @@
         </div>
       </div>
 
-      <!-- 模块 3: 💰 团队公共 AA 记账器 -->
+      <!-- 模块 3: 🎫 环线景点门票速查与军人优待手册 -->
+      <div class="section-title">环线景点门票速查与军人优待手册</div>
+      
+      <div class="tickets-dashboard">
+        <!-- 进度与统计卡片 -->
+        <div class="liquid-glass tickets-summary-card">
+          <div class="tickets-summary-top">
+            <div class="tickets-stat-title">
+              <span>🎟️ 全程景点已出票进度</span>
+            </div>
+            <div class="tickets-progress-count" id="tickets-progress-text">已购 0 / 11 处 (0%)</div>
+          </div>
+          <div class="tickets-progress-bar-bg">
+            <div class="tickets-progress-bar-fill" id="tickets-progress-fill"></div>
+          </div>
+
+          <!-- 渠道分类过滤胶囊 -->
+          <div class="tickets-filter-row">
+            <button class="tickets-filter-chip active" onclick="filterTickets('all', this)">全部景点 (11)</button>
+            <button class="tickets-filter-chip" onclick="filterTickets('ota', this)">🟢 美团/飞猪均可提前买 (7)</button>
+            <button class="tickets-filter-chip" onclick="filterTickets('official', this)">🔴 官方抢票/禁区报备 (3)</button>
+            <button class="tickets-filter-chip" onclick="filterTickets('free', this)">🟡 2026全民免大门票 (1)</button>
+          </div>
+        </div>
+
+        <!-- 现役与退役军人优待实战作战指南 (可折叠) -->
+        <div class="military-handbook-card" id="military-handbook-card">
+          <div class="military-handbook-header" onclick="toggleMilitaryHandbook()">
+            <div class="military-handbook-title">
+              <span>🎖️ 现役与退役军人优待作战指南</span>
+            </div>
+            <span class="military-handbook-toggle" id="military-handbook-toggle-text">收起 ▴</span>
+          </div>
+          <div class="military-handbook-body">
+            <div style="margin-bottom: 8px;">
+              <span class="military-rule-badge rule-exempt">✓ 免首道大门票</span>
+              <div style="color: #ecfdf5; font-size: 11.5px;">
+                持本人<strong>《现役军官证/士兵证》</strong>或<strong>《退役军人优待证》+ 二代身份证原件</strong>，在张掖七彩丹霞、怪树林、嘉峪关、鸣沙山、翡翠湖、茶卡盐湖、青海湖二郎剑<strong>均享免大门票</strong>（单人累计可减免超 <strong>600 元</strong>）。
+              </div>
+            </div>
+            <div style="margin-bottom: 8px;">
+              <span class="military-rule-badge rule-selfpay">⚠️ 免大门票 ≠ 免特许交通车</span>
+              <div style="color: #fef3c7; font-size: 11.5px;">
+                景区特许经营的<strong>内部交通车、小火车、摆渡车（七彩丹霞39元、怪树林50元、翡翠湖60元、茶卡100元）不属于免票范围</strong>，军人队员需自行购票乘车。
+              </div>
+            </div>
+            <div style="color: #a7f3d0; font-size: 11px; border-top: 1px dashed rgba(52,211,153,0.25); padding-top: 6px;">
+              💡 <strong>购票建议</strong>：普通队员在美团/飞猪直接买“门票+车票”联票；军人队员在平台提前单独购买车票或到景区凭证办优待。
+            </div>
+          </div>
+        </div>
+
+        <!-- 11 大景点购票卡片容器 -->
+        <div id="tickets-cards-container">
+          <!-- 由 JS 动态渲染 -->
+        </div>
+      </div>
+
+      <!-- 模块 4: 💰 考斯特团队公共 AA 记账器 -->
       <div class="section-title">考斯特团队公共 AA 记账器</div>
       <div class="liquid-glass ledger-summary-card">
         <div class="ledger-top-row">
@@ -3764,13 +4210,16 @@
     // --------------------------------------------------------------------------
     const STORAGE_KEY_CHECKINS = "xy_trip_checkins";
     const STORAGE_KEY_PACKING  = "xy_trip_packings";
+    const STORAGE_KEY_TICKETS  = "xy_trip_tickets_bought";
     const STORAGE_KEY_LEDGER   = "xy_trip_ledger";
     const STORAGE_KEY_PEOPLE   = "xy_trip_people_num";
 
     let stateCheckins = JSON.parse(localStorage.getItem(STORAGE_KEY_CHECKINS) || "{}");
     let statePacking  = JSON.parse(localStorage.getItem(STORAGE_KEY_PACKING)  || "{}");
+    let stateTickets  = JSON.parse(localStorage.getItem(STORAGE_KEY_TICKETS)  || "{}");
     let stateLedger   = JSON.parse(localStorage.getItem(STORAGE_KEY_LEDGER)   || "[]");
     let statePeople   = parseInt(localStorage.getItem(STORAGE_KEY_PEOPLE)     || "10", 10);
+    let currentTicketFilter = "all";
 
     // --------------------------------------------------------------------------
     // C. 页面初始化与渲染 (Renderer)
@@ -3778,6 +4227,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       renderScheduleCards(-1);
       renderPackingStatus();
+      renderTicketsDashboard();
       renderLedgerList();
       // 后台静默预热地图（此时容器 visibility: hidden 且拥有 100vw/100vh 真实几何尺寸）
       setTimeout(() => {
@@ -5052,7 +5502,331 @@
     }
 
     // --------------------------------------------------------------------------
-    // G. 团队公共 AA 记账器 (Team Expense Ledger)
+    // G. 环线景点门票与军人优待速查手册 (Tickets & Military Handbook)
+    // --------------------------------------------------------------------------
+    const TRIP_TICKETS = [
+      {
+        id: "d1_museum",
+        day: "D1",
+        dayName: "兰州",
+        name: "甘肃省博物馆",
+        category: "official",
+        categoryLabel: "🔴 官方唯一预约",
+        priceAdult: "0 元",
+        priceAdultNote: "常设展免费 (需提前微信小程序实名预约)",
+        flyUrl: null,
+        meituanHint: "微信小程序预约",
+        channelBadge: "小程序「甘肃省博物馆」",
+        militaryActive: "持现役军官证/士兵证走绿色通道免排队",
+        militaryVeteran: "持退役军人优待证+身份证原件走绿色通道",
+        trafficNote: "馆内无特许收费交通，常设展全免",
+        tips: "普通队员提前 1~3 天在微信小程序预约；军人队员备齐有效证件原件可由绿色通道优先核验入馆，无需随大流排队。"
+      },
+      {
+        id: "d2_danxia",
+        day: "D2",
+        dayName: "张掖",
+        name: "张掖七彩丹霞",
+        category: "ota",
+        categoryLabel: "🟢 美团 / 飞猪均可提前买",
+        priceAdult: "93 元",
+        priceAdultNote: "门票 54元 + 观光车 39元",
+        flyUrl: "https://router.feizhu.com/ws/3wurGE",
+        meituanHint: "美团搜「张掖七彩丹霞」购套票",
+        channelBadge: "美团 / 飞猪均已就绪",
+        militaryActive: "免门票 54元，仅需购买观光车 39元",
+        militaryVeteran: "免门票 54元，仅需购买观光车 39元",
+        trafficNote: "景区观光车 39 元（属特许经营交通，全员必购）",
+        tips: "普通队员提前在美团或飞猪购买套票，刷身份证直接过闸；现役与退役军人凭证免门票，在窗口或线上单购 39 元观光车票。"
+      },
+      {
+        id: "d3_spacecity",
+        day: "D3",
+        dayName: "酒泉·金塔",
+        name: "东风航天城 (酒泉卫星发射中心)",
+        category: "official",
+        categoryLabel: "🔴 官方特许政审报备",
+        priceAdult: "约 100~150 元",
+        priceAdultNote: "发射场统一特许交通车 + 专业讲解",
+        flyUrl: null,
+        meituanHint: "军事涉密禁区，严禁第三方购票",
+        channelBadge: "基地接待特许报备",
+        militaryActive: "免收服务管理费",
+        militaryVeteran: "免收服务管理费",
+        trafficNote: "必须搭乘基地统一专用摆渡大巴并由讲解员带队",
+        tips: "国家军事涉密管理区！出行前 3 天必须向基地接待处报备全员身份证与考斯特车辆信息，全区严禁拍照录像及放飞无人机。"
+      },
+      {
+        id: "d4_guaishulin",
+        day: "D4",
+        dayName: "额济纳",
+        name: "额济纳黑城弱水胡杨·怪树林",
+        category: "ota",
+        categoryLabel: "🟢 美团 / 飞猪均可提前买",
+        priceAdult: "约 200 元",
+        priceAdultNote: "金秋大旺季通票 150元 + 摆渡车 50元",
+        flyUrl: "https://router.feizhu.com/ws/3Z0pX0",
+        meituanHint: "美团搜「黑城弱水胡杨怪树林」",
+        channelBadge: "美团 / 飞猪均已就绪",
+        militaryActive: "免大门票 150元，需购买摆渡车 50元",
+        militaryVeteran: "免大门票 150元，需购买摆渡车 50元",
+        trafficNote: "景区摆渡车 50 元（景区极大，核心观光必购）",
+        tips: "9月下旬至10月金秋胡杨大旺季现场排队长、易限流，普通队员务必提前在美团/飞猪出票；军人队员免首道大门票，仅买车票。"
+      },
+      {
+        id: "d4_jiayuguan",
+        day: "D4",
+        dayName: "嘉峪关",
+        name: "嘉峪关关城三联票",
+        category: "ota",
+        categoryLabel: "🟢 美团 / 飞猪均可提前买",
+        priceAdult: "110 元",
+        priceAdultNote: "关城 + 悬壁长城 + 长城第一墩联票",
+        flyUrl: "https://router.feizhu.com/ws/2P1snM",
+        meituanHint: "美团搜「嘉峪关文物景区」购三联通票",
+        channelBadge: "美团 / 飞猪均已就绪",
+        militaryActive: "免大门票 110元 (全免 0 元)",
+        militaryVeteran: "免大门票 110元 (全免 0 元)",
+        trafficNote: "以徒步游览为主；第一墩电瓶车 12 元自愿自理",
+        tips: "三联通票 3 天内有效。现役军人持军官证、退役军人持优待证+身份证原件直接在人工窗口或闸机免大门票入园（单人立省 110 元）！"
+      },
+      {
+        id: "d5_mogaoku",
+        day: "D5",
+        dayName: "敦煌",
+        name: "敦煌莫高窟 (A类票)",
+        category: "official",
+        categoryLabel: "🔴 官方唯一抢票 (严禁OTA)",
+        priceAdult: "238 元",
+        priceAdultNote: "A类8窟 + 双球幕电影 + 专用车 + 讲解",
+        flyUrl: null,
+        meituanHint: "⚠️第三方无散客票！严禁OTA",
+        channelBadge: "官网/小程序「莫高窟参观预约网」",
+        militaryActive: "享特惠票约 68元 (免门票与电影，收服务费)",
+        militaryVeteran: "享特惠票约 68元 (免门票与电影，收服务费)",
+        trafficNote: "数字中心至实体洞窟特许摆渡大巴已包含",
+        tips: "【全行程最顶级紧急】散客唯一官方渠道！提前 30 天早晨 07:00 准时在官网抢票！现役/退役军人必须同步提前抢订特惠票名额，现场绝不补发！"
+      },
+      {
+        id: "d5_mingshashan",
+        day: "D5",
+        dayName: "敦煌",
+        name: "敦煌鸣沙山月牙泉",
+        category: "ota",
+        categoryLabel: "🟢 美团 / 飞猪均可提前买",
+        priceAdult: "110 元",
+        priceAdultNote: "录脸后 3 天内不限次畅玩入园",
+        flyUrl: "https://router.feizhu.com/ws/1vsfhh",
+        meituanHint: "美团搜「鸣沙山月牙泉」直接购票",
+        channelBadge: "美团 / 飞猪均已就绪",
+        militaryActive: "免大门票 110元 (全免 0 元)",
+        militaryVeteran: "免大门票 110元 (全免 0 元)",
+        trafficNote: "骑骆驼 100元 / 观光车 20元 / 防沙鞋套 15元自理",
+        tips: "普通队员提前在美团/飞猪购买并刷脸绑定，3天内可多次进出观日落与夜间万人星空演唱会；军人凭有效证件原件窗口办理 0 元优待入园。"
+      },
+      {
+        id: "d6_feicuihu",
+        day: "D6",
+        dayName: "大柴旦",
+        name: "大柴旦翡翠湖",
+        category: "ota",
+        categoryLabel: "🟢 美团 / 飞猪均可提前买",
+        priceAdult: "110 元",
+        priceAdultNote: "门票 50元 + 湖心观光小火车 60元",
+        flyUrl: "https://router.feizhu.com/ws/3922v2",
+        meituanHint: "美团搜「大柴旦翡翠湖」购套票",
+        channelBadge: "美团 / 飞猪均已就绪",
+        militaryActive: "免门票 50元，需自购小火车 60元",
+        militaryVeteran: "免门票 50元，需自购小火车 60元",
+        trafficNote: "湖心小火车 60 元（盐湖极大暴晒，强烈推荐必购）",
+        tips: "翡翠湖盐池绵延数公里，最美碧绿盐池在 4~6 号湖区深处，军人队员虽免门票，强烈建议提前在美团/飞猪单独买好 60 元小火车票。"
+      },
+      {
+        id: "d7_chaka",
+        day: "D7",
+        dayName: "茶卡",
+        name: "茶卡盐湖·天空之镜",
+        category: "ota",
+        categoryLabel: "🟢 美团 / 飞猪均可提前买",
+        priceAdult: "160 元",
+        priceAdultNote: "门票 60元 + 往返红皮小火车 100元",
+        flyUrl: "https://router.feizhu.com/ws/2IHk6K",
+        meituanHint: "美团搜「茶卡盐湖」买红皮火车套票",
+        channelBadge: "美团 / 飞猪均已就绪",
+        militaryActive: "免门票 60元，需自购红皮小火车 100元",
+        militaryVeteran: "免门票 60元，需自购红皮小火车 100元",
+        trafficNote: "往返红皮小火车 100 元（单程近 4km，极力推荐必购）",
+        tips: "景区大门至核心湖心码头近 4 公里，普通队员直接在美团/飞猪买 160 元套票；军人队员凭优待证免门票，单独买 100 元小火车票。"
+      },
+      {
+        id: "d7_erlangjian",
+        day: "D7",
+        dayName: "青海湖",
+        name: "青海湖二郎剑景区",
+        category: "ota",
+        categoryLabel: "🟢 美团 / 飞猪均可提前买",
+        priceAdult: "90 元",
+        priceAdultNote: "旺季成人大门票",
+        flyUrl: "https://router.feizhu.com/ws/2YozKS",
+        meituanHint: "美团搜「青海湖二郎剑景区」买门票",
+        channelBadge: "美团 / 飞猪均已就绪",
+        militaryActive: "免大门票 90元 (全免 0 元)",
+        militaryVeteran: "免大门票 90元 (全免 0 元)",
+        trafficNote: "景区观光车 20元 / 游船自选自理",
+        tips: "普通队员提前在美团/飞猪购票；军人凭证免票。若国庆长假首日景区排队严重（触发 D7 熔断预案），直接降级转投 G109 湖滨牧道亲水免票免堵。"
+      },
+      {
+        id: "d8_taersi",
+        day: "D8",
+        dayName: "湟中·西宁",
+        name: "西宁塔尔寺",
+        category: "free",
+        categoryLabel: "🟡 2026全面免费 (0元实名预约)",
+        priceAdult: "0 元",
+        priceAdultNote: "自 2026 年 1 月 1 日起常态化免大门票",
+        flyUrl: null,
+        meituanHint: "微信小程序预约，无需付门票款",
+        channelBadge: "小程序「青海文旅通」预约",
+        militaryActive: "全员免门票，军人走便民绿色通道",
+        militaryVeteran: "全员免门票，军人走便民绿色通道",
+        trafficNote: "内部讲解费或电瓶车按需自理",
+        tips: "自 2026 年 1 月 1 日起全面免收大门票！无需在任何商业平台购门票。只需出发前 1~7 天在微信小程序「青海文旅通」做 0 元实名预约即可。"
+      }
+    ];
+
+    function renderTicketsDashboard() {
+      const container = document.getElementById("tickets-cards-container");
+      if (!container) return;
+
+      const filtered = (currentTicketFilter === "all")
+        ? TRIP_TICKETS
+        : TRIP_TICKETS.filter(t => t.category === currentTicketFilter);
+
+      let html = "";
+      filtered.forEach(t => {
+        const isBought = !!stateTickets[t.id];
+        const channelClass = (t.category === 'ota') ? 'channel-ota' : (t.category === 'official' ? 'channel-official' : 'channel-free');
+
+        html += `
+          <div class="ticket-card ${isBought ? 'ticket-bought' : ''}" id="ticket-card-${t.id}">
+            <div class="ticket-card-header">
+              <div>
+                <div class="ticket-day-badge">${t.day} · ${t.dayName}</div>
+                <div class="ticket-spot-name">${t.name}</div>
+              </div>
+              <span class="ticket-channel-tag ${channelClass}">${t.categoryLabel.split(' ')[0]} ${t.channelBadge}</span>
+            </div>
+
+            <div class="ticket-price-row">
+              <div class="price-adult-wrap">
+                <span class="price-label">成人全价：</span>
+                <span class="price-adult-val">${t.priceAdult}</span>
+                <span style="font-size:11px; color:var(--text-dim); margin-left:4px;">(${t.priceAdultNote})</span>
+              </div>
+            </div>
+
+            <div class="ticket-military-box">
+              <div class="military-sub-row">
+                <strong>🎖️ 现役军人：</strong>
+                <span>${t.militaryActive}</span>
+              </div>
+              <div class="military-sub-row">
+                <strong>🎖️ 退役军人：</strong>
+                <span>${t.militaryVeteran}</span>
+              </div>
+            </div>
+
+            <div class="ticket-traffic-hint">
+              <span>🚗</span>
+              <div><strong>特许交通/提醒：</strong>${t.trafficNote}</div>
+            </div>
+
+            <div style="font-size:11.5px; color:var(--text-sub); line-height:1.45; margin-bottom:10px;">
+              💡 <strong>购票要诀：</strong>${t.tips}
+            </div>
+
+            <div class="ticket-actions-row">
+              <div class="ticket-links-wrap">
+                ${t.flyUrl ? `
+                  <a href="${t.flyUrl}" target="_blank" rel="noopener noreferrer" class="btn-flyai-link" title="阿里巴巴 FlyAI 飞猪直达">
+                    <span>🛫</span>
+                    <span>飞猪直达</span>
+                  </a>
+                ` : ''}
+                ${t.category === 'ota' ? `
+                  <span class="btn-meituan-hint" title="支持美团 App 检索预订">
+                    <span>🟡</span>
+                    <span>美团可买</span>
+                  </span>
+                ` : `
+                  <span class="btn-official-badge">
+                    <span>🏛️</span>
+                    <span>${t.category === 'free' ? '官方免费预约' : '官方唯一渠道'}</span>
+                  </span>
+                `}
+              </div>
+
+              <div class="ticket-bought-toggle ${isBought ? 'checked' : ''}" onclick="toggleTicketBought('${t.id}', event)">
+                <div class="custom-check-box" style="margin-right:2px;"></div>
+                <span>${isBought ? '✓ 已出票' : '标记已购'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      updateTicketsProgress();
+    }
+
+    function toggleTicketBought(ticketId, event) {
+      if (event) event.stopPropagation();
+      if (stateTickets[ticketId]) {
+        delete stateTickets[ticketId];
+        showToast("已取消出票标记");
+      } else {
+        stateTickets[ticketId] = true;
+        const target = TRIP_TICKETS.find(t => t.id === ticketId);
+        showToast(`✓ 已标记「${target ? target.name : '该景点'}」购票完成！`);
+      }
+      localStorage.setItem(STORAGE_KEY_TICKETS, JSON.stringify(stateTickets));
+      renderTicketsDashboard();
+    }
+
+    function updateTicketsProgress() {
+      const boughtCount = Object.keys(stateTickets).length;
+      const total = TRIP_TICKETS.length;
+      const pct = Math.round((boughtCount / total) * 100);
+
+      const textEl = document.getElementById("tickets-progress-text");
+      const fillEl = document.getElementById("tickets-progress-fill");
+      if (textEl) {
+        textEl.textContent = `已购 ${boughtCount} / ${total} 处 (${pct}%)`;
+      }
+      if (fillEl) {
+        fillEl.style.width = `${pct}%`;
+      }
+    }
+
+    function filterTickets(category, btnEl) {
+      currentTicketFilter = category;
+      document.querySelectorAll(".tickets-filter-chip").forEach(c => c.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      renderTicketsDashboard();
+    }
+
+    function toggleMilitaryHandbook() {
+      const card = document.getElementById("military-handbook-card");
+      const toggleText = document.getElementById("military-handbook-toggle-text");
+      if (!card) return;
+      card.classList.toggle("collapsed");
+      if (toggleText) {
+        toggleText.textContent = card.classList.contains("collapsed") ? "展开 ▾" : "收起 ▴";
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // H. 团队公共 AA 记账器 (Team Expense Ledger)
     // --------------------------------------------------------------------------
     function renderLedgerList() {
       const container = document.getElementById("expense-list-container");
