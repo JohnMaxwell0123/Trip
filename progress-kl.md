@@ -2,7 +2,7 @@
 
 > **项目定位**：专为马来西亚吉隆坡（KLCC / 武吉免登 / 茨厂街 / 黑风洞 / 布城粉红清真寺 / 独立广场）深度漫行定制的高颜值移动端 Web App。  
 > **核心原则**：纯静态单文件免构建打包、零后端、全套苹果液态玻璃（Liquid Glass）视觉系统、移动端优先、Google Maps JavaScript API 深度驱动。  
-> **当前生产版本**：`RELEASE v1.2.1 · 2026.09 (Google Maps Ready)` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
+> **当前生产版本**：`RELEASE v1.2.2 · 2026.09 (Jalan Tunku Putra Lookout)` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
 > 📌 **项目阶段记忆规范**：**在每一次对话或开发阶段完成后，必须在此文件中更新当前最新状态与技术决策，以便在新的对话中实现秒级上下文恢复并无缝衔接后续开发！**
 
 ---
@@ -130,6 +130,17 @@ Pilgrimage to the West (Trip)/
   - **API Key 原生注入**：将官方专属 API Key (`AIzaSyDFwO_CG9x2_8mueUxyCcQ5OJqVdaS3wD4`) 正式注入 `kl-trip/index.html` 缺省配置，彻底告别降级提示与手动追加 `?key=` 参数；
   - **底图与路线渲染实测验证**：在暗夜液态玻璃主题下，Google Maps 成功加载吉隆坡至马六甲全境真实矢量底图、多段线路径以及 20 个 WGS-84 坐标图钉；
   - **云端同步更新**：同步推送 GitHub 触发 Cloudflare Pages 自动化全球上线。
+- **v1.2.2 (东姑山半山天际线绝美机位 Jalan Tunku Putra Lookout 闭环 · 2026.09)**：
+  - **绝美机位无缝织入 D3 黄金时段**：
+    1. **时段契合**：精准安排在 9/21 周一 17:30–18:30（15:30 伊斯兰艺术馆之后、19:00 亚罗街晚餐之前），完美捕获吉隆坡黄昏日落黄金时段 (Golden Hour)；
+    2. **机位景观**：位于 Bukit Tunku 豪宅区山腰，直面吉隆坡三大地标同框（国油双峰塔 + 吉隆坡塔 + Merdeka 118）与热带林海交融，出片率极高；
+  - **三维快捷工具链打通**：
+    1. 增加英文搜索词一键复制 `Tempat tinjauan Jalan Tunku Putra`（带 Toast 弹窗）；
+    2. 深度直达 Google Maps Universal Link 与 Grab 唤起协议；
+    3. AA 记账器扩充 `东姑山机位 Grab RM15` 快捷标签；
+    4. 门票速查中枢同步收录免门票露天机位与避让交通提醒；
+  - **地图底层点位挂载**：`KL_MAP_POINTS` 追加 `{ day: 3, name: "Jalan Tunku Putra (东姑山机位)", lat: 3.1610, lng: 101.6758, type: "spot" }`，Google Maps D3 路线网络平滑呈现。
+
 
 
 
