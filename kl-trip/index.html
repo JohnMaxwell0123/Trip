@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#070c14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>吉隆坡漫行 · 城市旅行互动路书</title>
+
+  <!-- Google Maps API 密钥注入配置 (若有专属Key可在此直接替换，或通过URL ?key= 传入) -->
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    window.GOOGLE_MAPS_API_KEY = urlParams.get('key') || window.GOOGLE_MAPS_API_KEY || 'AIzaSyDemoKey_ReplaceWithYourGoogleKey';
+  </script>
+
+  <style>
+    /* ==========================================================================
+       1. 基础重置与苹果液态玻璃色彩体系 (KL Tropical Obsidian Liquid Glass)
+       ========================================================================== */
+    :root {
+      --bg-deep: #070c14;
+      --bg-gradient: radial-gradient(circle at 15% 15%, #0e1a2b 0%, #080f1a 50%, #040810 100%);
+      --glass-surface: rgba(14, 25, 41, 0.65);
+      --glass-surface-hover: rgba(22, 38, 61, 0.75);
+      --glass-surface-active: rgba(30, 52, 82, 0.85);
+      --glass-border: rgba(56, 189, 248, 0.24);
+      --glass-highlight: rgba(186, 230, 253, 0.45);
+      --glass-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(56, 189, 248, 0.15);
+      --glass-blur: blur(28px) saturate(190%);
+
+      --accent-cyan: #00f2fe;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-gold: #fbbf24;
+      --accent-rose: #f43f5e;
+      --accent-purple: #8b5cf6;
+
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+      --text-dim: #94a3b8;
+
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      background-image: 
+        radial-gradient(circle at top right, rgba(0, 242, 254, 0.12), transparent 45%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 50%),
+        linear-gradient(180deg, #070c14 0%, #05080e 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 顶部流光氛围 */
+    .ambient-glow {
+      position: fixed;
+      top: -100px;
+      right: -50px;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.25) 0%, rgba(139, 92, 246, 0.15) 50%, transparent 70%);
+      filter: blur(60px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       2. 通用液态玻璃类 (Liquid Glass Utility Classes)
+       ========================================================================== */
+    .liquid-glass {
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-glass::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+      opacity: 0.65;
+    }
+
+    .liquid-pill {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+      transition: all 0.25s ease;
+    }
+
+    /* ==========================================================================
+       3. 顶部 Header (仅在行程路书展示)
+       ========================================================================== */
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 14px 20px 10px;
+      background: rgba(7, 12, 20, 0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .app-header.header-hidden {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title-box h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      background: linear-gradient(135deg, #ffffff 0%, #00f2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title-box p {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 1px;
+    }
+
+    .header-progress-pill {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      border-radius: var(--radius-full);
+      padding: 4px 10px;
+    }
+
+    /* 顶部打卡进度条 */
+    .progress-bar-container {
+      margin-top: 8px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00f2fe, #10b981);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    /* ==========================================================================
+       4. 页面主体容器与 Tab 体系
+       ========================================================================== */
+    .tab-content-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      padding-top: 75px;
+      padding-bottom: calc(80px + var(--safe-bottom));
+      z-index: 10;
+    }
+
+    .tab-view {
+      display: none;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+
+    /* 地图 Tab 特殊全屏保活规范 (杜绝 display:none 导致投影 NaN 奔溃) */
+    #view-map {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      padding: 0;
+      margin: 0;
+      z-index: 1;
+      display: block !important;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, visibility 0.25s;
+    }
+
+    #view-map.active {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 20;
+    }
+
+    #google-map-container {
+      width: 100%;
+      height: 100%;
+      background-color: #070c14;
+    }
+
+    /* ==========================================================================
+       5. Tab 1: 行程路书 (Schedule View)
+       ========================================================================== */
+    .day-card {
+      margin-bottom: 24px;
+      padding: 20px 18px;
+    }
+
+    /* 卡片头部全宽解耦抗挤压架构 */
+    .day-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .day-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #00f2fe;
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+    }
+
+    .day-meta-pill {
+      font-size: 12px;
+      color: var(--text-dim);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+    }
+
+    .day-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 4px;
+      width: 100%;
+    }
+
+    .day-date {
+      font-size: 13px;
+      color: var(--accent-cyan);
+      margin-bottom: 14px;
+    }
+
+    /* 住宿卡片状态体系 */
+    .hotel-card {
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .hotel-card.confirmed {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 78, 59, 0.3) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #a7f3d0;
+    }
+
+    .hotel-card.tentative {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-sub);
+    }
+
+    .hotel-btn {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(16, 185, 129, 0.6);
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    /* 时间轴节点与纵向导轨 */
+    .timeline {
+      position: relative;
+      padding-left: 20px;
+      margin-top: 10px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(0, 242, 254, 0.6) 0%, rgba(16, 185, 129, 0.2) 100%);
+    }
+
+    .timeline-node {
+      position: relative;
+      padding-bottom: 18px;
+    }
+
+    .timeline-node:last-child {
+      padding-bottom: 4px;
+    }
+
+    .timeline-node::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #00f2fe;
+      border: 2px solid #070c14;
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.8);
+    }
+
+    .node-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
+    .node-time {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .node-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .node-desc {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.45;
+    }
+
+    .node-sub-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      margin-top: 6px;
+      cursor: pointer;
+    }
+
+    /* 节点间赶路胶囊 (Inter-Node Transit Badge) */
+    .timeline-transit-badge {
+      position: relative;
+      margin: 10px 0 16px -6px;
+      padding: 8px 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-left: 4px solid var(--accent-cyan);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .transit-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .transit-km {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .transit-time {
+      color: var(--accent-amber);
+      font-weight: 600;
+    }
+
+    .transit-route-pill {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.1);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+    }
+
+    /* 三段式弹性时间熔断与降级卡片 (Cutoff System) */
+    .time-cutoff-box {
+      margin: 12px 0 14px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .cutoff-header {
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.1);
+      cursor: pointer;
+    }
+
+    .cutoff-body {
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cutoff-line {
+      display: flex;
+      gap: 6px;
+    }
+
+    .cutoff-tag {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .cutoff-tag.plan-a { color: #10b981; }
+    .cutoff-tag.plan-b { color: #fbbf24; }
+    .cutoff-tag.fallback { color: #f43f5e; }
+
+    /* 卡片底部功能条 */
+    .day-card-footer {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-view-on-map {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
+      border: 1px solid rgba(0, 242, 254, 0.5);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-check-day {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-sub);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-check-day.checked {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.6);
+      color: #34d399;
+    }
+
+    /* ==========================================================================
+       6. Tab 2: 路线地图 (Google Maps View 悬浮控件)
+       ========================================================================== */
+    .map-top-bar {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      right: 14px;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .map-day-pills {
+      pointer-events: auto;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 4px;
+      max-width: 85%;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .map-day-pills::-webkit-scrollbar { display: none; }
+
+    .map-pill-btn {
+      white-space: nowrap;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sub);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .map-pill-btn.active {
+      color: #00f2fe;
+      border-color: rgba(0, 242, 254, 0.8);
+      background: rgba(0, 242, 254, 0.2);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+    }
+
+    /* 右侧悬浮 Dock */
+    .map-control-dock {
+      position: absolute;
+      right: 14px;
+      top: 70px;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .map-float-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #fff;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .map-float-btn.active {
+      background: rgba(0, 242, 254, 0.25);
+      border-color: #00f2fe;
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.45);
+    }
+
+    /* 底部路线信息胶囊 */
+    .map-bottom-pill {
+      position: absolute;
+      bottom: calc(85px + var(--safe-bottom));
+      left: 16px;
+      right: 16px;
+      z-index: 30;
+      padding: 12px 18px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: var(--radius-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .map-bottom-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .map-bottom-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .btn-fit-view {
+      font-size: 12px;
+      font-weight: 600;
+      color: #00f2fe;
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+    }
+
+    /* Google Maps 提示横幅 (若未配置 Key) */
+    .map-key-banner {
+      position: absolute;
+      top: 60px;
+      left: 14px;
+      right: 14px;
+      z-index: 25;
+      padding: 10px 14px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      border-radius: 12px;
+      font-size: 12px;
+      color: #fde68a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       7. Tab 3: 贴士备忘与实用工具 (Tips View)
+       ========================================================================== */
+    .tips-card {
+      margin-bottom: 20px;
+      padding: 18px;
+    }
+
+    .tips-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tips-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* 贴士列表项 */
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13.5px;
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+
+    .check-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: transparent;
+      transition: all 0.2s;
+    }
+
+    .check-item.done .check-box {
+      background: #10b981;
+      border-color: #10b981;
+      color: #fff;
+    }
+
+    .check-item.done span {
+      text-decoration: line-through;
+      color: var(--text-dim);
+    }
+
+    /* 双币种 AA 记账器 */
+    .ledger-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .stat-val {
+      font-size: 17px;
+      font-weight: 700;
+      color: #00f2fe;
+      margin-top: 2px;
+    }
+
+    .ledger-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .input-glass {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .btn-add-ledger {
+      background: #00f2fe;
+      color: #040810;
+      font-weight: 700;
+      font-size: 13px;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       8. 底部导航 Dock (Apple Liquid Glass Tab Dock)
+       ========================================================================== */
+    .app-dock-container {
+      position: fixed;
+      bottom: var(--safe-bottom);
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .app-dock {
+      pointer-events: auto;
+      background: rgba(14, 25, 41, 0.82);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 242, 254, 0.15);
+      border-radius: var(--radius-full);
+      padding: 6px 10px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .dock-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dock-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.3) 0%, rgba(16, 185, 129, 0.2) 100%);
+      box-shadow: 0 4px 14px rgba(0, 242, 254, 0.25);
+    }
+
+    /* ==========================================================================
+       9. 半屏深度攻略抽屉 (Bottom Sheet Modal)
+       ========================================================================== */
+    .bottom-sheet-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .bottom-sheet-backdrop.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .bottom-sheet {
+      width: 100%;
+      max-height: 80vh;
+      background: rgba(14, 25, 41, 0.95);
+      backdrop-filter: blur(32px);
+      border-top: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 28px 28px 0 0;
+      padding: 20px 20px calc(24px + var(--safe-bottom));
+      overflow-y: auto;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    .bottom-sheet-backdrop.active .bottom-sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 auto 16px;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .sheet-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .sheet-subtitle {
+      font-size: 13px;
+      color: var(--accent-cyan);
+      margin-top: 2px;
+    }
+
+    .sheet-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .sheet-intro {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .sheet-item-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .sheet-item-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+
+    .sheet-item-story {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    .sheet-nav-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sheet-btn-nav {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      color: #00f2fe;
+    }
+
+    .sheet-btn-grab {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    /* 版本号指示 */
+    .release-badge {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- 顶部 Header -->
+  <header class="app-header" id="app-header">
+    <div class="header-top">
+      <div class="header-title-box">
+        <h1>吉隆坡漫行 · 城市路书</h1>
+        <p>KLCC · 茨厂街 · 黑风洞 · 布城 · 5天深度探索</p>
+      </div>
+      <div class="header-progress-pill" id="checkin-progress-text">打卡 0%</div>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="checkin-progress-fill"></div>
+    </div>
+  </header>
+
+  <!-- 主体内容容器 -->
+  <main class="tab-content-container">
+
+    <!-- ======================================================================
+         Tab 1: 行程路书 (Schedule View)
+         ====================================================================== -->
+    <section class="tab-view active" id="view-schedule">
+      <div id="schedule-cards-container">
+        <!-- 动态由 JS 渲染各天行程 -->
+      </div>
+      <div class="release-badge">RELEASE v1.0.0 · 2026.09 · KUALA LUMPUR</div>
+    </section>
+
+    <!-- ======================================================================
+         Tab 2: 路线地图 (Google Maps View)
+         ====================================================================== -->
+    <section id="view-map">
+      <!-- 顶部日程药丸滑块 -->
+      <div class="map-top-bar">
+        <div class="map-day-pills" id="map-day-pills">
+          <button class="map-pill-btn active" onclick="renderMapDayView(-1)">全程总览</button>
+          <button class="map-pill-btn" onclick="renderMapDayView(0)">Day 0</button>
+          <button class="map-pill-btn" onclick="renderMapDayView(1)">Day 1</button>
+          <button class="map-pill-btn" onclick="renderMapDayView(2)">Day 2</button>
+          <button class="map-pill-btn" onclick="renderMapDayView(3)">Day 3</button>
+          <button class="map-pill-btn" onclick="renderMapDayView(4)">Day 4</button>
+        </div>
+      </div>
+
+      <!-- 右侧悬浮 Dock -->
+      <div class="map-control-dock">
+        <button class="map-float-btn" id="btn-toggle-l2" onclick="toggleL2Pins()" title="探索图钉">✨</button>
+        <button class="map-float-btn" id="btn-toggle-satellite" onclick="toggleSatellite()" title="卫星图">🛰️</button>
+        <button class="map-float-btn" id="btn-my-location" onclick="locateUser()" title="我的位置">📍</button>
+      </div>
+
+      <!-- 底部路线胶囊条 -->
+      <div class="map-bottom-pill">
+        <div>
+          <div class="map-bottom-title" id="map-pill-title">吉隆坡全境探索动线</div>
+          <div class="map-bottom-sub" id="map-pill-sub">点击天数查看单日城市交通轨迹</div>
+        </div>
+        <button class="btn-fit-view" onclick="fitCurrentView()">适应视野</button>
+      </div>
+
+      <!-- 谷歌地图全屏物理容器 -->
+      <div id="google-map-container"></div>
+    </section>
+
+    <!-- ======================================================================
+         Tab 3: 贴士备忘与工具 (Tips View)
+         ====================================================================== -->
+    <section class="tab-view" id="view-tips">
+
+      <!-- 1. 入境与文化礼仪速查 -->
+      <div class="liquid-glass tips-card">
+        <div class="tips-header">
+          <span style="font-size:20px;">🛂</span>
+          <div class="tips-title">大马入境与出行要件</div>
+        </div>
+        <div class="check-item" onclick="toggleCheckItem(this)">
+          <div class="check-box">✓</div>
+          <span>马来西亚数字入境卡 (MDAC) 抵马前 3 天内在线填报</span>
+        </div>
+        <div class="check-item" onclick="toggleCheckItem(this)">
+          <div class="check-box">✓</div>
+          <span>护照有效期确保在 6 个月以上，打印往返机票行程单</span>
+        </div>
+        <div class="check-item" onclick="toggleCheckItem(this)">
+          <div class="check-box">✓</div>
+          <span>下载并注册 Grab App（绑定 Visa/Mastercard 信用卡）</span>
+        </div>
+        <div class="check-item" onclick="toggleCheckItem(this)">
+          <div class="check-box">✓</div>
+          <span>清真寺礼仪：黑风洞/粉红清真寺避免露膝短裤，现场可借长袍</span>
+        </div>
+        <div class="check-item" onclick="toggleCheckItem(this)">
+          <div class="check-box">✓</div>
+          <span>备好英标（三脚扁插）转换插头与防雨折叠伞</span>
+        </div>
+      </div>
+
+      <!-- 2. 双币种 AA 团队记账器 -->
+      <div class="liquid-glass tips-card">
+        <div class="tips-header">
+          <span style="font-size:20px;">💵</span>
+          <div class="tips-title">团队公共 AA 记账器 (MYR / CNY)</div>
+        </div>
+        <div class="ledger-stats">
+          <div class="stat-pill">
+            <div class="stat-label">总支出 (马币 MYR)</div>
+            <div class="stat-val" id="total-myr">RM 0</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-label">人均约 (人民币 CNY)</div>
+            <div class="stat-val" id="per-cny">¥ 0</div>
+          </div>
+        </div>
+        <div class="ledger-controls">
+          <input type="text" class="input-glass" id="ledger-item-name" placeholder="账目名称 (如: 阿罗街宵夜)">
+          <input type="number" class="input-glass" id="ledger-item-amount" style="max-width:100px;" placeholder="金额(RM)">
+          <button class="btn-add-ledger" onclick="addLedgerItem()">记一笔</button>
+        </div>
+        <div id="ledger-list" style="margin-top:12px;"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 底部 iOS 磨砂 Dock 导航栏 -->
+  <div class="app-dock-container">
+    <nav class="app-dock" id="app-dock">
+      <button class="dock-btn active" onclick="switchTab(0)">
+        <span>📅</span><span>行程路书</span>
+      </button>
+      <button class="dock-btn" onclick="switchTab(1)">
+        <span>🗺️</span><span>路线地图</span>
+      </button>
+      <button class="dock-btn" onclick="switchTab(2)">
+        <span>⚠️</span><span>贴士备忘</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- 半屏深度攻略抽屉 (Bottom Sheet Modal) -->
+  <div class="bottom-sheet-backdrop" id="bottom-sheet-modal" onclick="closeBottomSheet(event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div>
+          <div class="sheet-title" id="sheet-title">深度指南</div>
+          <div class="sheet-subtitle" id="sheet-subtitle">吉隆坡精选体验</div>
+        </div>
+        <button class="sheet-close-btn" onclick="closeBottomSheetDirect()">✕</button>
+      </div>
+      <div class="sheet-intro" id="sheet-intro"></div>
+      <div id="sheet-items-container"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       JavaScript: 数据引擎与交互逻辑
+       ======================================================================== -->
+  <script>
+    // --------------------------------------------------------------------------
+    // A. 行程数据集 (WGS-84 国际标准经纬度)
+    // --------------------------------------------------------------------------
+    const TRIP_DAYS = [
+      {
+        dayIndex: 0,
+        tag: "Day 0",
+        date: "抵达日 · 城市初见",
+        title: "抵吉隆坡 ➔ 入住大本营 · 霓虹双子塔夜景",
+        km: "机场快线 60km + 漫步 3km",
+        driveTime: "约 1.2 h",
+        hotel: "吉隆坡香格里拉 / W酒店（KLCC核心圈）",
+        hotelStatus: "confirmed",
+        hotelCoords: [101.7062, 3.1539],
+        hotelNavName: "Shangri-La Kuala Lumpur",
+        spots: [
+          { name: "吉隆坡国际机场 (KLIA)", lng: 101.7072, lat: 2.7456, desc: "入境通关，提取行李，开通当地流量卡" },
+          { name: "国油双峰塔 (KLCC)", lng: 101.7116, lat: 3.1579, desc: "夜赏世界最高双塔建筑璀璨夜景" },
+          { name: "阿罗街 (Jalan Alor)", lng: 101.7092, lat: 3.1462, desc: "市井夜市炭烤鸡翅与黑胡椒蟹宵夜" }
+        ],
+        timeline: [
+          { time: "16:30", title: "降落吉隆坡国际机场 (KLIA)", desc: "顺畅入境，搭乘 KLIA Ekspres 机场快线 28 分钟直达 KL Sentral",
+            transitNext: { icon: "🚆", action: "接下来乘坐快线", timeLabel: "预估耗时", km: "约 60 km", time: "约 28 min", route: "KLIA ➔ KL Sentral" }
+          },
+          { time: "18:00", title: "入住酒店休整", desc: "抵达 KLCC 核心圈大本营，推窗俯瞰都市天际线", subDetailKey: "d0_hotel", subDetailBadge: "🏨 入住指南" },
+          { time: "19:30", title: "KLCC 公园音乐喷泉与夜景仰拍", desc: "漫步湖畔公园，拍摄双子塔倒影", subDetailKey: "d0_klcc_night", subDetailBadge: "📸 绝佳摄影机位" },
+          { time: "21:00", title: "阿罗街夜市美食搜寻", desc: "黄亚华小食店炭烤鸡翅、沙爹肉串暖胃补给", subDetailKey: "d0_supper", subDetailBadge: "🥢 老字号宵夜" }
+        ]
+      },
+      {
+        dayIndex: 1,
+        tag: "Day 1",
+        date: "南洋记忆 · 历史与现代",
+        title: "茨厂街早茶 ➔ 独立广场 ➔ 默迪卡118",
+        km: "城市轻轨 + 步行约 8km",
+        driveTime: "地铁/步行",
+        hotel: "吉隆坡香格里拉 / W酒店",
+        hotelStatus: "confirmed",
+        spots: [
+          { name: "何九海南茶店", lng: 101.6978, lat: 3.1428, desc: "百年早茶文化，烤咖椰吐司与半熟蛋" },
+          { name: "独立广场", lng: 101.6942, lat: 3.1488, desc: "苏丹阿都沙末大厦与历史草坪" },
+          { name: "默迪卡 118", lng: 101.7008, lat: 3.1408, desc: "全球第二高楼 678.9 米摩天奇观" }
+        ],
+        timeline: [
+          { time: "08:30", title: "何九海南茶店经典早餐", desc: "早起品尝生熟蛋、咖椰牛油烤面包与浓郁海南咖啡", subDetailKey: "d1_chinatown_brunch", subDetailBadge: "🥢 老字号早茶" },
+          { time: "10:30", title: "鬼仔巷与茨厂街漫步", desc: "穿行于充满复古壁画与南洋骑楼的艺术老街" },
+          { time: "13:00", title: "新峰肉骨茶浓郁药膳午餐", desc: "慢熬砂锅排骨肉骨茶与油条，滋补解乏", subDetailKey: "d1_bak_kut_teh", subDetailBadge: "🥢 药膳肉骨茶" },
+          { time: "15:30", title: "独立广场与默迪卡118外景", desc: "见证殖民历史与 678.9 米超现代尖塔的时空对冲",
+            cutoff: {
+              title: "⛈️ 午后热带雷阵雨弹性预案",
+              textA: "🟢 晴朗微风：步行游览独立广场、城市画廊与生命之河",
+              textB: "🟡 小雨绵绵：在苏丹阿都沙末大厦连廊避雨拍摄",
+              textC: "🔴 暴雨倾盆：一键转投吉隆坡国家纺织品博物馆或打车进商场"
+            }
+          }
+        ]
+      },
+      {
+        dayIndex: 2,
+        tag: "Day 2",
+        date: "宗教奇景 · 登高与日落",
+        title: "黑风洞彩虹阶梯 ➔ 蕉叶饭 ➔ 停机坪天际吧",
+        km: "KTM 铁路 + Grab 约 35km",
+        driveTime: "约 1 h",
+        hotel: "吉隆坡香格里拉 / W酒店",
+        hotelStatus: "confirmed",
+        spots: [
+          { name: "黑风洞 (Batu Caves)", lng: 101.6840, lat: 3.2379, desc: "印度教圣地，272 级明艳彩虹阶梯" },
+          { name: "Bangsar 蕉叶饭", lng: 101.6708, lat: 3.1315, desc: "地道印度手抓蕉叶饭体验" },
+          { name: "Heli Lounge Bar", lng: 101.7088, lat: 3.1502, desc: "露天停机坪 360 度俯瞰落日天际线" }
+        ],
+        timeline: [
+          { time: "09:00", title: "乘车前往黑风洞 (Batu Caves)", desc: "挑战 272 级彩虹阶梯，探索百万年钟乳石光洞", subDetailKey: "d2_batu_caves", subDetailBadge: "🔭 印度教圣地" },
+          { time: "12:30", title: "Sri Nirwana Maju 印度蕉叶饭", desc: "品尝香辣咖喱羊肉与脆皮炸鸡" },
+          { time: "18:00", title: "Heli Lounge Bar 天际落日", desc: "登上 34 楼停机坪，伴着微风俯瞰都市晚霞亮灯", subDetailKey: "d2_rooftop_bar", subDetailBadge: "📸 高空落日机位" }
+        ]
+      },
+      {
+        dayIndex: 3,
+        tag: "Day 3",
+        date: "水上梦境 · 布城联邦之冠",
+        title: "布城粉红清真寺 ➔ 游船 ➔ 精致娘惹菜",
+        km: "Grab 往返约 70km",
+        driveTime: "约 1.5 h",
+        hotel: "吉隆坡香格里拉 / W酒店",
+        hotelStatus: "confirmed",
+        spots: [
+          { name: "布特拉清真寺 (粉红清真寺)", lng: 101.6895, lat: 2.9360, desc: "水上粉红花岗岩清真寺与布城湖" },
+          { name: "布城首相署", lng: 101.6922, lat: 2.9348, desc: "宏伟绿顶伊斯兰风格建筑群" }
+        ],
+        timeline: [
+          { time: "09:30", title: "乘 Grab 直奔布城 (Putrajaya)", desc: "直达布特拉广场，换上免费粉红长袍入内参观", subDetailKey: "d3_pink_mosque", subDetailBadge: "🔭 水上粉红梦境" },
+          { time: "12:00", title: "布城人造湖游船", desc: "湖上遥望粉红穹顶倒影与布特拉大桥" },
+          { time: "18:30", title: "Limapulo 娘惹晚宴", desc: "品尝获得米其林必比登推荐的正宗南洋娘惹菜", subDetailKey: "d3_nyonya_food", subDetailBadge: "🥢 娘惹风味" }
+        ]
+      },
+      {
+        dayIndex: 4,
+        tag: "Day 4",
+        date: "市井淘宝 · 归途满载",
+        title: "十号胡同老字号 ➔ 中央艺术坊手信 ➔ 机场送行",
+        km: "轻轨 + 机场快线",
+        driveTime: "约 1 h",
+        hotel: "温馨的家",
+        hotelStatus: "home",
+        spots: [
+          { name: "十号胡同 (Lot 10)", lng: 101.7125, lat: 3.1482, desc: "蔡澜先生题名，汇聚老字号名店" },
+          { name: "中央艺术坊 (Central Market)", lng: 101.6958, lat: 3.1452, desc: "传统蜡染、手工锡器与伴手礼" }
+        ],
+        timeline: [
+          { time: "10:30", title: "十号胡同蔡澜推荐档口早午餐", desc: "金莲记炭炒福建面、何荣记云吞面", subDetailKey: "d4_pavilion_food", subDetailBadge: "🥢 汇聚老字号" },
+          { time: "12:30", title: "中央艺术坊采买伴手礼", desc: "采购白咖啡、肉骨茶料包与特级巧克力", subDetailKey: "d4_souvenir", subDetailBadge: "💡 伴手礼指南" },
+          { time: "16:00", title: "前往 KLIA 机场办理登机", desc: "办理退税与托运，满载热带南洋回忆踏上归途" }
+        ]
+      }
+    ];
+
+    // --------------------------------------------------------------------------
+    // B. 二级探索深度元数据库 (与 吉隆坡第二层级规划.md 100% 映射)
+    // --------------------------------------------------------------------------
+    const DAY_DETAILS = {
+      "d0_hotel": {
+        title: "🏨 吉隆坡核心大本营入住指南",
+        subtitle: "KLCC · 武吉免登核心商圈",
+        intro: "首晚入住建议选择紧邻吉隆坡石油双塔或武吉免登的优质星级酒店，步行即可抵达商圈与轨道交通，无缝开启热带漫行。",
+        items: [
+          {
+            name: "吉隆坡香格里拉 / W酒店",
+            tag: "黄金核心地段 · 双子塔天际线",
+            story: "坐落于市中心绿荫掩映的核心大道，提供极佳的静音客房、高空泳池与丰富的东南亚风味早餐。",
+            traffic: "🚕 Grab 从机场直达约 45 分钟；或乘机场快线至 KL Sentral 后换乘地铁/打车。",
+            lat: 3.1539, lng: 101.7062
+          }
+        ]
+      },
+      "d0_klcc_night": {
+        title: "📸 双子塔与 KLCC 音乐喷泉摄影机位",
+        subtitle: "夜间 20:00 / 21:00 准时亮灯与喷泉秀",
+        intro: "国油双峰塔高 452 米，夜幕降临后外墙不锈钢与玻璃幕墙在射灯映照下宛若通体剔透的水晶巨塔。",
+        items: [
+          {
+            name: "KLCC 公园湖畔浅水机位",
+            tag: "无遮挡仰拍经典倒影",
+            story: "站在交响乐喷泉对岸的拱桥上，可以将两座塔身与湖中音乐喷泉完整收入取景框。",
+            traffic: "🚶‍♂️ 步行。从 KLCC 阳光广场一层户外花园漫步即达。",
+            lat: 3.1565, lng: 101.7145
+          }
+        ]
+      },
+      "d0_supper": {
+        title: "🥢 阿罗街老字号排挡：黄亚华小食店",
+        subtitle: "炭烤鸡翅与黑胡椒蟹的味蕾暴击",
+        intro: "阿罗街是吉隆坡最著名的市井大排档一条街，数十家摊位镬气升腾，越夜越热闹。",
+        items: [
+          {
+            name: "黄亚华小食店 (Wong Ah Wah)",
+            tag: "老字号炭烤第一家",
+            story: "招牌炭烧鸡翅外皮金黄酥脆微焦，内部鲜嫩多汁；搭配黑胡椒肉蟹与冰镇酸梅金桔水，畅快过瘾。",
+            traffic: "🚶‍♂️ 从武吉免登站步行约 6 分钟；街内为纯步行区，Grab 建议定位于街口。",
+            lat: 3.1462, lng: 101.7092
+          }
+        ]
+      },
+      "d1_chinatown_brunch": {
+        title: "🥢 何九海南茶店（百年南洋早茶）",
+        subtitle: "鬼仔巷旁传承三代的早茶排队王",
+        intro: "清晨 07:30 开门，浓郁的海南咖啡醇香飘满整条小巷。体验地道南洋吃法的好去处。",
+        items: [
+          {
+            name: "何九茶店经典全套",
+            tag: "生熟土鸡蛋 + 咖椰烤面包 + 海南茶",
+            story: "将两颗半熟蛋打入碗中，淋上生抽与白胡椒粉拌匀喝下，再用香脆的咖椰牛油吐司蘸着蛋液食用，浓香四溢。",
+            traffic: "🚇 MRT Pasar Seni 站 A 出口步行 3 分钟即达。",
+            lat: 3.1428, lng: 101.6978
+          }
+        ]
+      },
+      "d1_bak_kut_teh": {
+        title: "🥢 新峰肉骨茶（浓郁药膳瓦煲）",
+        subtitle: "吉隆坡几十载老字号药膳代表",
+        intro: "选用新鲜猪肋排与十余种名贵中药材慢火久炖，汤浓色深，回甘悠长。",
+        items: [
+          {
+            name: "新峰正宗肉骨茶",
+            tag: "砂锅文火慢炖 · 油条蘸汤绝配",
+            story: "热气腾腾的排骨酥烂脱骨，浓厚药香驱散湿气，油条吸饱汤汁令人欲罢不能。",
+            traffic: "🚕 建议 Grab 定位至「Sun Hong Muk Koot Teh」直达门口。",
+            lat: 3.1448, lng: 101.7162
+          }
+        ]
+      },
+      "d2_batu_caves": {
+        title: "🔭 黑风洞 (Batu Caves) 印度教圣地",
+        subtitle: "272 级彩虹阶梯与金色室建陀神像",
+        intro: "高达 42.7 米的金色神像耸立山脚，拾级而上 272 级明艳台阶，步入百万年石灰岩巨洞。",
+        items: [
+          {
+            name: "黑风洞光洞与彩虹阶梯",
+            tag: "宗教圣地 · 摄影大片",
+            story: "阳光穿透天然溶洞天窗倾泻而下，神圣庄严。注意阶梯两旁野生猕猴，切勿携带外露食物。",
+            traffic: "🚆 从 KL Sentral 乘坐 KTM Komuter 郊区列车约 30 分钟直达终点站。",
+            lat: 3.2379, lng: 101.6840
+          }
+        ]
+      },
+      "d2_rooftop_bar": {
+        title: "📸 Heli Lounge Bar（停机坪高空落日）",
+        subtitle: "34 楼无遮挡露天直升机停机坪",
+        intro: "真正的飞机停机坪改建而成，黄昏时分在此点一杯冷饮，静候吉隆坡天际线在暮色中点亮。",
+        items: [
+          {
+            name: "露天停机坪落日观景台",
+            tag: "360度都市全景 · 双子塔亮灯",
+            story: "傍晚 18:30 登顶，微风吹拂下可一眼尽揽双子塔与吉隆坡塔同时争辉的壮丽景象。",
+            traffic: "🚇 Monorail Raja Chulan 站步行 2 分钟至 Menara KH 大楼乘电梯至 34 楼。",
+            lat: 3.1502, lng: 101.7088
+          }
+        ]
+      },
+      "d3_pink_mosque": {
+        title: "🔭 布特拉清真寺（水上粉红清真寺）",
+        subtitle: "布城湖畔的玫瑰花岗岩梦境",
+        intro: "建于水上，淡粉色穹顶在热带阳光映衬下倒映于碧绿湖水之中，宏伟而不失优雅。",
+        items: [
+          {
+            name: "水上粉红清真寺内堂与游船",
+            tag: "免费借穿粉红长袍 · 湖畔游船",
+            story: "非穆斯林访客可在指定开放时间免费借用长袍入内，体会穹顶精湛的伊斯兰建筑雕刻艺术。",
+            traffic: "🚕 市区直接打 Grab 约 35 分钟（40~50 马币），往返极为便利。",
+            lat: 2.9360, lng: 101.6895
+          }
+        ]
+      },
+      "d3_nyonya_food": {
+        title: "🥢 Limapulo 娘惹菜 (Baba Can Cook)",
+        subtitle: "米其林必比登推荐的道地娘惹风味",
+        intro: "由年逾七旬的娘惹大厨 Uncle John 掌勺，融合华人烹饪技艺与马来香料精华。",
+        items: [
+          {
+            name: "招牌娘惹叻沙 (Nyonya Laksa)",
+            tag: "浓郁椰奶香料汤底 · 经典南洋手艺",
+            story: "每周特定日期限时供应的招牌叻沙浓郁醇厚，配上仁当牛肉与特制参巴酱，回味无穷。",
+            traffic: "🚇 LRT Medan Tuanku 站步行 5 分钟至 The Row 艺术街区。",
+            lat: 3.1585, lng: 101.6998
+          }
+        ]
+      },
+      "d4_pavilion_food": {
+        title: "🥢 柏威年十号胡同 (Lot 10 Hutong)",
+        subtitle: "蔡澜先生题名推荐的南洋老字号集结地",
+        intro: "集结全马数十年口碑传承的老字号，一网打尽吉隆坡殿堂级市井经典。",
+        items: [
+          {
+            name: "金莲记炭炒福建面 & 何荣记云吞面",
+            tag: "浓油赤酱 · 炭火镬气十足",
+            story: "黑亮浓郁的福建炒面撒上酥脆猪油渣，香气扑鼻；搭配爽脆弹牙的鲜虾云吞面，极其过瘾。",
+            traffic: "🚇 MRT Bukit Bintang 站直通 Lot 10 地下层。",
+            lat: 3.1482, lng: 101.7125
+          }
+        ]
+      },
+      "d4_souvenir": {
+        title: "💡 中央艺术坊与精选南洋手信指南",
+        subtitle: "白咖啡、锡器、肉骨茶与特级可可",
+        intro: "返程前不可错过的特色手信采购点，品质优良且价格公道。",
+        items: [
+          {
+            name: "伴手礼必买四大样",
+            tag: "白咖啡 + A1肉骨茶包 + Beryl's巧克力 + 追风油",
+            story: "旧街场传统南洋白咖啡微甜顺滑；A1 肉骨茶包轻松在家煮出地道瓦煲风味；马来西亚本土 Beryl's 提拉米苏巧克力更是馈赠亲友佳选。",
+            traffic: "🚇 MRT Pasar Seni 站直通 Central Market。",
+            lat: 3.1452, lng: 101.6958
+          }
+        ]
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    // C. 状态持久化引擎
+    // --------------------------------------------------------------------------
+    const KEY_CHECKINS = "kl_trip_checkins";
+    const KEY_LEDGER = "kl_trip_ledger";
+    let stateCheckins = {};
+    let stateLedger = [
+      { name: "阿罗街炭烤宵夜", myr: 168 },
+      { name: "机场快线全员车票", myr: 220 },
+      { name: "布城往返 Grab 打车", myr: 95 }
+    ];
+
+    try {
+      const c = localStorage.getItem(KEY_CHECKINS);
+      if (c) stateCheckins = JSON.parse(c);
+      const l = localStorage.getItem(KEY_LEDGER);
+      if (l) stateLedger = JSON.parse(l);
+    } catch(e) {}
+
+    function saveCheckins() {
+      localStorage.setItem(KEY_CHECKINS, JSON.stringify(stateCheckins));
+      updateCheckinProgress();
+    }
+
+    function saveLedger() {
+      localStorage.setItem(KEY_LEDGER, JSON.stringify(stateLedger));
+      renderLedger();
+    }
+
+    // --------------------------------------------------------------------------
+    // D. 页面渲染：行程路书卡片
+    // --------------------------------------------------------------------------
+    function renderSchedule() {
+      const container = document.getElementById("schedule-cards-container");
+      container.innerHTML = "";
+
+      TRIP_DAYS.forEach(day => {
+        const isChecked = !!stateCheckins[day.dayIndex];
+        const card = document.createElement("div");
+        card.className = "liquid-glass day-card";
+
+        let timelineHtml = "";
+        day.timeline.forEach(t => {
+          let transitHtml = "";
+          if (t.transitNext) {
+            const tr = t.transitNext;
+            transitHtml = `
+              <div class="timeline-transit-badge">
+                <div class="transit-info">
+                  <span>${tr.icon}</span>
+                  <span>${tr.action}</span>
+                  <span class="transit-km">${tr.km}</span>
+                  <span class="transit-time">· ${tr.time}</span>
+                </div>
+                <div class="transit-route-pill">${tr.route}</div>
+              </div>
+            `;
+          }
+
+          let cutoffHtml = "";
+          if (t.cutoff) {
+            const c = t.cutoff;
+            cutoffHtml = `
+              <div class="time-cutoff-box">
+                <div class="cutoff-header" onclick="toggleCutoffBody(this)">
+                  <span>${c.title}</span>
+                  <span class="cutoff-arrow">▼ 展开</span>
+                </div>
+                <div class="cutoff-body" style="display:none;">
+                  <div class="cutoff-line"><span class="cutoff-tag plan-a">[晴好]</span><span>${c.textA}</span></div>
+                  <div class="cutoff-line"><span class="cutoff-tag plan-b">[微雨]</span><span>${c.textB}</span></div>
+                  <div class="cutoff-line"><span class="cutoff-tag fallback">[暴雨]</span><span>${c.textC}</span></div>
+                </div>
+              </div>
+            `;
+          }
+
+          let subBadgeHtml = "";
+          if (t.subDetailKey) {
+            subBadgeHtml = `<div class="node-sub-badge" onclick="openBottomSheet('${t.subDetailKey}')">${t.subDetailBadge || '📖 查看深度攻略'} ➔</div>`;
+          }
+
+          timelineHtml += `
+            <div class="timeline-node">
+              <div class="node-header">
+                <span class="node-time">${t.time}</span>
+                <span class="node-title">${t.title}</span>
+              </div>
+              <div class="node-desc">${t.desc}</div>
+              ${subBadgeHtml}
+              ${cutoffHtml}
+              ${transitHtml}
+            </div>
+          `;
+        });
+
+        // 住宿状态胶囊
+        let hotelHtml = "";
+        if (day.hotelStatus === "confirmed") {
+          hotelHtml = `
+            <div class="hotel-card confirmed">
+              <div><strong>🏨 已预订入住：</strong>${day.hotel}</div>
+              <a class="hotel-btn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(day.hotelNavName || day.hotel)}" target="_blank">🧭 导航</a>
+            </div>
+          `;
+        } else if (day.hotelStatus === "home") {
+          hotelHtml = `
+            <div class="hotel-card confirmed" style="background:rgba(56,189,248,0.15);border-color:rgba(56,189,248,0.4);color:#bae6fd;">
+              <div><strong>✈️ 行程收官：</strong>满载南洋记忆踏上归途</div>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="day-header-top">
+            <span class="day-tag">${day.tag}</span>
+            <span class="day-meta-pill">🚗 ${day.km} · ${day.driveTime}</span>
+          </div>
+          <div class="day-title">${day.title}</div>
+          <div class="day-date">📅 ${day.date}</div>
+          ${hotelHtml}
+          <div class="timeline">${timelineHtml}</div>
+          <div class="day-card-footer">
+            <button class="btn-view-on-map" onclick="viewDayOnMap(${day.dayIndex})">
+              <span>🗺️</span><span>地图查看路线</span>
+            </button>
+            <button class="btn-check-day ${isChecked ? 'checked' : ''}" id="btn-check-${day.dayIndex}" onclick="toggleCheckin(${day.dayIndex})">
+              <span>${isChecked ? '✓ 已打卡' : '○ 标记打卡'}</span>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      updateCheckinProgress();
+    }
+
+    function toggleCheckin(dayIndex) {
+      if (stateCheckins[dayIndex]) {
+        delete stateCheckins[dayIndex];
+      } else {
+        stateCheckins[dayIndex] = true;
+      }
+      saveCheckins();
+      const btn = document.getElementById(`btn-check-${dayIndex}`);
+      if (btn) {
+        const isChecked = !!stateCheckins[dayIndex];
+        btn.className = `btn-check-day ${isChecked ? 'checked' : ''}`;
+        btn.innerHTML = `<span>${isChecked ? '✓ 已打卡' : '○ 标记打卡'}</span>`;
+      }
+    }
+
+    function updateCheckinProgress() {
+      const checkedCount = Object.keys(stateCheckins).length;
+      const total = TRIP_DAYS.length;
+      const pct = Math.round((checkedCount / total) * 100);
+      const text = document.getElementById("checkin-progress-text");
+      const fill = document.getElementById("checkin-progress-fill");
+      if (text) text.innerText = `打卡 ${pct}%`;
+      if (fill) fill.style.width = `${pct}%`;
+    }
+
+    function toggleCutoffBody(headerEl) {
+      const body = headerEl.nextElementSibling;
+      const arrow = headerEl.querySelector(".cutoff-arrow");
+      if (body.style.display === "none") {
+        body.style.display = "flex";
+        if (arrow) arrow.innerText = "▲ 收起";
+      } else {
+        body.style.display = "none";
+        if (arrow) arrow.innerText = "▼ 展开";
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // E. 贴士备忘与 AA 记账器逻辑
+    // --------------------------------------------------------------------------
+    function toggleCheckItem(el) {
+      el.classList.toggle("done");
+    }
+
+    function renderLedger() {
+      const listEl = document.getElementById("ledger-list");
+      const totalMyrEl = document.getElementById("total-myr");
+      const perCnyEl = document.getElementById("per-cny");
+      if (!listEl) return;
+
+      let totalMyr = 0;
+      listEl.innerHTML = "";
+
+      stateLedger.forEach((item, index) => {
+        totalMyr += Number(item.myr);
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text-sub);";
+        row.innerHTML = `
+          <span>${item.name}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <strong style="color:#00f2fe;">RM ${item.myr}</strong>
+            <span style="color:#f43f5e;cursor:pointer;font-size:12px;" onclick="deleteLedgerItem(${index})">✕</span>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+
+      // 实时换算汇率 (1 MYR ≈ 1.63 CNY 概算，4人分摊基数)
+      const perCny = Math.round((totalMyr * 1.63) / 4);
+      totalMyrEl.innerText = `RM ${totalMyr}`;
+      perCnyEl.innerText = `¥ ${perCny}`;
+    }
+
+    function addLedgerItem() {
+      const nameInput = document.getElementById("ledger-item-name");
+      const amtInput = document.getElementById("ledger-item-amount");
+      const name = nameInput.value.trim();
+      const amt = parseFloat(amtInput.value);
+      if (!name || isNaN(amt) || amt <= 0) return;
+
+      stateLedger.unshift({ name, myr: amt });
+      saveLedger();
+      nameInput.value = "";
+      amtInput.value = "";
+    }
+
+    function deleteLedgerItem(index) {
+      stateLedger.splice(index, 1);
+      saveLedger();
+    }
+
+    // --------------------------------------------------------------------------
+    // F. Tab 切换逻辑 (严密规避地图卡死与手势截断)
+    // --------------------------------------------------------------------------
+    let currentTab = 0;
+    let scheduleScrollY = 0;
+
+    function switchTab(index) {
+      if (currentTab === index) return;
+
+      const header = document.getElementById("app-header");
+      const scheduleView = document.getElementById("view-schedule");
+      const mapView = document.getElementById("view-map");
+      const tipsView = document.getElementById("view-tips");
+      const dockBtns = document.querySelectorAll(".dock-btn");
+
+      if (currentTab === 0) {
+        scheduleScrollY = window.scrollY || document.documentElement.scrollTop;
+      }
+
+      dockBtns.forEach((btn, i) => {
+        btn.classList.toggle("active", i === index);
+      });
+
+      if (index === 0) {
+        // 切入行程路书
+        if (header) header.classList.remove("header-hidden");
+        scheduleView.classList.add("active");
+        mapView.classList.remove("active");
+        tipsView.classList.remove("active");
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scheduleScrollY);
+        });
+      } else if (index === 1) {
+        // 切入地图视图
+        if (header) header.classList.add("header-hidden");
+        scheduleView.classList.remove("active");
+        mapView.classList.add("active");
+        tipsView.classList.remove("active");
+        window.scrollTo(0, 0);
+
+        ensureGoogleMapInit();
+      } else if (index === 2) {
+        // 切入贴士备忘
+        if (header) header.classList.add("header-hidden");
+        scheduleView.classList.remove("active");
+        mapView.classList.remove("active");
+        tipsView.classList.add("active");
+        window.scrollTo(0, 0);
+      }
+
+      currentTab = index;
+    }
+
+    function viewDayOnMap(dayIndex) {
+      switchTab(1);
+      setTimeout(() => {
+        renderMapDayView(dayIndex);
+      }, 50);
+    }
+
+    // --------------------------------------------------------------------------
+    // G. Google Maps 地图引擎集成 (WGS-84 坐标系原生驱动)
+    // --------------------------------------------------------------------------
+    let googleMapInstance = null;
+    let isMapLoaded = false;
+    let mapMarkers = [];
+    let l2Markers = [];
+    let currentPolyline = null;
+    let isL2Visible = false;
+    let isSatellite = false;
+
+    // 默认吉隆坡市中心 KLCC 坐标
+    const KL_CENTER = { lat: 3.1478, lng: 101.6953 };
+
+    function ensureGoogleMapInit() {
+      if (googleMapInstance) {
+        google.maps.event.trigger(googleMapInstance, 'resize');
+        return;
+      }
+
+      // 动态加载 Google Maps JavaScript API
+      if (typeof google === 'undefined' || !google.maps) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=routes,places,geometry,marker&callback=onGoogleMapsReady`;
+        script.async = true;
+        script.onerror = () => {
+          console.warn("Google Maps API 脚本加载遇阻，已启用离线降级交互模式");
+          renderMapFallbackUI();
+        };
+        document.head.appendChild(script);
+      } else {
+        onGoogleMapsReady();
+      }
+    }
+
+    window.onGoogleMapsReady = function() {
+      const container = document.getElementById("google-map-container");
+      if (!container) return;
+
+      // 自定义现代黑曜石暗夜/银白街道样式 (Dark Obsidian Theme)
+      const modernMapStyle = [
+        { elementType: "geometry", stylers: [{ color: "#111827" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#111827" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#1f2937" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#111827" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry",
+          stylers: [{ color: "#2563eb" }, { lightness: -20 }]
+        },
+        {
+          featureType: "transit",
+          elementType: "geometry",
+          stylers: [{ color: "#1e293b" }]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [{ color: "#061325" }]
+        }
+      ];
+
+      googleMapInstance = new google.maps.Map(container, {
+        center: KL_CENTER,
+        zoom: 12,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        styles: modernMapStyle,
+        disableDefaultUI: true,
+        zoomControl: false,
+        gestureHandling: "greedy"
+      });
+
+      isMapLoaded = true;
+      initL2Pins();
+      renderMapDayView(-1);
+    };
+
+    function renderMapFallbackUI() {
+      const container = document.getElementById("google-map-container");
+      container.innerHTML = `
+        <div style="padding:100px 20px;text-align:center;color:#94a3b8;font-size:14px;">
+          <div style="font-size:40px;margin-bottom:14px;">🗺️</div>
+          <strong style="color:#fff;font-size:16px;">Google Maps 准备就绪</strong>
+          <p style="margin-top:8px;line-height:1.6;">已配置 WGS-84 原生坐标与 5 天完整路线数据集。<br>若需在本地渲染实时卫星与交互图层，只需在头部填入有效 Google Maps API Key 即可。</p>
+        </div>
+      `;
+    }
+
+    // 渲染单日或全览视图
+    function renderMapDayView(dayIndex) {
+      // 更新药丸高亮
+      const pillBtns = document.querySelectorAll(".map-pill-btn");
+      pillBtns.forEach((btn, i) => {
+        btn.classList.toggle("active", i === (dayIndex + 1));
+      });
+
+      const titleEl = document.getElementById("map-pill-title");
+      const subEl = document.getElementById("map-pill-sub");
+
+      if (dayIndex === -1) {
+        titleEl.innerText = "吉隆坡全境总览动线";
+        subEl.innerText = "KLCC · 茨厂街 · 黑风洞 · 布城 · 5天完整网络";
+      } else {
+        const d = TRIP_DAYS[dayIndex];
+        titleEl.innerText = `${d.tag} · ${d.title}`;
+        subEl.innerText = `当日里程 ${d.km} · ${d.driveTime}`;
+      }
+
+      if (!googleMapInstance) return;
+
+      // 清理旧标记
+      mapMarkers.forEach(m => m.setMap(null));
+      mapMarkers = [];
+      if (currentPolyline) {
+        currentPolyline.setMap(null);
+        currentPolyline = null;
+      }
+
+      const bounds = new google.maps.LatLngBounds();
+      const lineCoordinates = [];
+
+      const targetDays = (dayIndex === -1) ? TRIP_DAYS : [TRIP_DAYS[dayIndex]];
+
+      targetDays.forEach(day => {
+        day.spots.forEach(spot => {
+          const pos = { lat: spot.lat, lng: spot.lng };
+          lineCoordinates.push(pos);
+          bounds.extend(pos);
+
+          const marker = new google.maps.Marker({
+            position: pos,
+            map: googleMapInstance,
+            title: spot.name,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: "#00f2fe",
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: "#ffffff"
+            }
+          });
+
+          // 点击信息气泡
+          marker.addListener("click", () => {
+            openBottomSheetBySpot(spot);
+          });
+
+          mapMarkers.push(marker);
+        });
+      });
+
+      // 绘制苹果电光蓝高对比导航流光线
+      currentPolyline = new google.maps.Polyline({
+        path: lineCoordinates,
+        geodesic: true,
+        strokeColor: "#00f2fe",
+        strokeOpacity: 0.85,
+        strokeWeight: 4,
+        map: googleMapInstance
+      });
+
+      if (!bounds.isEmpty()) {
+        googleMapInstance.fitBounds(bounds);
+      }
+    }
+
+    function fitCurrentView() {
+      if (!googleMapInstance) return;
+      const bounds = new google.maps.LatLngBounds();
+      mapMarkers.forEach(m => bounds.extend(m.getPosition()));
+      if (!bounds.isEmpty()) {
+        googleMapInstance.fitBounds(bounds);
+      }
+    }
+
+    // 初始化 15+ 个二级探索图钉
+    function initL2Pins() {
+      l2Markers = [];
+      Object.keys(DAY_DETAILS).forEach(key => {
+        const group = DAY_DETAILS[key];
+        group.items.forEach(item => {
+          if (!item.lat || !item.lng) return;
+          const marker = new google.maps.Marker({
+            position: { lat: item.lat, lng: item.lng },
+            map: null, // 默认收起
+            title: item.name,
+            icon: {
+              path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+              scale: 5,
+              fillColor: "#f59e0b",
+              fillOpacity: 0.9,
+              strokeWeight: 1.5,
+              strokeColor: "#ffffff"
+            }
+          });
+
+          marker.addListener("click", () => {
+            openBottomSheet(key);
+          });
+
+          l2Markers.push(marker);
+        });
+      });
+    }
+
+    function toggleL2Pins() {
+      const btn = document.getElementById("btn-toggle-l2");
+      isL2Visible = !isL2Visible;
+      btn.classList.toggle("active", isL2Visible);
+
+      l2Markers.forEach(m => {
+        m.setMap(isL2Visible ? googleMapInstance : null);
+      });
+    }
+
+    function toggleSatellite() {
+      if (!googleMapInstance) return;
+      const btn = document.getElementById("btn-toggle-satellite");
+      isSatellite = !isSatellite;
+      btn.classList.toggle("active", isSatellite);
+      googleMapInstance.setMapTypeId(isSatellite ? google.maps.MapTypeId.SATELLITE : google.maps.MapTypeId.ROADMAP);
+    }
+
+    function locateUser() {
+      if (!navigator.geolocation || !googleMapInstance) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          googleMapInstance.panTo(userPos);
+          googleMapInstance.setZoom(14);
+          new google.maps.Marker({
+            position: userPos,
+            map: googleMapInstance,
+            title: "我的位置",
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 9,
+              fillColor: "#3b82f6",
+              fillOpacity: 1,
+              strokeWeight: 3,
+              strokeColor: "#ffffff"
+            }
+          });
+        },
+        (err) => {
+          alert("未能获取当前地理位置，请确保已开启浏览器定位授权。");
+        }
+      );
+    }
+
+    // --------------------------------------------------------------------------
+    // H. 半屏深度抽屉交互与 Universal Links
+    // --------------------------------------------------------------------------
+    function openBottomSheet(detailKey) {
+      const data = DAY_DETAILS[detailKey];
+      if (!data) return;
+
+      document.getElementById("sheet-title").innerText = data.title;
+      document.getElementById("sheet-subtitle").innerText = data.subtitle;
+      document.getElementById("sheet-intro").innerText = data.intro;
+
+      const container = document.getElementById("sheet-items-container");
+      container.innerHTML = "";
+
+      data.items.forEach(item => {
+        const itemCard = document.createElement("div");
+        itemCard.className = "sheet-item-card";
+
+        const googleNavUrl = `https://www.google.com/maps/search/?api=1&query=${item.lat},${item.lng}`;
+        const grabUrl = `https://grab.onelink.me/2695613898?pid=web&c=deep_link&destination_lat=${item.lat}&destination_lng=${item.lng}&destination_name=${encodeURIComponent(item.name)}`;
+
+        itemCard.innerHTML = `
+          <div class="sheet-item-title">${item.name}</div>
+          <div style="font-size:11px;color:#fbbf24;margin-bottom:6px;">🏷️ ${item.tag}</div>
+          <div class="sheet-item-story">${item.story}</div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">${item.traffic || ''}</div>
+          <div class="sheet-nav-actions">
+            <a class="sheet-btn-nav" href="${googleNavUrl}" target="_blank">🧭 谷歌导航直达</a>
+            <a class="sheet-btn-grab" href="${grabUrl}" target="_blank">🚕 Grab 打车</a>
+          </div>
+        `;
+        container.appendChild(itemCard);
+      });
+
+      const modal = document.getElementById("bottom-sheet-modal");
+      modal.classList.add("active");
+    }
+
+    function openBottomSheetBySpot(spot) {
+      document.getElementById("sheet-title").innerText = spot.name;
+      document.getElementById("sheet-subtitle").innerText = "吉隆坡核心行程节点";
+      document.getElementById("sheet-intro").innerText = spot.desc;
+
+      const container = document.getElementById("sheet-items-container");
+      const googleNavUrl = `https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`;
+      const grabUrl = `https://grab.onelink.me/2695613898?pid=web&c=deep_link&destination_lat=${spot.lat}&destination_lng=${spot.lng}&destination_name=${encodeURIComponent(spot.name)}`;
+
+      container.innerHTML = `
+        <div class="sheet-item-card">
+          <div class="sheet-item-title">${spot.name}</div>
+          <div class="sheet-item-story">${spot.desc}</div>
+          <div class="sheet-nav-actions">
+            <a class="sheet-btn-nav" href="${googleNavUrl}" target="_blank">🧭 谷歌导航直达</a>
+            <a class="sheet-btn-grab" href="${grabUrl}" target="_blank">🚕 Grab 打车</a>
+          </div>
+        </div>
+      `;
+
+      const modal = document.getElementById("bottom-sheet-modal");
+      modal.classList.add("active");
+    }
+
+    function closeBottomSheet(e) {
+      const modal = document.getElementById("bottom-sheet-modal");
+      modal.classList.remove("active");
+    }
+
+    function closeBottomSheetDirect() {
+      const modal = document.getElementById("bottom-sheet-modal");
+      modal.classList.remove("active");
+    }
+
+    // --------------------------------------------------------------------------
+    // I. 初始化执行
+    // --------------------------------------------------------------------------
+    window.addEventListener("DOMContentLoaded", () => {
+      renderSchedule();
+      renderLedger();
+    });
+  </script>
+</body>
+</html>
