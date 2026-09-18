@@ -2,7 +2,7 @@
 
 > **项目定位**：专为马来西亚吉隆坡（KLCC / 武吉免登 / 茨厂街 / 黑风洞 / 布城粉红清真寺 / 独立广场）深度漫行定制的高颜值移动端 Web App。  
 > **核心原则**：纯静态单文件免构建打包、零后端、全套苹果液态玻璃（Liquid Glass）视觉系统、移动端优先、Google Maps JavaScript API 深度驱动。  
-> **当前生产版本**：`RELEASE v1.2.2 · 2026.09 (Jalan Tunku Putra Lookout)` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
+> **当前生产版本**：`RELEASE v1.3.0 · 2026.09 (南洋特色药妆与皇家雪兰莪锡器购物中枢闭环)` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
 > 📌 **项目阶段记忆规范**：**在每一次对话或开发阶段完成后，必须在此文件中更新当前最新状态与技术决策，以便在新的对话中实现秒级上下文恢复并无缝衔接后续开发！**
 
 ---
@@ -140,7 +140,24 @@ Pilgrimage to the West (Trip)/
     3. AA 记账器扩充 `东姑山机位 Grab RM15` 快捷标签；
     4. 门票速查中枢同步收录免门票露天机位与避让交通提醒；
   - **地图底层点位挂载**：`KL_MAP_POINTS` 追加 `{ day: 3, name: "Jalan Tunku Putra (东姑山机位)", lat: 3.1610, lng: 101.6758, type: "spot" }`，Google Maps D3 路线网络平滑呈现。
-
-
-
-
+- **v1.3.0 (南洋特色药妆与皇家雪兰莪锡器购物中枢闭环 · 2026.09)**：
+  - **购物渠道避坑调研与核心决策 (Mall vs Duty-Free vs Street Shops)**：
+    1. **本地药妆 (Safi / 传统药油)**：**商场大型连锁药妆店（Watsons / Guardian）彻底完胜街边小店**。Watsons 与 Guardian 是全马第一大一级直采渠道，常年有“买一送一 (Buy 1 Free 1)”或“第2件半价”官方大促，价格极低且保真；街边小店专宰游客标价虚高，且受热带高温暴晒极易导致药妆有效成分氧化失活、临期变质。
+    2. **顶级天然芳疗 (Sensatia Botanicals)**：印尼巴厘岛国宝植萃，**全吉隆坡仅在最新顶奢商场 The Exchange TRX (Level 1) 拥有独家官方直营旗舰店**。街边小店绝无正规授权，官方专柜提供全系冷气陈列、全套 Tester 试用与芳疗顾问体验。
+    3. **国宝白锡 (Royal Selangor 皇家雪兰莪)**：**全马严格实行官方统一定价！商场专柜体验综合最优**。街边小店没有任何正规折扣，且极易买到掺铅的劣质假锡；商场专柜（Suria KLCC GF层 / TRX）款式最全，**提供现场免费激光刻字定制**（可刻姓名与纪念日期），配硬盒丝带包装并可安全放入行李箱托运；KLIA T1 机场免税店虽免除约 6% SST 销售税，但款式极少（仅常规啤酒杯/茶叶罐），且登机前手提易磕碰。
+    4. **平价文创手工艺锡器**：若仅需几十马币的旅行伴手礼，推荐前往中央艺术坊 (Central Market) 2 楼工艺摊位挑选。
+  - **必买好物清单调研确认**：
+    1. **皇家雪兰莪**：经典双层气密茶叶罐（Tea Caddy，气密精密自然下沉，遮光隔湿养茶神器，RM350-900+）、极速冷感白锡啤酒杯/威士忌杯（Beer Mug，冷藏2分钟通体挂霜，锁沫冰爽，RM220-550）、文创双子塔摆件/锡书签/筷架（RM80-180）；
+    2. **Safi (莎菲)**：Safi Rania Gold 24K 黄金抗老提拉精华（24K真金微粒+烟酰胺+微玻尿酸，RM38-48 / 约¥60）、Safi Perfect White 氨基酸洁面乳（RM16-22）；
+    3. **Sensatia Botanicals**：Cleopatra's Rose 埃及艳后大马士革玫瑰洁面乳（RM75-90）、Tea Tree & Lemon 茶树柠檬祛痘精华（RM55-65）、Seaside Citrus 海滨柑橘芳香身体乳（RM60-80）；
+    4. **Tanamera (塔娜美拉，马来西亚本土国宝草本SPA)**：Ginger Herbal Soap 黑生姜暖身手工皂（RM18-25，洗澡驱寒温经）、Citronella 柠檬香茅天然防蚊喷雾（RM28，无DEET防登革热）、冷压初榨椰子油（RM38）；
+    5. **南洋老字号常备药油**：梁介福如意油（Yu Yee Oil，RM8-10，专治胀气肠绞痛）、兰卡威金海参膏（Langkawi Gamat Cream，RM12-18，烫伤割伤脱皮奇效）、虎标颈肩舒特强配方（RM16-22，Watsons 比国内便宜近40%）。
+  - **路书界面与工具链落地 (`kl-trip/index.html`)**：
+    1. **Tab 3 专属新模块**：高透悬浮液态玻璃卡片 `🛍️ 必买锡器与南洋药妆伴手礼指南`，含渠道真相对比、雪兰莪必买、药妆三杰、常备药油四大精工折射面板；
+    2. **Tab 1 行程自然织入**：
+       - D1 17:00 Suria KLCC：加入 Royal Selangor GF专柜（全系列+免费激光刻字）与 Watsons/Guardian Safi/药油扫货指引；
+       - D2 11:45 Central Market：加入 Tanamera 官方旗舰店（黑生姜手工皂、香茅防蚊喷雾）与二楼文创锡器；
+       - D3 20:30 DurianBB Park：联动步行 500 米即达 The Exchange TRX（营业至 22:00，Sensatia 独家旗舰店与 4F 空中城市公园夜景）；
+    3. **Tab 2 地图网络同步挂载**：`KL_MAP_POINTS` 挂载 `The Exchange TRX (Sensatia旗舰/空中公园)`（Lat: 3.1428, Lng: 101.7188）；
+    4. **AA 记账器扩充快捷标签**：增加 `Safi药妆 RM80` 与 `雪兰莪锡器 RM280`；
+    5. **底部版本升级**：全屏统一推进至 `RELEASE v1.3.0 · 2026.09 · SHOPPING & SOUVENIR GUIDE · KUALA LUMPUR`。
