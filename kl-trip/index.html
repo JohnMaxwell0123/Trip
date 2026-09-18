@@ -16,27 +16,34 @@
 
   <style>
     /* ==========================================================================
-       1. 极简实用暗夜风格 (Pragmatic Dark UI · 两人出行专用)
+       1. 苹果液态玻璃视觉系统 (Apple Liquid Glass UI · 深度折射与高斯模糊)
        ========================================================================== */
     :root {
-      --bg-main: #0a0f18;
-      --card-bg: #121a27;
-      --card-border: #1e293b;
+      --bg-main: #060911;
+      --card-bg: rgba(255, 255, 255, 0.055);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --card-border-top: rgba(255, 255, 255, 0.24);
+      
+      --glass-blur: blur(24px) saturate(180%);
+      --glass-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.38);
+      --glass-shadow-hover: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 12px 36px rgba(0, 0, 0, 0.48);
+
       --accent-cyan: #38bdf8;
       --accent-emerald: #10b981;
       --accent-amber: #fbbf24;
       --accent-rose: #f43f5e;
-      --accent-purple: #a855f7;
+      --accent-purple: #c084fc;
       
-      --text-main: #f8fafc;
-      --text-sub: #cbd5e1;
+      --text-main: #ffffff;
+      --text-sub: #e2e8f0;
       --text-dim: #94a3b8;
 
       --safe-bottom: env(safe-area-inset-bottom, 20px);
-      --radius-sm: 8px;
+      --radius-sm: 10px;
       --radius-md: 14px;
-      --radius-lg: 18px;
+      --radius-lg: 20px;
       --radius-full: 9999px;
+      --spring-easing: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * {
@@ -48,26 +55,38 @@
 
     body {
       background-color: var(--bg-main);
+      background-image: 
+        radial-gradient(at 15% 12%, rgba(56, 189, 248, 0.09) 0px, transparent 48%),
+        radial-gradient(at 85% 25%, rgba(192, 132, 252, 0.07) 0px, transparent 45%),
+        radial-gradient(at 50% 70%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
+        radial-gradient(at 80% 90%, rgba(244, 63, 94, 0.05) 0px, transparent 42%);
+      background-attachment: fixed;
+      background-size: 100% 100%;
       color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, -apple-system-subheadline, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
       font-size: 15px;
-      line-height: 1.5;
+      line-height: 1.55;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: calc(75px + var(--safe-bottom));
+      padding-bottom: calc(82px + var(--safe-bottom));
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
     }
 
-    /* 顶部悬浮控制栏 */
+    /* 顶部液态玻璃悬浮控制栏 */
     .app-header {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(10, 15, 24, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 12px 16px 8px;
+      background: rgba(8, 13, 22, 0.72);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.28);
+      padding: 13px 18px 10px;
+      transition: all 0.3s var(--spring-easing);
     }
 
     .header-row {
@@ -80,12 +99,15 @@
       font-size: 17px;
       font-weight: 700;
       color: #fff;
+      letter-spacing: -0.2px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     }
 
     .header-subtitle {
       font-size: 12px;
       color: var(--accent-cyan);
       margin-top: 2px;
+      font-weight: 500;
     }
 
     .two-person-tag {
@@ -93,18 +115,24 @@
       font-weight: 600;
       color: var(--accent-amber);
       background: rgba(251, 191, 36, 0.12);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-      padding: 3px 8px;
+      border: 1px solid rgba(251, 191, 36, 0.32);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      padding: 3px 9px;
       border-radius: var(--radius-full);
+      user-select: none;
     }
 
-    /* 容器 */
+    /* 视图容器 */
     .view-container {
+      position: relative;
+      z-index: 2;
       flex: 1;
       width: 100%;
       max-width: 680px;
       margin: 0 auto;
-      padding: 14px 14px;
+      padding: 16px 14px;
     }
 
     .tab-view {
@@ -113,6 +141,12 @@
 
     .tab-view.active {
       display: block;
+      animation: fadeIn 0.25s var(--spring-easing);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* 地图 Tab 物理保活 */
@@ -132,6 +166,7 @@
       visibility: hidden;
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.3s var(--spring-easing), visibility 0.3s;
     }
 
     #view-map.active {
@@ -144,19 +179,30 @@
     #google-map-container {
       width: 100%;
       height: 100%;
-      background: #0a0f18;
+      background: #060911;
     }
 
     /* ==========================================================================
-       2. 日程卡片实用架构
+       2. 液态玻璃日程卡片与时间轴
        ========================================================================== */
     .day-card {
       background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--card-border);
+      border-top: 1px solid var(--card-border-top);
       border-radius: var(--radius-lg);
-      padding: 16px 14px;
-      margin-bottom: 18px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      padding: 18px 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--glass-shadow);
+      transition: transform 0.3s var(--spring-easing), box-shadow 0.3s var(--spring-easing), border-color 0.3s var(--spring-easing);
+    }
+
+    .day-card.day-interview {
+      background: rgba(244, 63, 94, 0.05);
+      border-color: rgba(244, 63, 94, 0.38);
+      border-top: 1px solid rgba(244, 63, 94, 0.55);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), 0 8px 32px rgba(244, 63, 94, 0.14);
     }
 
     .day-card-header {
@@ -167,17 +213,19 @@
     }
 
     .day-badge {
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: var(--radius-full);
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(56, 189, 248, 0.14);
       border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
       color: var(--accent-cyan);
+      letter-spacing: 0.3px;
     }
 
     .day-intensity {
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--text-dim);
     }
 
@@ -185,51 +233,64 @@
       font-size: 17px;
       font-weight: 700;
       color: #fff;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
+      line-height: 1.4;
     }
 
     .day-meta {
       font-size: 12px;
       color: var(--accent-amber);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      font-weight: 500;
     }
 
-    /* 住宿置顶小提示条 */
+    /* 住宿置顶玻璃提示条 */
     .hotel-bar {
       background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      border-top: 1px solid rgba(16, 185, 129, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-radius: var(--radius-md);
-      padding: 9px 12px;
+      padding: 10px 14px;
       font-size: 12.5px;
       color: #a7f3d0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.2);
     }
 
     .hotel-nav-link {
       color: #34d399;
       font-weight: 600;
       text-decoration: none;
-      background: rgba(16, 185, 129, 0.2);
-      padding: 3px 8px;
+      background: rgba(16, 185, 129, 0.22);
+      padding: 4px 10px;
       border-radius: var(--radius-full);
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
       font-size: 11.5px;
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .hotel-nav-link:active {
+      transform: scale(0.97);
     }
 
     /* 时间轴节点 */
     .timeline {
       position: relative;
-      padding-left: 18px;
-      border-left: 2px solid rgba(56, 189, 248, 0.25);
+      padding-left: 20px;
+      border-left: 2px solid rgba(56, 189, 248, 0.28);
       margin-left: 6px;
     }
 
     .timeline-node {
       position: relative;
-      padding-bottom: 16px;
+      padding-bottom: 18px;
     }
 
     .timeline-node:last-child {
@@ -239,19 +300,20 @@
     .timeline-node::before {
       content: '';
       position: absolute;
-      left: -23px;
-      top: 5px;
+      left: -25px;
+      top: 6px;
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--accent-cyan);
-      border: 2px solid #0a0f18;
+      border: 2px solid #060911;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
     }
 
     .node-top {
       display: flex;
       align-items: baseline;
-      gap: 6px;
+      gap: 8px;
     }
 
     .node-time {
@@ -259,6 +321,7 @@
       font-weight: 700;
       color: var(--accent-cyan);
       min-width: 42px;
+      font-variant-numeric: tabular-nums;
     }
 
     .node-title {
@@ -270,8 +333,8 @@
     .node-desc {
       font-size: 13px;
       color: var(--text-sub);
-      margin: 3px 0 6px;
-      line-height: 1.45;
+      margin: 4px 0 8px;
+      line-height: 1.5;
     }
 
     /* 快捷操作栏：复制词 + 谷歌直达 + Grab */
@@ -280,67 +343,100 @@
       flex-wrap: wrap;
       gap: 6px;
       align-items: center;
-      margin-top: 4px;
+      margin-top: 5px;
     }
 
     .btn-action {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 500;
-      padding: 4px 9px;
-      border-radius: 6px;
+      padding: 5px 11px;
+      border-radius: 8px;
       text-decoration: none;
       cursor: pointer;
       border: 1px solid transparent;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .btn-action:active {
+      transform: scale(0.97);
     }
 
     .btn-copy {
       background: rgba(255, 255, 255, 0.08);
       border-color: rgba(255, 255, 255, 0.18);
-      color: #f1f5f9;
+      border-top-color: rgba(255, 255, 255, 0.28);
+      color: #f8fafc;
+    }
+
+    .btn-copy:hover {
+      background: rgba(255, 255, 255, 0.13);
+      border-color: rgba(255, 255, 255, 0.28);
     }
 
     .btn-google {
-      background: rgba(56, 189, 248, 0.12);
-      border-color: rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.14);
+      border-color: rgba(56, 189, 248, 0.38);
+      border-top-color: rgba(56, 189, 248, 0.55);
       color: #38bdf8;
     }
 
+    .btn-google:hover {
+      background: rgba(56, 189, 248, 0.22);
+    }
+
     .btn-grab {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.14);
+      border-color: rgba(16, 185, 129, 0.38);
+      border-top-color: rgba(16, 185, 129, 0.55);
       color: #34d399;
+    }
+
+    .btn-grab:hover {
+      background: rgba(16, 185, 129, 0.22);
     }
 
     .node-tag-cost {
       font-size: 11px;
+      font-weight: 500;
       color: var(--accent-amber);
-      background: rgba(251, 191, 36, 0.1);
-      padding: 3px 6px;
-      border-radius: 4px;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 3px 7px;
+      border-radius: 6px;
       margin-left: auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
-    /* 关键警示框（如面试锁定、闭馆提醒） */
+    /* 关键警示玻璃框（如面试锁定、闭馆提醒） */
     .alert-box {
-      margin: 8px 0 10px;
-      padding: 9px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      line-height: 1.45;
+      margin: 10px 0 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      line-height: 1.5;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.2);
     }
 
     .alert-box.interview {
-      background: rgba(244, 63, 94, 0.12);
-      border: 1px solid rgba(244, 63, 94, 0.35);
+      background: rgba(244, 63, 94, 0.14);
+      border: 1px solid rgba(244, 63, 94, 0.38);
+      border-top: 1px solid rgba(244, 63, 94, 0.55);
       color: #fecdd3;
     }
 
     .alert-box.rain {
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.38);
+      border-top: 1px solid rgba(245, 158, 11, 0.55);
       color: #fef08a;
     }
 
@@ -356,12 +452,20 @@
     .btn-view-map {
       background: rgba(56, 189, 248, 0.15);
       border: 1px solid rgba(56, 189, 248, 0.4);
+      border-top: 1px solid rgba(56, 189, 248, 0.55);
       color: #38bdf8;
       padding: 6px 14px;
       border-radius: var(--radius-full);
       font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .btn-view-map:active {
+      transform: scale(0.97);
     }
 
     /* ==========================================================================
@@ -370,91 +474,115 @@
     .ledger-summary-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
     .ledger-stat-card {
-      background: #162030;
-      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-top: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: var(--radius-md);
-      padding: 12px;
+      padding: 14px 12px;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 
     .stat-label {
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--text-dim);
     }
 
     .stat-val-myr {
-      font-size: 19px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--accent-cyan);
       margin-top: 2px;
+      font-variant-numeric: tabular-nums;
     }
 
     .stat-val-cny {
-      font-size: 19px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--accent-emerald);
       margin-top: 2px;
+      font-variant-numeric: tabular-nums;
     }
 
     .quick-add-tags {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .quick-tag-btn {
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-top: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
       color: var(--text-sub);
-      font-size: 11px;
-      padding: 4px 9px;
+      font-size: 11.5px;
+      padding: 5px 11px;
       border-radius: var(--radius-full);
       cursor: pointer;
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .quick-tag-btn:active {
+      transform: scale(0.97);
     }
 
     .ledger-input-row {
       display: flex;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .input-dark {
-      background: #162030;
-      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
       color: #fff;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 13px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
       outline: none;
+      transition: all 0.3s var(--spring-easing);
     }
 
     .input-dark:focus {
       border-color: var(--accent-cyan);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(56, 189, 248, 0.25);
     }
 
     .btn-add-item {
-      background: var(--accent-cyan);
-      color: #050a12;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #040812;
       border: none;
       font-weight: 700;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13px;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
       cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 14px rgba(56, 189, 248, 0.35);
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .btn-add-item:active {
+      transform: scale(0.97);
     }
 
     .ledger-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 13px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13.5px;
     }
 
     /* ==========================================================================
@@ -463,32 +591,43 @@
     .checklist-item {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 13px;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13.5px;
       color: var(--text-sub);
       cursor: pointer;
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .checklist-item:active {
+      transform: scale(0.98);
     }
 
     .check-box-square {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 11.5px;
+      font-weight: 700;
       color: transparent;
       margin-top: 2px;
       flex-shrink: 0;
+      transition: all 0.3s var(--spring-easing);
     }
 
     .checklist-item.done .check-box-square {
       background: var(--accent-emerald);
       border-color: var(--accent-emerald);
       color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 6px rgba(16, 185, 129, 0.4);
     }
 
     .checklist-item.done span {
@@ -496,7 +635,7 @@
       color: var(--text-dim);
     }
 
-    /* 底部导航 Dock */
+    /* 底部液态玻璃灵动岛 Dock */
     .app-dock {
       position: fixed;
       bottom: var(--safe-bottom);
@@ -506,95 +645,124 @@
       display: flex;
       justify-content: center;
       pointer-events: none;
+      padding: 0 16px;
     }
 
     .dock-menu {
       pointer-events: auto;
-      background: rgba(18, 26, 39, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
+      background: rgba(14, 21, 33, 0.78);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-top: 1px solid rgba(255, 255, 255, 0.28);
       border-radius: var(--radius-full);
-      padding: 6px 10px;
+      padding: 6px 8px;
       display: flex;
-      gap: 8px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      gap: 6px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 16px 40px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s var(--spring-easing);
     }
 
     .dock-btn {
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
       color: var(--text-dim);
       font-size: 13px;
       font-weight: 600;
-      padding: 8px 18px;
+      padding: 8px 16px;
       border-radius: var(--radius-full);
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .dock-btn:active {
+      transform: scale(0.97);
     }
 
     .dock-btn.active {
-      background: rgba(56, 189, 248, 0.2);
-      color: #fff;
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.18);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 10px rgba(56, 189, 248, 0.25);
     }
 
-    /* Toast 提示 */
+    /* 液态玻璃 Toast 提示 */
     .toast-popup {
       position: fixed;
-      top: 70px;
+      top: 72px;
       left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid var(--accent-cyan);
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(14, 21, 33, 0.82);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
       color: #fff;
-      padding: 8px 16px;
+      padding: 9px 18px;
       border-radius: var(--radius-full);
-      font-size: 12.5px;
+      font-size: 13px;
+      font-weight: 500;
       z-index: 999;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.25s ease;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      transition: all 0.3s var(--spring-easing);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 12px 32px rgba(0, 0, 0, 0.55);
     }
 
     .toast-popup.show {
       opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
-    /* 地图浮动小控件 */
+    /* 地图浮动液态玻璃控制栏 */
     .map-top-bar {
       position: absolute;
-      top: 10px;
+      top: 70px;
       left: 12px;
       right: 12px;
       z-index: 30;
       display: flex;
       gap: 6px;
       overflow-x: auto;
-      padding: 4px;
+      padding: 6px 8px;
+      background: rgba(10, 15, 24, 0.68);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-full);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), 0 8px 24px rgba(0, 0, 0, 0.45);
       scrollbar-width: none;
     }
     .map-top-bar::-webkit-scrollbar { display: none; }
 
     .map-pill {
       white-space: nowrap;
-      padding: 6px 12px;
+      padding: 6px 13px;
       font-size: 12px;
       font-weight: 600;
       color: var(--text-sub);
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: var(--radius-full);
       cursor: pointer;
+      transition: all 0.3s var(--spring-easing);
+      user-select: none;
+    }
+
+    .map-pill:active {
+      transform: scale(0.97);
     }
 
     .map-pill.active {
       background: rgba(56, 189, 248, 0.25);
       border-color: var(--accent-cyan);
       color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 8px rgba(56, 189, 248, 0.3);
     }
   </style>
 </head>
@@ -864,7 +1032,7 @@
       </section>
 
       <!-- D3: 9/21 周一 · 面试保卫战 -->
-      <section class="day-card" style="border-color: rgba(244,63,94,0.4);">
+      <section class="day-card day-interview">
         <div class="day-card-header">
           <span class="day-badge" style="color:#f43f5e;border-color:rgba(244,63,94,0.4);background:rgba(244,63,94,0.15);">D3 · 9/21 周一</span>
           <span class="day-intensity" style="color:#f43f5e;font-weight:700;">★ 面试核心锁定日</span>
@@ -1100,7 +1268,7 @@
         </div>
       </section>
 
-      <div style="text-align:center;padding:16px 0 24px;font-size:11.5px;color:var(--text-dim);letter-spacing:0.5px;">RELEASE v1.1.2 · 2026.09 · KUALA LUMPUR</div>
+      <div style="text-align:center;padding:16px 0 24px;font-size:11.5px;color:var(--text-dim);letter-spacing:0.5px;">RELEASE v1.2.0 · 2026.09 · APPLE LIQUID GLASS · KUALA LUMPUR</div>
     </main>
 
     <!-- ======================================================================

@@ -2,7 +2,7 @@
 
 > **项目定位**：专为马来西亚吉隆坡（KLCC / 武吉免登 / 茨厂街 / 黑风洞 / 布城粉红清真寺 / 独立广场）深度漫行定制的高颜值移动端 Web App。  
 > **核心原则**：纯静态单文件免构建打包、零后端、全套苹果液态玻璃（Liquid Glass）视觉系统、移动端优先、Google Maps JavaScript API 深度驱动。  
-> **当前生产版本**：`RELEASE v1.1.2 · 2026.09` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
+> **当前生产版本**：`RELEASE v1.2.0 · 2026.09 (Apple Liquid Glass)` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
 > 📌 **项目阶段记忆规范**：**在每一次对话或开发阶段完成后，必须在此文件中更新当前最新状态与技术决策，以便在新的对话中实现秒级上下文恢复并无缝衔接后续开发！**
 
 ---
@@ -111,4 +111,20 @@ Pilgrimage to the West (Trip)/
   - **功能 Tab 交互增强**：
     1. Tab 3 专属嵌入高对比度「🎫 核心景点门票与预订速查 (Ticket & Booking Hub)」模块；
     2. 底部 Dock 菜单第三项升级为 `[🎫 门票/AA/避坑]`，实现一键穿透直达。
+- **v1.2.0 (苹果液态玻璃 Apple Liquid Glass 视觉重塑全面落地 · 2026.09)**：
+  - **多层级折射与高斯模糊系统 (Glassmorphism & Optical Refraction)**：
+    1. **深邃环境基底与弥散光晕 (Ambient Glow Mesh)**：采用 `#060911` 黑曜石深色底，叠加固定视口四焦点微光晕径向渐变（天蓝、紫罗兰、薄荷绿、玫瑰红），卡片滑动时呈现真实光学折射与色散通透感；
+    2. **液态玻璃全域材质升级**：全面接入 `backdrop-filter: blur(24px) saturate(180%)`（及 `-webkit-` 前缀）；卡片采用 `rgba(255, 255, 255, 0.055)` 高透磨砂层，配合 `border: 1px solid rgba(255, 255, 255, 0.14)` 拟真高光边缘与双层镜面倒角；
+    3. **微内阴影与悬浮深沉阴影**：加入 `box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.38)`，边缘立体光效显著；
+    4. **主题液态玻璃衍生**：D3 面试日尊享 Rose Liquid Glass（红宝石微光）；大本营住宿条 Emerald Liquid Glass；避雨与面试警示框高透警示玻璃；
+    5. **悬浮灵动岛 Dock**：升级为浮空液态玻璃胶囊，`blur(28px) saturate(200%)`，高光镜面边缘与悬空阴影 `0 16px 40px rgba(0, 0, 0, 0.6)`。
+  - **iOS 触觉反馈与动效 (Micro-Interactions)**：
+    1. 全局按钮（操作按钮、复制、快捷标签、记账添加、地图 Pill、Dock 项）统一配备 `:active { transform: scale(0.97); }` 触控微缩回弹；
+    2. 全局贝塞尔弹簧缓动：`transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1)`；
+    3. 强化日光下易读性：SF Pro 字体阶层搭配纯白与高级冷灰高对比度排版，彻底杜绝毛玻璃泛虚现象。
+  - **业务功能与数据 100% 完整无损保全**：
+    1. D0~D5 完整行程、4 大硬约束（9/21 面试、9/20 双子塔黄昏、黄亚华周六/周一明记、9/22 马六甲）无损闭环；
+    2. 全部操作链接（Google Maps 直达、Grab 唤起、官网抢票、飞猪比价、redBus、MDAC）及 Toast 复制逻辑完好；
+    3. Tab 2 Google Maps WGS-84 地图网络与 Tab 3 门票速查/两人 AA 记账器/避坑清单持久化逻辑全量保留。
+
 
