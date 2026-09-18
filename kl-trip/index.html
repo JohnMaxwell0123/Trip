@@ -1294,7 +1294,7 @@
         </div>
       </section>
 
-      <div style="text-align:center;padding:16px 0 24px;font-size:11.5px;color:var(--text-dim);letter-spacing:0.5px;">RELEASE v1.3.0 · 2026.09 · SHOPPING & SOUVENIR GUIDE · KUALA LUMPUR</div>
+      <div style="text-align:center;padding:16px 0 24px;font-size:11.5px;color:var(--text-dim);letter-spacing:0.5px;">RELEASE v1.3.1 · 2026.09 · HIGH-CONTRAST MAP TRAJECTORY · KUALA LUMPUR</div>
     </main>
 
     <!-- ======================================================================
@@ -1643,7 +1643,7 @@
         </div>
       </div>
 
-      <div style="text-align:center;padding:16px 0 24px;font-size:11.5px;color:var(--text-dim);letter-spacing:0.5px;">RELEASE v1.3.0 · 2026.09 · SHOPPING & SOUVENIR GUIDE · KUALA LUMPUR</div>
+      <div style="text-align:center;padding:16px 0 24px;font-size:11.5px;color:var(--text-dim);letter-spacing:0.5px;">RELEASE v1.3.1 · 2026.09 · HIGH-CONTRAST MAP TRAJECTORY · KUALA LUMPUR</div>
     </section>
 
   </div>
@@ -1841,6 +1841,7 @@
     let gMap = null;
     let gMarkers = [];
     let gPolyline = null;
+    let gCasingPolyline = null;
 
     function initGoogleMapsIfNeeded() {
       if (gMap) {
@@ -1875,12 +1876,16 @@
         center: { lat: 3.1579, lng: 101.708 },
         zoom: 13,
         styles: [
-          { elementType: "geometry", stylers: [{ color: "#121a27" }] },
-          { elementType: "labels.text.stroke", stylers: [{ color: "#121a27" }] },
+          { elementType: "geometry", stylers: [{ color: "#0b0f19" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#0b0f19" }, { weight: 3 }] },
           { elementType: "labels.text.fill", stylers: [{ color: "#94a3b8" }] },
-          { featureType: "road", elementType: "geometry", stylers: [{ color: "#1e293b" }] },
-          { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#0284c7" }] },
-          { featureType: "water", elementType: "geometry", stylers: [{ color: "#061325" }] }
+          { featureType: "road", elementType: "geometry", stylers: [{ color: "#1a2333" }] },
+          { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#283548" }] },
+          { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#151d28" }] },
+          { featureType: "water", elementType: "geometry", stylers: [{ color: "#060b14" }] },
+          { featureType: "poi", elementType: "geometry", stylers: [{ color: "#0d1522" }] },
+          { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+          { featureType: "transit", elementType: "geometry", stylers: [{ color: "#141c2b" }] }
         ],
         disableDefaultUI: true,
         zoomControl: true
@@ -1899,6 +1904,10 @@
 
       gMarkers.forEach(m => m.setMap(null));
       gMarkers = [];
+      if (gCasingPolyline) {
+        gCasingPolyline.setMap(null);
+        gCasingPolyline = null;
+      }
       if (gPolyline) {
         gPolyline.setMap(null);
         gPolyline = null;
@@ -1917,12 +1926,13 @@
           position: pos,
           map: gMap,
           title: pt.name,
+          zIndex: 10,
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
-            scale: 7,
+            scale: 7.5,
             fillColor: pt.type === 'food' ? '#f59e0b' : (pt.type === 'hotel' ? '#10b981' : '#38bdf8'),
             fillOpacity: 1,
-            strokeWeight: 2,
+            strokeWeight: 2.2,
             strokeColor: '#ffffff'
           }
         });
@@ -1935,12 +1945,25 @@
       });
 
       if (coords.length > 1) {
+        // 1. 底层高对比黑夜防护边框（彻底杜绝与地图道路混淆）
+        gCasingPolyline = new google.maps.Polyline({
+          path: coords,
+          geodesic: true,
+          strokeColor: "#000000",
+          strokeOpacity: 0.65,
+          strokeWeight: 6.5,
+          zIndex: 1,
+          map: gMap
+        });
+
+        // 2. 顶层高亮发光金琥珀轨迹线（极光穿透感，高辨识度）
         gPolyline = new google.maps.Polyline({
           path: coords,
           geodesic: true,
-          strokeColor: "#38bdf8",
-          strokeOpacity: 0.8,
+          strokeColor: "#fbbf24",
+          strokeOpacity: 1.0,
           strokeWeight: 3.5,
+          zIndex: 2,
           map: gMap
         });
       }
