@@ -2,7 +2,7 @@
 
 > **项目定位**：专为马来西亚吉隆坡（KLCC / 武吉免登 / 茨厂街 / 黑风洞 / 布城粉红清真寺 / 独立广场）深度漫行定制的高颜值移动端 Web App。  
 > **核心原则**：纯静态单文件免构建打包、零后端、全套苹果液态玻璃（Liquid Glass）视觉系统、移动端优先、Google Maps JavaScript API 深度驱动。  
-> **当前生产版本**：`RELEASE v1.2.0 · 2026.09 (Apple Liquid Glass)` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
+> **当前生产版本**：`RELEASE v1.2.1 · 2026.09 (Google Maps Ready)` ｜ **全球直达**：[trip-kl.pages.dev](https://trip-kl.pages.dev) ｜ **坐标基准**：国际标准 WGS-84（原生零偏差）  
 > 📌 **项目阶段记忆规范**：**在每一次对话或开发阶段完成后，必须在此文件中更新当前最新状态与技术决策，以便在新的对话中实现秒级上下文恢复并无缝衔接后续开发！**
 
 ---
@@ -30,7 +30,7 @@
 | **服务平台** | `Google Maps JavaScript API` | 支持 `Map`、`DirectionsService`、`marker.AdvancedMarkerElement` |
 | **坐标系统** | `WGS-84` (GPS标准) | 吉隆坡经纬度无需任何 GCJ-02 火星加偏 |
 | **搭载库 (Libraries)** | `routes, places, geometry, marker` | URL 参数：`&libraries=routes,places,geometry,marker` |
-| **API Key 注入** | `<script src="https://maps.googleapis.com/maps/api/js?key=..."></script>` | 支持在代码内配置专属 Key，或缺省时优雅降级提示 |
+| **API Key 注入** | `AIzaSyDFwO_CG9x2_8mueUxyCcQ5OJqVdaS3wD4` | 官方专属 Key 已直接注入 `kl-trip/index.html` 缺省配置，同时支持 URL 参数 `?key=` 覆盖 |
 | **城市基准中心** | `Lat: 3.1579, Lng: 101.7116` | 默认定位以吉隆坡市中心国油双峰塔（KLCC）为视觉锚点 |
 
 ---
@@ -126,5 +126,10 @@ Pilgrimage to the West (Trip)/
     1. D0~D5 完整行程、4 大硬约束（9/21 面试、9/20 双子塔黄昏、黄亚华周六/周一明记、9/22 马六甲）无损闭环；
     2. 全部操作链接（Google Maps 直达、Grab 唤起、官网抢票、飞猪比价、redBus、MDAC）及 Toast 复制逻辑完好；
     3. Tab 2 Google Maps WGS-84 地图网络与 Tab 3 门票速查/两人 AA 记账器/避坑清单持久化逻辑全量保留。
+- **v1.2.1 (官方 Google Maps API Key 注入与地图在线渲染就绪 · 2026.09)**：
+  - **API Key 原生注入**：将官方专属 API Key (`AIzaSyDFwO_CG9x2_8mueUxyCcQ5OJqVdaS3wD4`) 正式注入 `kl-trip/index.html` 缺省配置，彻底告别降级提示与手动追加 `?key=` 参数；
+  - **底图与路线渲染实测验证**：在暗夜液态玻璃主题下，Google Maps 成功加载吉隆坡至马六甲全境真实矢量底图、多段线路径以及 20 个 WGS-84 坐标图钉；
+  - **云端同步更新**：同步推送 GitHub 触发 Cloudflare Pages 自动化全球上线。
+
 
 
