@@ -8,6 +8,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>西行计划 · 丝路自驾路书</title>
 
+  <!-- 长辈关怀大字模式轻量防闪烁脚本 (Zero-FOUC Anti-Flash) -->
+  <script>
+    (function() {
+      try {
+        if (localStorage.getItem('xy_trip_senior_mode') === '1') {
+          document.documentElement.classList.add('senior-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- 高德地图安全密钥配置（必须在加载高德地图脚本之前） -->
   <script>
     window._AMapSecurityConfig = {
@@ -206,6 +217,43 @@
       font-weight: 700;
       letter-spacing: 0.4px;
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+    }
+
+    /* 👓 长辈关怀大字模式切换胶囊 (Liquid Glass Senior Pill) */
+    .senior-toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 13px;
+      min-height: 40px;
+      border-radius: var(--radius-full);
+      background: rgba(245, 158, 11, 0.18);
+      border: 1.2px solid rgba(251, 191, 36, 0.52);
+      color: #fef08a;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(254, 240, 138, 0.3);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+      white-space: nowrap;
+      user-select: none;
+      outline: none;
+    }
+
+    .senior-toggle-pill:active {
+      transform: scale(0.93);
+    }
+
+    .senior-toggle-pill .senior-toggle-icon {
+      font-size: 15px;
+      line-height: 1;
+      display: inline-block;
+      transition: transform 0.25s ease;
     }
 
     /* ==========================================================================
@@ -2682,6 +2730,508 @@
       width: calc((100% - 12px) / 3);
       left: 6px;
     }
+
+    /* ==========================================================================
+       9. 长辈关怀大字模式 (Senior Care Mode - Apple Liquid Glass Accessible)
+       ========================================================================== */
+    html.senior-mode,
+    body.senior-mode {
+      --bg-deep: #0a0603;
+      --glass-surface: rgba(12, 8, 4, 0.92);
+      --glass-surface-hover: rgba(22, 14, 8, 0.96);
+      --glass-surface-active: rgba(32, 20, 11, 0.98);
+      --glass-border: rgba(251, 191, 36, 0.52);
+      --glass-highlight: rgba(254, 240, 138, 0.75);
+      --glass-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.85), 0 0 1px 1.5px rgba(245, 158, 11, 0.35);
+      --glass-blur: blur(32px) saturate(210%);
+
+      --text-main: #ffffff;
+      --text-sub: #f8fafc;
+      --text-dim: #f1f5f9;
+
+      font-size: 18px;
+      line-height: 1.72;
+    }
+
+    /* 顶部 Header 悬浮岛与切换胶囊在长辈模式下的增强 */
+    body.senior-mode .app-header,
+    html.senior-mode .app-header {
+      background: rgba(12, 8, 4, 0.94);
+      border: 1.5px solid rgba(251, 191, 36, 0.55);
+      box-shadow: 0 14px 42px rgba(0, 0, 0, 0.65), inset 0 1px 1.5px rgba(255, 255, 255, 0.45);
+      padding: 11px 16px;
+    }
+
+    body.senior-mode .brand-block h1,
+    html.senior-mode .brand-block h1 {
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    body.senior-mode .brand-block .sub-title,
+    html.senior-mode .brand-block .sub-title {
+      font-size: 12.5px;
+      color: #f8fafc;
+      opacity: 0.98;
+    }
+
+    /* 切换胶囊激活态：✅ 关怀模式已开启 */
+    body.senior-mode .senior-toggle-pill,
+    html.senior-mode .senior-toggle-pill,
+    .senior-toggle-pill.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.28) 100%);
+      border: 1.5px solid rgba(52, 211, 153, 0.88);
+      color: #a7f3d0;
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      font-size: 13.5px;
+      font-weight: 800;
+      min-height: 44px;
+      padding: 8px 15px;
+    }
+
+    body.senior-mode .senior-toggle-pill .senior-toggle-icon,
+    html.senior-mode .senior-toggle-pill .senior-toggle-icon,
+    .senior-toggle-pill.active .senior-toggle-icon {
+      font-size: 16px;
+      filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.85));
+    }
+
+    /* 概览卡片与打卡通关文牒 */
+    body.senior-mode .hero-banner-title {
+      font-size: 22px;
+      font-weight: 800;
+    }
+    body.senior-mode .hero-banner-sub {
+      font-size: 15px;
+      color: #ffffff;
+      opacity: 0.95;
+    }
+    body.senior-mode .trip-overview-card {
+      padding: 20px;
+    }
+    body.senior-mode #checkin-progress-text {
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      color: #fbbf24 !important;
+    }
+    body.senior-mode .progress-bar-bg {
+      height: 12px;
+      border-radius: 999px;
+    }
+    body.senior-mode .stat-item .val {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    body.senior-mode .stat-item .lbl {
+      font-size: 14px;
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    /* 天数快捷选择滑条药丸（防误触 >= 48px） */
+    body.senior-mode .day-selector-scroll {
+      gap: 10px;
+      padding-bottom: 8px;
+    }
+    body.senior-mode .day-chip {
+      min-height: 48px;
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 14px;
+      margin-right: 8px;
+    }
+    body.senior-mode .day-chip.active {
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.55);
+      border-width: 2px;
+    }
+
+    /* 每日行程长卡片与头部排版抗挤压 */
+    body.senior-mode .day-card {
+      padding: 22px 18px;
+      margin-bottom: 24px;
+      border-width: 1.5px;
+      border-color: rgba(251, 191, 36, 0.45);
+    }
+    body.senior-mode .day-header-top {
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    body.senior-mode .day-tag {
+      font-size: 14px;
+      font-weight: 800;
+      padding: 4px 10px;
+    }
+    body.senior-mode .day-meta-pill {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 12px;
+      color: #fef08a;
+      border-color: rgba(251, 191, 36, 0.65);
+    }
+    body.senior-mode .day-title {
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.45;
+      color: #ffffff;
+      margin: 4px 0;
+    }
+    body.senior-mode .day-date {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fbbf24;
+      margin-top: 4px;
+    }
+
+    /* 时间轴节点与四大核心突出（时间高饱和琥珀金高亮） */
+    body.senior-mode .timeline-list {
+      padding-left: 24px;
+      margin: 18px 0;
+    }
+    body.senior-mode .timeline-list::before {
+      width: 3.5px;
+      left: 7px;
+      background: linear-gradient(to bottom, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.65));
+    }
+    body.senior-mode .timeline-node {
+      margin-bottom: 20px;
+    }
+    body.senior-mode .timeline-node::before {
+      left: -23px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-width: 3px;
+      box-shadow: 0 0 10px var(--accent-gold);
+    }
+    /* 核心时间：高饱和琥珀金超强高亮 */
+    body.senior-mode .node-time {
+      font-size: 19px;
+      font-weight: 800;
+      color: #fbbf24;
+      text-shadow: 0 1px 6px rgba(245, 158, 11, 0.45);
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    /* 排版抗挤压：标题行垂直解耦堆叠，杜绝字号放大引起的汉字挤压竖排 */
+    body.senior-mode .node-title-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    body.senior-mode .node-title {
+      width: 100%;
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.5;
+    }
+    /* 二级探索胶囊：靶区扩大至 >= 48px，杜绝晃动误触 */
+    body.senior-mode .node-sub-capsule {
+      min-height: 48px;
+      padding: 10px 18px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: var(--radius-full);
+      gap: 6px;
+      border-color: rgba(251, 191, 36, 0.65);
+    }
+    body.senior-mode .node-sub-capsule .capsule-arrow {
+      font-size: 13px;
+    }
+    body.senior-mode .node-desc {
+      font-size: 16px;
+      line-height: 1.72;
+      color: #f8fafc;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* 赶路区间指示胶囊：行车耗时与里程大字突出呈现 */
+    body.senior-mode .timeline-transit-badge {
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin: 12px 0 10px 0;
+      border-width: 1.5px;
+    }
+    body.senior-mode .timeline-transit-badge::before {
+      width: 5px;
+    }
+    body.senior-mode .transit-badge-main {
+      font-size: 15.5px;
+      gap: 8px;
+    }
+    body.senior-mode .transit-badge-icon {
+      font-size: 20px;
+    }
+    body.senior-mode .transit-badge-km {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    body.senior-mode .transit-badge-time {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fde047;
+      text-shadow: 0 1px 4px rgba(245, 158, 11, 0.45);
+    }
+    body.senior-mode .transit-badge-route {
+      font-size: 13px;
+      padding: 4px 10px;
+      font-weight: 600;
+    }
+
+    /* 弹性时间熔断与检视卡片 */
+    body.senior-mode .time-cutoff-box {
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border-width: 1.5px;
+    }
+    body.senior-mode .cutoff-header {
+      min-height: 48px;
+      padding: 6px 0;
+    }
+    body.senior-mode .cutoff-badge {
+      font-size: 12.5px;
+      padding: 3px 8px;
+      font-weight: 800;
+    }
+    body.senior-mode .cutoff-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      white-space: normal;
+    }
+    body.senior-mode .cutoff-hint {
+      font-size: 12.5px;
+      color: #fbbf24;
+      font-weight: 700;
+    }
+    body.senior-mode .cutoff-zone {
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+    body.senior-mode .cutoff-zone-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    body.senior-mode .cutoff-zone-desc {
+      font-size: 14px;
+      color: #f8fafc;
+      line-height: 1.6;
+    }
+
+    /* 大本营住宿卡：今晚住哪大字高亮 + 一键导航大靶区 */
+    body.senior-mode .day-hotel-box {
+      padding: 16px;
+      border-radius: 16px;
+      border-width: 1.5px;
+      gap: 14px;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    body.senior-mode .day-hotel-box .hotel-icon {
+      font-size: 26px;
+    }
+    body.senior-mode .day-hotel-box strong {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.45;
+      display: block;
+      margin: 4px 0 6px 0;
+    }
+    body.senior-mode .hotel-nav-btn,
+    body.senior-mode .hotel-sub-btn {
+      min-height: 48px;
+      padding: 10px 18px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 卡片底部操作按钮：触控防误触 >= 52px */
+    body.senior-mode .day-actions {
+      gap: 14px;
+      margin-top: 14px;
+    }
+    body.senior-mode .btn-action {
+      min-height: 52px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+    }
+    body.senior-mode .btn-action-map {
+      background: rgba(245, 158, 11, 0.28);
+      border: 1.5px solid rgba(251, 191, 36, 0.7);
+      color: #ffffff;
+    }
+    body.senior-mode .btn-action-checkin {
+      border-width: 1.5px;
+    }
+    body.senior-mode .btn-action-checkin.checked {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(5, 150, 105, 0.35));
+      border-color: rgba(52, 211, 153, 0.9);
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    /* 地图模式 Tab 2 触控与信息窗增强 */
+    body.senior-mode .map-ctrl-btn {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      border-radius: 16px;
+      border-width: 1.5px;
+    }
+    body.senior-mode .map-ctrl-dock {
+      gap: 14px;
+    }
+    body.senior-mode .map-day-chip {
+      min-height: 46px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    body.senior-mode .l2-info-title {
+      font-size: 17.5px;
+      font-weight: 800;
+    }
+    body.senior-mode .l2-info-body {
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    body.senior-mode .l2-info-btn {
+      min-height: 48px;
+      font-size: 14.5px;
+      font-weight: 700;
+      padding: 10px 16px;
+    }
+
+    /* 贴士与备忘 Tab 3（门票速查与军人优待作战手册） */
+    body.senior-mode .military-handbook-card {
+      padding: 18px;
+      border-width: 1.5px;
+      border-color: rgba(52, 211, 153, 0.65);
+    }
+    body.senior-mode .military-handbook-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    body.senior-mode .military-zone-desc {
+      font-size: 15.5px;
+      line-height: 1.72;
+      color: #f8fafc;
+    }
+    body.senior-mode .ticket-card {
+      padding: 18px;
+      border-width: 1.5px;
+    }
+    body.senior-mode .ticket-spot-name {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    body.senior-mode .ticket-policy-desc {
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    body.senior-mode .btn-ticket-action {
+      min-height: 48px;
+      padding: 11px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+    }
+    body.senior-mode .ticket-check-label {
+      min-height: 48px;
+      padding: 8px 12px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    body.senior-mode .ticket-check-input {
+      width: 22px;
+      height: 22px;
+    }
+    body.senior-mode .packing-item {
+      min-height: 48px;
+      padding: 12px 14px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    body.senior-mode .packing-checkbox {
+      width: 22px;
+      height: 22px;
+    }
+    body.senior-mode .ledger-calc-btn {
+      width: 48px;
+      height: 48px;
+      font-size: 22px;
+    }
+    body.senior-mode .ledger-input {
+      min-height: 48px;
+      font-size: 16px;
+    }
+
+    /* 抽屉半屏深度攻略 (Bottom Sheet) 增强 */
+    body.senior-mode .bottom-sheet-modal {
+      background: rgba(12, 8, 4, 0.94);
+      border-color: rgba(251, 191, 36, 0.55);
+    }
+    body.senior-mode .sheet-title {
+      font-size: 22px;
+      font-weight: 800;
+    }
+    body.senior-mode .sheet-subtitle {
+      font-size: 15px;
+      color: #fbbf24;
+      font-weight: 600;
+    }
+    body.senior-mode .sheet-close-btn {
+      width: 48px;
+      height: 48px;
+      font-size: 22px;
+      border-radius: 14px;
+    }
+    body.senior-mode .sheet-body {
+      font-size: 16px;
+      line-height: 1.75;
+      color: #f8fafc;
+    }
+    body.senior-mode .amap-nav-btn {
+      min-height: 52px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    /* 底部悬浮 Dock 导航栏 */
+    body.senior-mode .floating-dock {
+      background: rgba(12, 8, 4, 0.95);
+      border: 1.5px solid rgba(251, 191, 36, 0.55);
+      padding: 8px;
+    }
+    body.senior-mode .dock-btn {
+      padding: 9px 4px;
+    }
+    body.senior-mode .dock-btn .dock-icon {
+      font-size: 22px;
+    }
+    body.senior-mode .dock-btn .dock-label {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* 模式切换平滑过渡 */
+    body, .day-card, .timeline-node, .node-time, .node-title, .node-desc, 
+    .btn-action, .day-hotel-box, .app-header, .floating-dock {
+      transition: background-color 0.28s ease, border-color 0.28s ease, font-size 0.2s ease, padding 0.25s ease;
+    }
   </style>
 </head>
 <body>
@@ -2694,9 +3244,17 @@
   <header class="app-header">
     <div class="brand-block">
       <h1>西行计划 · 丝路路书 <span>🚩</span></h1>
-      <div class="sub-title">济南往返 · 考斯特大环线（09.24 - 10.02）</div>
+      <div class="sub-title">济南往返 · 考斯特 9日行（09.24 - 10.02）</div>
     </div>
-    <div class="badge-coaster">考斯特 9日行</div>
+    <button id="btn-senior-toggle" 
+            class="senior-toggle-pill" 
+            onclick="toggleSeniorMode()" 
+            aria-label="长辈关怀大字模式切换" 
+            aria-pressed="false"
+            title="点击切换长辈关怀大字模式">
+      <span class="senior-toggle-icon">👓</span>
+      <span class="senior-toggle-text">长辈大字</span>
+    </button>
   </header>
 
   <!-- 主内容区 -->
@@ -2772,7 +3330,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.5.4</span>
+          <span class="version-num">v3.6.0</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -4235,6 +4793,7 @@
     const STORAGE_KEY_TICKETS  = "xy_trip_tickets_bought";
     const STORAGE_KEY_LEDGER   = "xy_trip_ledger";
     const STORAGE_KEY_PEOPLE   = "xy_trip_people_num";
+    const STORAGE_KEY_SENIOR   = "xy_trip_senior_mode";
 
     let stateCheckins = JSON.parse(localStorage.getItem(STORAGE_KEY_CHECKINS) || "{}");
     let statePacking  = JSON.parse(localStorage.getItem(STORAGE_KEY_PACKING)  || "{}");
@@ -4246,10 +4805,56 @@
     let statePeople   = parseInt(localStorage.getItem(STORAGE_KEY_PEOPLE)     || "10", 10);
     let currentTicketFilter = "all";
 
+    // ==========================================================================
+    // 长辈关怀大字模式状态管理与一键切换 (Senior Care Mode Controller)
+    // ==========================================================================
+    function isSeniorModeActive() {
+      try {
+        return localStorage.getItem(STORAGE_KEY_SENIOR) === "1";
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function applySeniorMode(isActive, showToastNotice = false) {
+      document.documentElement.classList.toggle("senior-mode", isActive);
+      if (document.body) {
+        document.body.classList.toggle("senior-mode", isActive);
+      }
+      const toggleBtn = document.getElementById("btn-senior-toggle");
+      if (toggleBtn) {
+        toggleBtn.classList.toggle("active", isActive);
+        toggleBtn.setAttribute("aria-pressed", isActive ? "true" : "false");
+        const iconEl = toggleBtn.querySelector(".senior-toggle-icon");
+        const textEl = toggleBtn.querySelector(".senior-toggle-text");
+        if (iconEl) iconEl.textContent = isActive ? "✅" : "👓";
+        if (textEl) textEl.textContent = isActive ? "关怀模式已开启" : "长辈大字";
+      }
+      if (showToastNotice) {
+        if (isActive) {
+          showToast("👓 已开启长辈关怀大字模式（大字号·强对比·防误触）");
+        } else {
+          showToast("✨ 已恢复标准精致模式");
+        }
+      }
+    }
+
+    function toggleSeniorMode() {
+      const nextState = !isSeniorModeActive();
+      try {
+        localStorage.setItem(STORAGE_KEY_SENIOR, nextState ? "1" : "0");
+      } catch (e) {}
+      applySeniorMode(nextState, true);
+      if (navigator.vibrate) {
+        try { navigator.vibrate(25); } catch (e) {}
+      }
+    }
+
     // --------------------------------------------------------------------------
     // C. 页面初始化与渲染 (Renderer)
     // --------------------------------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
+      applySeniorMode(isSeniorModeActive(), false);
       renderScheduleCards(-1);
       renderPackingStatus();
       renderTicketsDashboard();
