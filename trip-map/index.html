@@ -160,12 +160,12 @@
     .app-header {
       position: fixed;
       top: calc(8px + env(safe-area-inset-top, 0px));
-      left: 14px;
-      right: 14px;
+      left: 8px;
+      right: 8px;
       z-index: 120;
-      max-width: 520px;
+      max-width: 620px;
       margin: 0 auto;
-      padding: 10px 16px;
+      padding: 9px 12px;
       border-radius: 22px;
       background: rgba(20, 12, 6, 0.38); /* 强化液态玻璃设计，让地图在底部自由流动穿透 */
       backdrop-filter: blur(28px) saturate(190%);
@@ -263,6 +263,9 @@
       flex: 1;
       position: relative;
       z-index: 10;
+      max-width: 620px;
+      width: 100%;
+      margin: 0 auto;
       padding-top: calc(78px + env(safe-area-inset-top, 0px));
       padding-bottom: calc(88px + var(--safe-bottom));
       transition: padding-top 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -275,7 +278,7 @@
     .tab-view {
       display: none;
       animation: viewFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      padding: 16px;
+      padding: 10px 8px;
     }
 
     .tab-view.active {
@@ -426,6 +429,60 @@
       transition: width 0.4s ease;
     }
 
+    /* 快捷折叠与直达今日工具栏 */
+    .schedule-quick-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: -2px 0 10px 0;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(251, 191, 36, 0.22);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .quick-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .quick-toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .quick-tool-btn {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      color: #fef08a;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .quick-tool-btn:hover {
+      background: rgba(245, 158, 11, 0.28);
+      color: #fff;
+    }
+    .quick-tool-btn.quick-tool-today {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.25));
+      border-color: rgba(251, 191, 36, 0.65);
+      color: #fff;
+      font-weight: 700;
+    }
+
     /* 天数横向快捷滑动胶囊 */
     .day-selector-scroll {
       display: flex;
@@ -461,23 +518,124 @@
 
     /* 每日行程长卡片 */
     .day-card {
-      margin-bottom: 20px;
-      padding: 18px;
-      transition: transform 0.2s ease;
+      margin-bottom: 14px;
+      padding: 14px 12px;
+      transition: transform 0.2s ease, padding 0.25s ease, margin 0.25s ease, opacity 0.25s ease;
     }
 
     .day-card-header {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       border-bottom: 1px solid rgba(251, 191, 36, 0.12);
-      padding-bottom: 12px;
+      padding-bottom: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .day-card-header:hover {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: var(--radius-sm);
     }
 
     .day-header-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    /* 📅 已过日程折叠系统 (Past Days Collapsed State) */
+    .day-card.collapsed {
       margin-bottom: 8px;
+      padding: 10px 12px;
+      background: rgba(20, 13, 7, 0.42);
+      border-color: rgba(251, 191, 36, 0.20);
+      opacity: 0.85;
+    }
+
+    .day-card.collapsed:hover {
+      opacity: 1;
+      border-color: rgba(251, 191, 36, 0.42);
+      background: rgba(25, 16, 9, 0.55);
+    }
+
+    .day-card.collapsed .day-card-header {
+      margin-bottom: 0;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .day-card.collapsed .timeline-list,
+    .day-card.collapsed .day-hotel-box,
+    .day-card.collapsed .day-actions {
+      display: none !important;
+    }
+
+    .day-card.collapsed .day-title {
+      font-size: 14.5px;
+      color: #e2e8f0;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+    }
+
+    .day-card.collapsed .day-date {
+      display: inline-block;
+      margin-top: 1px;
+      font-size: 11px;
+    }
+
+    .collapse-header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .collapse-status-pill {
+      font-size: 10.5px;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #34d399;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .collapse-status-pill.pill-past {
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(251, 191, 36, 0.4);
+      color: #fbbf24;
+    }
+
+    .collapse-toggle-hint {
+      font-size: 11px;
+      color: var(--accent-gold);
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .day-card:not(.collapsed) .collapse-toggle-hint {
+      color: var(--text-dim);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .day-card-header:hover .collapse-toggle-hint {
+      background: rgba(245, 158, 11, 0.28);
+      color: #fff;
+      border-color: rgba(251, 191, 36, 0.6);
     }
 
     .day-tag {
@@ -523,8 +681,8 @@
     /* 时间轴节点 */
     .timeline-list {
       position: relative;
-      padding-left: 20px;
-      margin: 14px 0 16px 0;
+      padding-left: 15px;
+      margin: 12px 0 14px 0;
     }
 
     .timeline-list::before {
@@ -532,7 +690,7 @@
       position: absolute;
       top: 6px;
       bottom: 6px;
-      left: 6px;
+      left: 4px;
       width: 2px;
       background: linear-gradient(to bottom, rgba(245, 158, 11, 0.8), rgba(217, 119, 6, 0.4));
       border-radius: 1px;
@@ -550,7 +708,7 @@
     .timeline-node::before {
       content: '';
       position: absolute;
-      left: -18px;
+      left: -15px;
       top: 5px;
       width: 8px;
       height: 8px;
@@ -2828,6 +2986,24 @@
       font-weight: 600;
     }
 
+    /* 快捷折叠与直达今日工具栏在长辈模式下的增强 */
+    body.senior-mode .schedule-quick-toolbar {
+      padding: 8px 14px;
+      margin-bottom: 12px;
+      border-color: rgba(251, 191, 36, 0.45);
+    }
+    body.senior-mode .quick-toolbar-left {
+      font-size: 13.5px;
+      color: #f8fafc;
+      font-weight: 600;
+    }
+    body.senior-mode .quick-tool-btn {
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      min-height: 42px;
+    }
+
     /* 天数快捷选择滑条药丸（防误触 >= 48px） */
     body.senior-mode .day-selector-scroll {
       gap: 10px;
@@ -2848,14 +3024,30 @@
 
     /* 每日行程长卡片与头部排版抗挤压 */
     body.senior-mode .day-card {
-      padding: 22px 18px;
-      margin-bottom: 24px;
+      padding: 16px 14px;
+      margin-bottom: 16px;
       border-width: 1.5px;
       border-color: rgba(251, 191, 36, 0.45);
     }
+    body.senior-mode .day-card.collapsed {
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    body.senior-mode .day-card.collapsed .day-title {
+      font-size: 17px;
+      margin-top: 2px;
+    }
+    body.senior-mode .collapse-status-pill {
+      font-size: 12px;
+      padding: 3px 9px;
+    }
+    body.senior-mode .collapse-toggle-hint {
+      font-size: 13px;
+      padding: 4px 10px;
+    }
     body.senior-mode .day-header-top {
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 8px;
+      margin-bottom: 8px;
       flex-wrap: wrap;
     }
     body.senior-mode .day-tag {
@@ -2886,19 +3078,19 @@
 
     /* 时间轴节点与四大核心突出（时间高饱和琥珀金高亮） */
     body.senior-mode .timeline-list {
-      padding-left: 24px;
-      margin: 18px 0;
+      padding-left: 18px;
+      margin: 14px 0;
     }
     body.senior-mode .timeline-list::before {
       width: 3.5px;
-      left: 7px;
+      left: 5px;
       background: linear-gradient(to bottom, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.65));
     }
     body.senior-mode .timeline-node {
       margin-bottom: 20px;
     }
     body.senior-mode .timeline-node::before {
-      left: -23px;
+      left: -19px;
       top: 6px;
       width: 12px;
       height: 12px;
@@ -3307,6 +3499,22 @@
         </div>
       </div>
 
+      <!-- 快捷折叠与直达今日工具栏 (Quick Toolbar) -->
+      <div id="schedule-quick-toolbar" class="schedule-quick-toolbar" style="display: none;">
+        <div class="quick-toolbar-left" id="quick-toolbar-info">
+          <span class="quick-icon">📁</span>
+          <span id="quick-collapsed-text">已收起已过行程</span>
+        </div>
+        <div class="quick-toolbar-actions">
+          <button class="quick-tool-btn" id="btn-toggle-all-collapse" onclick="toggleAllPastDaysCollapse()">
+            📂 展开已过
+          </button>
+          <button class="quick-tool-btn quick-tool-today" id="btn-scroll-today" onclick="scrollToTodayDay()">
+            📍 直达今日
+          </button>
+        </div>
+      </div>
+
       <!-- 天数快捷选择滑条 -->
       <div class="day-selector-scroll">
         <div class="day-chip active" onclick="filterScheduleDay(-1, this)">全部行程</div>
@@ -3330,7 +3538,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.6.0</span>
+          <span class="version-num">v3.6.1</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -4865,6 +5073,149 @@
       }, 300);
     });
 
+    // ==========================================================================
+    // 📅 已过日程智能折叠与直达今日系统 (Past Days Smart Collapse & Navigation)
+    // ==========================================================================
+    let dayCollapseOverrides = {}; // 记录用户本次会话的手动折叠意图
+
+    // 判定某天是否已过或已打卡完成
+    function isDayPastOrDone(day) {
+      if (stateCheckins[day.dayIndex]) return true;
+
+      try {
+        const m = day.date.match(/(\d+)月(\d+)日/);
+        if (m) {
+          const month = parseInt(m[1], 10);
+          const dateNum = parseInt(m[2], 10);
+          const endOfDay = new Date(2026, month - 1, dateNum, 23, 59, 59, 999);
+          const now = new Date();
+          if (now > endOfDay) return true;
+        }
+      } catch (e) {}
+
+      return false;
+    }
+
+    // 获取当前正在进行的“今天”索引
+    function getTodayDayIndex() {
+      const now = new Date();
+      for (const d of TRIP_DAYS) {
+        const m = d.date.match(/(\d+)月(\d+)日/);
+        if (m) {
+          const month = parseInt(m[1], 10);
+          const dateNum = parseInt(m[2], 10);
+          const startOfDay = new Date(2026, month - 1, dateNum, 0, 0, 0, 0);
+          const endOfDay   = new Date(2026, month - 1, dateNum, 23, 59, 59, 999);
+          if (now >= startOfDay && now <= endOfDay) {
+            return d.dayIndex;
+          }
+        }
+      }
+      for (const d of TRIP_DAYS) {
+        if (!stateCheckins[d.dayIndex]) return d.dayIndex;
+      }
+      return 0;
+    }
+
+    // 单张卡片折叠/展开切换
+    function toggleDayCardCollapse(dayIndex) {
+      const card = document.getElementById(`day-card-${dayIndex}`);
+      if (!card) return;
+      const isCurrentlyCollapsed = card.classList.contains("collapsed");
+      const nextCollapsed = !isCurrentlyCollapsed;
+      dayCollapseOverrides[dayIndex] = nextCollapsed;
+      card.classList.toggle("collapsed", nextCollapsed);
+
+      const hintEl = card.querySelector(".collapse-toggle-hint");
+      if (hintEl) {
+        hintEl.textContent = nextCollapsed ? "展开 ▾" : "收起 ▴";
+      }
+
+      updateQuickToolbar();
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(15); } catch(e) {}
+      }
+    }
+
+    // 一键展开/收起所有已过天数
+    function toggleAllPastDaysCollapse() {
+      const pastDays = TRIP_DAYS.filter(d => isDayPastOrDone(d));
+      if (pastDays.length === 0) return;
+
+      const hasAnyCollapsed = pastDays.some(d => {
+        const card = document.getElementById(`day-card-${d.dayIndex}`);
+        return card && card.classList.contains("collapsed");
+      });
+
+      const targetCollapseState = !hasAnyCollapsed;
+
+      pastDays.forEach(d => {
+        dayCollapseOverrides[d.dayIndex] = targetCollapseState;
+        const card = document.getElementById(`day-card-${d.dayIndex}`);
+        if (card) {
+          card.classList.toggle("collapsed", targetCollapseState);
+          const hintEl = card.querySelector(".collapse-toggle-hint");
+          if (hintEl) {
+            hintEl.textContent = targetCollapseState ? "展开 ▾" : "收起 ▴";
+          }
+        }
+      });
+
+      updateQuickToolbar();
+      showToast(targetCollapseState ? "📁 已收起所有已过行程" : "📂 已展开全部行程明细");
+    }
+
+    // 直达今日行程
+    function scrollToTodayDay() {
+      const todayIndex = getTodayDayIndex();
+      const card = document.getElementById(`day-card-${todayIndex}`);
+      if (card) {
+        if (card.classList.contains("collapsed")) {
+          toggleDayCardCollapse(todayIndex);
+        }
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+        showToast(`📍 已定位至今日行程 (Day ${todayIndex})`);
+      }
+    }
+
+    // 更新快捷工具栏状态
+    function updateQuickToolbar() {
+      const bar = document.getElementById("schedule-quick-toolbar");
+      if (!bar) return;
+
+      const pastDays = TRIP_DAYS.filter(d => isDayPastOrDone(d));
+      if (pastDays.length === 0) {
+        bar.style.display = "none";
+        return;
+      }
+
+      bar.style.display = "flex";
+
+      const collapsedCount = pastDays.filter(d => {
+        const card = document.getElementById(`day-card-${d.dayIndex}`);
+        return card && card.classList.contains("collapsed");
+      }).length;
+
+      const infoText = document.getElementById("quick-collapsed-text");
+      const toggleAllBtn = document.getElementById("btn-toggle-all-collapse");
+
+      if (infoText) {
+        infoText.textContent = collapsedCount > 0 
+          ? `已收起 ${collapsedCount} 天已过行程` 
+          : `已展开全部 ${pastDays.length} 天过往行程`;
+      }
+      if (toggleAllBtn) {
+        toggleAllBtn.textContent = collapsedCount > 0 ? "📂 展开已过" : "📁 全部收起";
+      }
+
+      const todayIndex = getTodayDayIndex();
+      const todayBtn = document.getElementById("btn-scroll-today");
+      if (todayBtn) {
+        todayBtn.textContent = `📍 直达 Day ${todayIndex}`;
+      }
+    }
+
     // 渲染路书卡片
     function renderScheduleCards(targetDay) {
       const container = document.getElementById("schedule-cards-container");
@@ -4876,9 +5227,30 @@
 
       filtered.forEach(day => {
         const isChecked = !!stateCheckins[day.dayIndex];
+        const isPastOrDone = isDayPastOrDone(day);
+
+        // 如果用户在本次会话中手动设置过折叠/展开，遵从手动状态；否则若在全览视图且已过/已完成，默认折叠
+        const shouldCollapse = (targetDay === -1)
+          ? (dayCollapseOverrides[day.dayIndex] !== undefined ? dayCollapseOverrides[day.dayIndex] : isPastOrDone)
+          : false;
+
         const card = document.createElement("div");
-        card.className = "liquid-glass day-card";
+        card.className = `liquid-glass day-card ${shouldCollapse ? 'collapsed' : ''}`;
         card.id = `day-card-${day.dayIndex}`;
+
+        let statusBadgeHtml = "";
+        if (isChecked) {
+          statusBadgeHtml = `<span class="collapse-status-pill">✅ 已打卡</span>`;
+        } else if (isPastOrDone) {
+          statusBadgeHtml = `<span class="collapse-status-pill pill-past">🕒 已过</span>`;
+        }
+
+        const toggleHintHtml = `
+          <div class="collapse-header-right">
+            ${statusBadgeHtml}
+            <span class="collapse-toggle-hint">${shouldCollapse ? '展开 ▾' : '收起 ▴'}</span>
+          </div>
+        `;
 
         let timelineHtml = "";
         day.timeline.forEach(t => {
@@ -4952,10 +5324,13 @@
         });
 
         card.innerHTML = `
-          <div class="day-card-header">
+          <div class="day-card-header" onclick="toggleDayCardCollapse(${day.dayIndex})" title="轻触折叠或展开完整行程">
             <div class="day-header-top">
-              <span class="day-tag">${day.tag}</span>
-              <span class="day-meta-pill">${day.dayIndex === 0 ? '✈️' : '🚗'} ${day.km} · ${day.driveTime}</span>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span class="day-tag">${day.tag}</span>
+                <span class="day-meta-pill">${day.dayIndex === 0 ? '✈️' : '🚗'} ${day.km} · ${day.driveTime}</span>
+              </div>
+              ${toggleHintHtml}
             </div>
             <div class="day-title">${day.title}</div>
             <div class="day-date">${day.date}</div>
@@ -5008,6 +5383,7 @@
       });
 
       updateCheckinStats();
+      updateQuickToolbar();
     }
 
     // 打卡切换
@@ -5031,6 +5407,7 @@
         }
       }
       updateCheckinStats();
+      updateQuickToolbar();
     }
 
     function updateCheckinStats() {
