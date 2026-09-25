@@ -2,7 +2,7 @@
 
 > **项目定位**：专为 9 天西北大环线（济南往返 9.24 - 10.02 · 兰州/张掖/酒泉/鼎新/额济纳/嘉峪关/瓜州/敦煌/当金山/柴达木/茶卡/西宁）考斯特 10 人+团队自驾深度定制的高颜值移动端 Web App。  
 > **核心原则**：纯静态单文件免构建打包、零后端、全套苹果液态玻璃（Liquid Glass）视觉系统、移动端优先（响应式兼顾桌面浏览器）、Cloudflare Pages 静态边缘秒开。  
-> **当前生产版本**：`RELEASE v3.6.1 · 2026.09` ｜ **全球直达**：[trip-cts.pages.dev](https://trip-cts.pages.dev) ｜ **主分支 Commit**：`Auto-Push`  
+> **当前生产版本**：`RELEASE v3.6.2 · 2026.09` ｜ **全球直达**：[trip-cts.pages.dev](https://trip-cts.pages.dev) ｜ **主分支 Commit**：`Auto-Push`  
 > 📌 **项目阶段记忆规范**：**在每一次对话或开发阶段完成后，必须在此文件中更新当前最新状态与技术决策，以便在新的对话中实现秒级上下文恢复并无缝衔接后续开发！**
 
 ---
@@ -407,6 +407,23 @@ Pilgrimage to the West/
          - 概览卡片下方新增高透快捷状态条（`schedule-quick-toolbar`），支持【📂 展开已过 / 📁 全部收起】一键总控，并配备高光【📍 直达今日 (Day 1)】瞬时就位按钮；
          - 天数快捷滑条单选天数时，自动完整展开，兼顾大局概览与微观细查；
   - **文件镜像与版本发布**：强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致），底部版本号递增发布为 `RELEASE v3.6.1 · 2026.09`。
+- **v3.6.2 (CSS Grid 硬件加速无重排手风琴动画与 180° 旋转指示器)**：
+  - **顿挫卡顿根因溯源**：
+    - 原卡片折叠方案使用 `display: none !important;` 隐藏折叠主体，导致浏览器在展开瞬间触发强制同步重排（Reflow/Layout），无法插值过渡；
+    - 卡片外层 padding/margin 又在缓慢 transition，造成视觉严重的生硬跳变与瞬时卡顿顿挫感；
+  - **三大底层动画工程重构**：
+    1. **CSS Grid `grid-template-rows: 0fr ↔ 1fr` 硬件加速架构**：
+       - 采用现代 CSS Grid 规范为 `.day-card-body-wrapper` 建立 `grid-template-rows: 1fr` 容器，配合 `.day-card-body-inner { min-height: 0; overflow: hidden; }`；
+       - 折叠时平滑收缩至 `grid-template-rows: 0fr` 并淡出 `opacity: 0; pointer-events: none;`；
+       - 彻底告别 JS `scrollHeight` 同步测算（0 JavaScript 开销、零强制 Reflow）与 CSS `max-height` 无法精准估高的缺陷；
+    2. **苹果原生手势减速阻尼曲线 (Apple Fluid Easing)**：
+       - 全面接入 `cubic-bezier(0.16, 1, 0.3, 1)` 0.36s 物理阻尼曲线，展开与收起收放自如，极其贴手丝滑；
+    3. **180° 纯 CSS 旋转平滑指示箭头**：
+       - 指示器分离为 `.collapse-hint-text` 与 `.collapse-arrow-icon`；
+       - 箭头通过 `.day-card:not(.collapsed) .collapse-arrow-icon { transform: rotate(180deg); }` 实现硬件加速旋转，彻底告别切换字符瞬间的闪跳；
+  - **文件镜像与版本发布**：
+    - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致）；
+    - 底部版本号递增发布为 `RELEASE v3.6.2 · 2026.09`。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：

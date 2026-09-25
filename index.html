@@ -520,7 +520,7 @@
     .day-card {
       margin-bottom: 14px;
       padding: 14px 12px;
-      transition: transform 0.2s ease, padding 0.25s ease, margin 0.25s ease, opacity 0.25s ease;
+      transition: background-color 0.32s ease, border-color 0.32s ease, margin-bottom 0.32s cubic-bezier(0.16, 1, 0.3, 1), padding 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
     }
 
     .day-card-header {
@@ -529,7 +529,7 @@
       padding-bottom: 10px;
       cursor: pointer;
       user-select: none;
-      transition: all 0.2s ease;
+      transition: margin-bottom 0.32s cubic-bezier(0.16, 1, 0.3, 1), padding-bottom 0.32s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
     }
 
     .day-card-header:hover {
@@ -562,14 +562,28 @@
 
     .day-card.collapsed .day-card-header {
       margin-bottom: 0;
-      border-bottom: none;
+      border-bottom-color: transparent;
       padding-bottom: 0;
     }
 
-    .day-card.collapsed .timeline-list,
-    .day-card.collapsed .day-hotel-box,
-    .day-card.collapsed .day-actions {
-      display: none !important;
+    /* 丝滑手风琴过渡包裹层 (CSS Grid 0fr <-> 1fr 硬件加速零重排) */
+    .day-card-body-wrapper {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 1;
+      will-change: grid-template-rows, opacity;
+    }
+
+    .day-card.collapsed .day-card-body-wrapper {
+      grid-template-rows: 0fr;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .day-card-body-inner {
+      overflow: hidden;
+      min-height: 0;
     }
 
     .day-card.collapsed .day-title {
@@ -620,10 +634,22 @@
       border-radius: 999px;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
       font-weight: 600;
       white-space: nowrap;
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
+    }
+
+    .collapse-arrow-icon {
+      display: inline-block;
+      font-size: 10px;
+      line-height: 1;
+      transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: rotate(0deg);
+    }
+
+    .day-card:not(.collapsed) .collapse-arrow-icon {
+      transform: rotate(180deg);
     }
 
     .day-card:not(.collapsed) .collapse-toggle-hint {
@@ -3538,7 +3564,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.6.1</span>
+          <span class="version-num">v3.6.2</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -5126,9 +5152,14 @@
       dayCollapseOverrides[dayIndex] = nextCollapsed;
       card.classList.toggle("collapsed", nextCollapsed);
 
-      const hintEl = card.querySelector(".collapse-toggle-hint");
-      if (hintEl) {
-        hintEl.textContent = nextCollapsed ? "展开 ▾" : "收起 ▴";
+      const hintTextEl = card.querySelector(".collapse-hint-text");
+      if (hintTextEl) {
+        hintTextEl.textContent = nextCollapsed ? "展开" : "收起";
+      } else {
+        const hintEl = card.querySelector(".collapse-toggle-hint");
+        if (hintEl) {
+          hintEl.textContent = nextCollapsed ? "展开 ▾" : "收起 ▴";
+        }
       }
 
       updateQuickToolbar();
@@ -5155,9 +5186,14 @@
         const card = document.getElementById(`day-card-${d.dayIndex}`);
         if (card) {
           card.classList.toggle("collapsed", targetCollapseState);
-          const hintEl = card.querySelector(".collapse-toggle-hint");
-          if (hintEl) {
-            hintEl.textContent = targetCollapseState ? "展开 ▾" : "收起 ▴";
+          const hintTextEl = card.querySelector(".collapse-hint-text");
+          if (hintTextEl) {
+            hintTextEl.textContent = targetCollapseState ? "展开" : "收起";
+          } else {
+            const hintEl = card.querySelector(".collapse-toggle-hint");
+            if (hintEl) {
+              hintEl.textContent = targetCollapseState ? "展开 ▾" : "收起 ▴";
+            }
           }
         }
       });
@@ -5248,7 +5284,10 @@
         const toggleHintHtml = `
           <div class="collapse-header-right">
             ${statusBadgeHtml}
-            <span class="collapse-toggle-hint">${shouldCollapse ? '展开 ▾' : '收起 ▴'}</span>
+            <span class="collapse-toggle-hint">
+              <span class="collapse-hint-text">${shouldCollapse ? '展开' : '收起'}</span>
+              <span class="collapse-arrow-icon">▾</span>
+            </span>
           </div>
         `;
 
@@ -5336,47 +5375,51 @@
             <div class="day-date">${day.date}</div>
           </div>
 
-          <div class="timeline-list">
-            ${timelineHtml}
-          </div>
-
-          <div class="day-hotel-box ${day.hotelStatus === 'confirmed' ? 'hotel-confirmed' : ''}">
-            <span class="hotel-icon">${day.hotelStatus === 'confirmed' ? '🏨' : (day.hotelStatus === 'home' ? '🏡' : '🛏️')}</span>
-            <div style="flex:1;">
-              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
-                <div style="font-size:11px; color:${day.hotelStatus === 'confirmed' ? '#34d399' : 'var(--text-dim)'}; font-weight:700;">
-                  ${day.hotelStatus === 'confirmed' ? '✅ 已确认预订入住：' : (day.hotelStatus === 'home' ? '🏁 行程终点：' : '建议住宿标准（待定）：')}
-                </div>
-                ${day.hotelStatus === 'confirmed' ? `
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <button class="hotel-sub-btn" onclick="openBottomSheet('d0_hotel')" title="查看酒店深度入住攻略" style="background:rgba(251,191,36,0.18); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; border-radius:999px; padding:2px 8px; font-size:11px; cursor:pointer; font-weight:600;">
-                      📖 指南
-                    </button>
-                    <a href="https://uri.amap.com/marker?position=${day.hotelCoords[0]},${day.hotelCoords[1]}&name=${encodeURIComponent(day.hotelNavName || day.hotel)}&coordinate=gaode&callnative=1" 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       class="hotel-nav-btn" 
-                       title="一键唤起高德地图导航至酒店"
-                       onclick="event.stopPropagation()">
-                      🧭 导航
-                    </a>
-                  </div>
-                ` : ''}
+          <div class="day-card-body-wrapper">
+            <div class="day-card-body-inner">
+              <div class="timeline-list">
+                ${timelineHtml}
               </div>
-              <strong style="color:#fff; font-size:14px; line-height:1.4;">${day.hotel}</strong>
-              ${day.hotelAddress ? `<div style="font-size:12px; color:var(--text-sub); margin-top:3px; opacity:0.88;">📍 ${day.hotelAddress}</div>` : ''}
-            </div>
-          </div>
 
-          <div class="day-actions">
-            <button class="btn-action btn-action-map" onclick="viewDayOnMap(${day.dayIndex})">
-              <span>🗺️ 地图查看路线</span>
-            </button>
-            <button class="btn-action btn-action-checkin ${isChecked ? 'checked' : ''}" 
-                    id="btn-check-${day.dayIndex}" 
-                    onclick="toggleDayCheckin(${day.dayIndex})">
-              <span>${isChecked ? '✓ 今日已打卡' : '⭕ 打卡此日'}</span>
-            </button>
+              <div class="day-hotel-box ${day.hotelStatus === 'confirmed' ? 'hotel-confirmed' : ''}">
+                <span class="hotel-icon">${day.hotelStatus === 'confirmed' ? '🏨' : (day.hotelStatus === 'home' ? '🏡' : '🛏️')}</span>
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+                    <div style="font-size:11px; color:${day.hotelStatus === 'confirmed' ? '#34d399' : 'var(--text-dim)'}; font-weight:700;">
+                      ${day.hotelStatus === 'confirmed' ? '✅ 已确认预订入住：' : (day.hotelStatus === 'home' ? '🏁 行程终点：' : '建议住宿标准（待定）：')}
+                    </div>
+                    ${day.hotelStatus === 'confirmed' ? `
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <button class="hotel-sub-btn" onclick="openBottomSheet('d0_hotel')" title="查看酒店深度入住攻略" style="background:rgba(251,191,36,0.18); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; border-radius:999px; padding:2px 8px; font-size:11px; cursor:pointer; font-weight:600;">
+                          📖 指南
+                        </button>
+                        <a href="https://uri.amap.com/marker?position=${day.hotelCoords[0]},${day.hotelCoords[1]}&name=${encodeURIComponent(day.hotelNavName || day.hotel)}&coordinate=gaode&callnative=1" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="hotel-nav-btn" 
+                           title="一键唤起高德地图导航至酒店"
+                           onclick="event.stopPropagation()">
+                          🧭 导航
+                        </a>
+                      </div>
+                    ` : ''}
+                  </div>
+                  <strong style="color:#fff; font-size:14px; line-height:1.4;">${day.hotel}</strong>
+                  ${day.hotelAddress ? `<div style="font-size:12px; color:var(--text-sub); margin-top:3px; opacity:0.88;">📍 ${day.hotelAddress}</div>` : ''}
+                </div>
+              </div>
+
+              <div class="day-actions">
+                <button class="btn-action btn-action-map" onclick="viewDayOnMap(${day.dayIndex})">
+                  <span>🗺️ 地图查看路线</span>
+                </button>
+                <button class="btn-action btn-action-checkin ${isChecked ? 'checked' : ''}" 
+                        id="btn-check-${day.dayIndex}" 
+                        onclick="toggleDayCheckin(${day.dayIndex})">
+                  <span>${isChecked ? '✓ 今日已打卡' : '⭕ 打卡此日'}</span>
+                </button>
+              </div>
+            </div>
           </div>
         `;
         container.appendChild(card);
