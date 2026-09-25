@@ -1566,6 +1566,11 @@
       border: 1px solid rgba(245, 158, 11, 0.45);
       color: #fcd34d;
     }
+    .l2-info-traffic.walk {
+      background: rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #bae6fd;
+    }
     .l2-info-close {
       width: 22px;
       height: 22px;
@@ -2791,6 +2796,12 @@
       color: #f1f5f9;
     }
 
+    .sheet-traffic-callout.walk {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #bae6fd;
+    }
+
     .traffic-callout-icon {
       font-size: 15px;
       flex-shrink: 0;
@@ -3564,7 +3575,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.6.2</span>
+          <span class="version-num">v3.6.3</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -3977,7 +3988,18 @@
               }
             }
           },
-          { time: "19:30", title: "抵达张掖，入住高品质酒店", desc: "晚餐推荐张掖特色搓鱼面、炒拨拉" }
+          { 
+            time: "19:15", 
+            title: "抵达张掖市区，入住高品质酒店", 
+            desc: "暮色中经连霍高速抵甘州区核心商圈（推荐绿洲假日/金阳国际），卸下大件行李洗漱换装" 
+          },
+          { 
+            time: "19:45", 
+            title: "张掖老字号晚宴（炒炮/炒拨拉/卷子鸡）", 
+            desc: "翻越乌鞘岭500公里后的接风大宴！甘州名吃大院大桌聚餐、孙记非遗炒炮、甘州夜市铁鏊炒拨拉与大盘卷子鸡齐聚", 
+            subDetailKey: "d1_zhangye_dinner", 
+            subDetailBadge: "🥢 张掖晚宴名店 (4家)" 
+          }
         ]
       },
       {
@@ -3998,10 +4020,10 @@
           { time: "07:30", title: "游览张掖七彩丹霞", desc: "晨间柔和光影，1至4号观景台色彩最为震撼" },
           { 
             time: "11:30", 
-            title: "张掖午餐与驱车经G30赴酒泉", 
-            desc: "品尝张掖炒炮与特色炒拨拉，酒泉休整补给", 
-            subDetailKey: "d2_zhangye_food", 
-            subDetailBadge: "🥢 张掖市井名吃 (2家)",
+            title: "丹霞景区午餐或市区便餐，启程赴酒泉", 
+            desc: "游览完毕可在临泽丹霞美食街或市区品尝特色面食，整备车队沿G30连霍高速挺进酒泉", 
+            subDetailKey: "d1_zhangye_dinner", 
+            subDetailBadge: "🥢 张掖地道风味 (4家)",
             transitNext: {
               icon: "🚗",
               action: "接下来行驶",
@@ -4586,12 +4608,81 @@
         ]
       },
 
-      // Day 2: 11:30 张掖午餐市井名店
-      "d2_zhangye_food": {
-        title: "🥢 张掖非遗市井名吃推荐",
-        subtitle: "Day 2 · 张掖七彩丹霞 ➔ 酒泉 ➔ 鼎新基地",
-        intro: "张掖老城区的硬核市井风味，拒绝千篇一律的旅游大团餐，品尝非遗面食与平底铁鏊爆炒羊杂。",
+      // Day 1: 19:45 张掖老字号晚宴与特色名吃推荐
+      "d1_zhangye_dinner": {
+        title: "🥢 张掖地道老字号与风味晚宴指南",
+        subtitle: "Day 1 · 抵达张掖甘州区 · 考斯特团队接风晚宴",
+        intro: "翻越乌鞘岭历经 500 公里长途跋涉后的热乎大餐！兼顾 10+ 人长辈大桌舒适聚餐与市井非遗硬核风味，甘州名吃汉唐庭院、孙记非遗炒炮、甘州夜市铁鏊炒拨拉与大盘卷子鸡齐聚。",
         items: [
+          {
+            name: "甘州名吃（大佛寺文化街总店 · 10+人长辈聚餐首选）",
+            tag: "甘州大院品质聚餐 · 长辈首选",
+            story: "张掖古城公认最具文化底蕴的汉唐庭院式餐饮名店。古色古香木雕屏风，拥有多张 10~14 人大圆桌与独立包间。适合 500 公里长途跋涉后的高品质接风宴。可一次性吃遍大盘甘州排骨、手抓羊肉、特色卷子鸡，以及非遗炒炮、搓鱼子、牛肉小饭全套甘州小吃。长辈坐得舒坦、环境典雅、不吵不闹。",
+            dishes: ["甘州特色排骨", "农家大盘卷子鸡", "手抓祁连羊肉", "非遗炒炮/搓鱼子全家福", "暖胃灰豆汤"],
+            price: "约 65~85 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠/步行即达。距入住酒店仅约 400 米，步行 5 分钟穿过大佛寺文化广场即达；或考斯特直接停靠大佛寺文化广场大巴专用车位。",
+            lng: 100.4565,
+            lat: 38.9298,
+            navName: "甘州名吃(大佛寺店)"
+          },
+          {
+            name: "孙记炒炮（青年西街老店 · 国家级非遗名吃）",
+            tag: "国家级非物质文化遗产",
+            story: "在张掖流传着“不吃孙记炒炮，等于没来过甘州”。面条手搓寸断形如小鞭炮，大铁锅猛火高汤爆炒，浇盖大块红亮卤肉、卤排骨与洋葱。面条筋道耐嚼、卤香四溢。必配老汤和张掖紫皮大蒜，“一口炒炮、一口卤肉、一口大蒜”，瞬间驱散长途乘车疲惫。",
+            dishes: ["传统精肉炒炮", "精制五香卤肉/卤排骨", "秘制油泼辣子", "原汤面汤", "张掖紫皮大蒜"],
+            price: "约 30~45 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议步行/打车。老店距酒店约 600 米，青年西街老城区停车极紧张；若全员包车前往推荐去西环路旗舰店（设有多张大桌且门口路面宽阔好停车）。",
+            lng: 100.4498,
+            lat: 38.9325,
+            navName: "孙记炒炮(青年西街店)"
+          },
+          {
+            name: "甘州市场·特色炒拨拉（刘玉珍/小成老字号 · 河西独家铁鏊爆炒）",
+            tag: "河西走廊独家市井非遗",
+            story: "河西走廊独一档的市井铁板爆炒。平底铸铁鏊子上大火热油，新鲜羊杂（心、肝、肺、肚、肠）滋滋爆响，撒重孜然、辣椒面与洋葱快速翻拨拉动。最后切入死面白饼（炒饼碎），吸透滚烫羊油与香辣浓汁，外焦里嫩。西北烟火气第一名，配上一扎冰镇杏皮茶或黄酒，爽快至极。",
+            dishes: ["特选羊杂炒拨拉", "铁鏊炒死面饼碎", "爆炒羊肚", "冰镇杏皮茶", "张掖老黄酒"],
+            price: "约 40~55 元/人",
+            trafficType: "walk",
+            trafficText: "🚶‍♂️ 强烈推荐步行。距入住酒店仅 150 米（下楼过马路即达）。市场内部为纯步行街大排档，考斯特无法驶入。",
+            lng: 100.4562,
+            lat: 38.9318,
+            navName: "甘州市场特色美食街"
+          },
+          {
+            name: "苗氏卷子鸡（东大街老店 · 地道大盘菜之王）",
+            tag: "张掖家常大盘菜鼻祖",
+            story: "甘州宴客最硬核的王牌家常菜。精选土鸡大火爆炒加秘制香料文火慢煨，上面铺满现擀现捏的手工千层小面卷。面卷在焖炖中完全吸饱了鸡肉的原汁原汤，油亮润泽、筋道弹牙，鸡肉软烂鲜美。10人团队点上两份大盘卷子鸡配几样野菜沙葱，大快朵颐。",
+            dishes: ["农家招牌卷子鸡（大盘）", "凉拌沙葱", "胡麻油炒地软", "手工搓鱼子"],
+            price: "约 50~65 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车或开阔路段靠边。东大街主干道可临时靠边下客，距酒店约 800 米，打车起步价即达。",
+            lng: 100.4610,
+            lat: 38.9330,
+            navName: "苗氏卷子鸡(东大街店)"
+          }
+        ]
+      },
+
+      // Day 2: 11:30 张掖午餐市井名店 (兼容并蓄)
+      "d2_zhangye_food": {
+        title: "🥢 张掖地道非遗美食与便餐指南",
+        subtitle: "Day 2 · 张掖七彩丹霞 ➔ 酒泉 ➔ 鼎新基地",
+        intro: "张掖老城区的硬核市井风味，拒绝千篇一律的旅游大团餐，品尝非遗面食、甘州名吃与平底铁鏊爆炒羊杂。",
+        items: [
+          {
+            name: "甘州名吃（大佛寺文化街总店 · 10+人长辈聚餐首选）",
+            tag: "甘州大院品质聚餐 · 长辈首选",
+            story: "张掖古城公认最具文化底蕴的汉唐庭院式餐饮名店。古色古香木雕屏风，拥有多张 10~14 人大圆桌与独立包间。大盘甘州排骨、手抓羊肉、特色卷子鸡与全套面食一网打尽。",
+            dishes: ["甘州特色排骨", "农家大盘卷子鸡", "手抓祁连羊肉", "非遗炒炮/搓鱼子全家福"],
+            price: "约 65~85 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠/步行即达。大佛寺文化广场大巴车位充裕。",
+            lng: 100.4565,
+            lat: 38.9298,
+            navName: "甘州名吃(大佛寺店)"
+          },
           {
             name: "孙记炒炮（青年西街老店）",
             tag: "张掖非物质文化遗产",
@@ -4610,11 +4701,23 @@
             story: "河西走廊独此一家的硬核市井小吃。平底铸铁鏊子上猛火爆炒新鲜羊肚、羊肠、羊心、羊肝，滋滋冒油，撒大量孜然与辣椒面，拌入白面饼碎吸透汤汁。",
             dishes: ["招牌羊杂炒拨拉", "炒饼碎", "冰镇杏皮水"],
             price: "约 45 元/人",
-            trafficType: "taxi",
-            trafficText: "🚕 建议打车/步行前往。市场内部为纯步行街区，大巴无法驶入。",
+            trafficType: "walk",
+            trafficText: "🚶‍♂️ 建议步行前往。市场内部为纯步行街区，大巴无法驶入。",
             lng: 100.4562,
             lat: 38.9318,
             navName: "甘州市场小吃街"
+          },
+          {
+            name: "苗氏卷子鸡（东大街老店 · 地道大盘菜之王）",
+            tag: "张掖家常大盘菜鼻祖",
+            story: "甘州宴客最硬核的王牌家常菜。土鸡大火爆炒焖炖出浓郁汤汁，上面铺满现擀手工千层小面卷，吸饱鸡汁，肉嫩面糯。",
+            dishes: ["农家招牌卷子鸡（大盘）", "凉拌沙葱", "胡麻油炒地软"],
+            price: "约 50~65 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议打车或开阔路段靠边。东大街主干道可临时靠边下客，打车起步价即达。",
+            lng: 100.4610,
+            lat: 38.9330,
+            navName: "苗氏卷子鸡(东大街店)"
           }
         ]
       },
@@ -6044,7 +6147,7 @@
         let styleClass = "l2-pin-food";
 
         const k = item.detailKey.toLowerCase();
-        if (k.includes('beef_noodles') || k.includes('food') || k.includes('supper') || k.includes('bbq') || k.includes('hポット') || k.includes('mongol')) {
+        if (k.includes('beef_noodles') || k.includes('food') || k.includes('supper') || k.includes('dinner') || k.includes('bbq') || k.includes('hポット') || k.includes('mongol')) {
           icon = "🥢";
           styleClass = "l2-pin-food";
         } else if (k.includes('hotel')) {
@@ -6132,13 +6235,15 @@
 
       const navUrl = `https://uri.amap.com/marker?position=${item.lng},${item.lat}&name=${encodeURIComponent(item.navName || item.name)}&coordinate=gaode&callnative=1`;
       const isCoaster = item.trafficType === 'coaster';
+      const isWalk = item.trafficType === 'walk';
+      const trafficBadgeText = isCoaster ? '🚌 考斯特直达' : (isWalk ? '🚶‍♂️ 建议步行' : '🚕 建议打车');
 
       const content = `
         <div class="l2-map-infowindow" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
           <div class="l2-info-header">
             <span class="l2-info-tag">${item.tag}</span>
             <span class="l2-info-traffic ${item.trafficType}">
-              ${isCoaster ? '🚌 考斯特直达' : '🚕 建议打车'}
+              ${trafficBadgeText}
             </span>
             <button class="l2-info-close" onclick="closeL2InfoWindow(event, true)" title="关闭">✕</button>
           </div>
@@ -7149,9 +7254,10 @@ ${itemsText}-------------------------
           dishesHtml = item.dishes.map(d => `<span class="sheet-dish-badge">✓ ${d}</span>`).join("");
         }
 
-        const isTaxi = item.trafficType === "taxi";
-        const trafficCalloutClass = isTaxi ? "sheet-traffic-callout taxi" : "sheet-traffic-callout coaster";
-        const trafficCalloutIcon = isTaxi ? "🚕" : "🚌";
+        const isCoaster = item.trafficType === "coaster";
+        const isWalk = item.trafficType === "walk";
+        const trafficCalloutClass = isCoaster ? "sheet-traffic-callout coaster" : (isWalk ? "sheet-traffic-callout walk" : "sheet-traffic-callout taxi");
+        const trafficCalloutIcon = isCoaster ? "🚌" : (isWalk ? "🚶‍♂️" : "🚕");
 
         html += `
           <div class="sheet-card">
