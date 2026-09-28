@@ -3561,7 +3561,7 @@
         <div class="day-chip" onclick="filterScheduleDay(3, this)">D3 航天城·胡杨</div>
         <div class="day-chip" onclick="filterScheduleDay(4, this)">D4 嘉峪关→敦煌</div>
         <div class="day-chip" onclick="filterScheduleDay(5, this)">D5 莫高窟·鸣沙山</div>
-        <div class="day-chip" onclick="filterScheduleDay(6, this)">D6 穿越柴达木</div>
+        <div class="day-chip" onclick="filterScheduleDay(6, this)">D6 翡翠湖→德令哈</div>
         <div class="day-chip" onclick="filterScheduleDay(7, this)">D7 茶卡·青海湖</div>
         <div class="day-chip" onclick="filterScheduleDay(8, this)">D8 塔尔寺✈济南</div>
       </div>
@@ -3575,7 +3575,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.6.4</span>
+          <span class="version-num">v3.7.0</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -3597,8 +3597,8 @@
           <button class="map-pill-btn" onclick="switchMapDay(3, this)">D3 航天城-怪树林</button>
           <button class="map-pill-btn" onclick="switchMapDay(4, this)">D4 嘉峪关-敦煌</button>
           <button class="map-pill-btn" onclick="switchMapDay(5, this)">D5 莫高窟-鸣沙山</button>
-          <button class="map-pill-btn" onclick="switchMapDay(6, this)">D6 穿越柴达木</button>
-          <button class="map-pill-btn" onclick="switchMapDay(7, this)">D7 茶卡-西宁</button>
+          <button class="map-pill-btn" onclick="switchMapDay(6, this)">D6 翡翠湖-德令哈</button>
+          <button class="map-pill-btn" onclick="switchMapDay(7, this)">D7 德令哈-西宁</button>
           <button class="map-pill-btn" onclick="switchMapDay(8, this)">D8 塔尔寺-济南</button>
         </div>
       </div>
@@ -4233,21 +4233,21 @@
         dayIndex: 6,
         tag: "Day 6",
         date: "09月30日 · 周三",
-        title: "大穿越！翻当金山 ➔ 柴达木 ➔ 茶卡镇",
-        km: "约 650 km",
-        driveTime: "车程约 8 h（景观大道）",
-        hotel: "茶卡盐湖星空景美酒店 / 茶卡天境青年大酒店（四星品质）",
+        title: "翻越当金山 ➔ 翡翠湖深度游 ➔ 德令哈",
+        km: "约 560 km",
+        driveTime: "车程约 6.5 h（柴达木景观大道）",
+        hotel: "德令哈义海大酒店 / 海西宾馆（四星品质 · 海拔2980m舒适安睡）",
         hotelStatus: "tentative",
         spots: [
           { name: "当金山垭口(海拔3648m)", lng: 94.3415, lat: 39.3241, desc: "甘青分界线，阿尔金山与祁连山交汇险关" },
-          { name: "大柴旦翡翠湖", lng: 95.3057, lat: 37.8546, desc: "柴达木盆地深处的一颗绿宝石，晶莹剔透" },
-          { name: "茶卡镇", lng: 99.0838, lat: 36.7027, desc: "抵达高原盐城茶卡镇，备战次日天空之镜" }
+          { name: "大柴旦翡翠湖", lng: 95.3057, lat: 37.8546, desc: "柴达木深处璀璨绿宝石，小火车深度畅游" },
+          { name: "德令哈市区", lng: 97.3708, lat: 37.3758, desc: "海西州府绿洲之城，海拔2980m舒缓低反" }
         ],
         timeline: [
           { 
-            time: "07:00", 
-            title: "考斯特满油自敦煌出发", 
-            desc: "全程最长的一天大穿越，沿途风貌由戈壁变为高原",
+            time: "07:30", 
+            title: "考斯特从容启程（满油自敦煌出发）", 
+            desc: "告别敦煌绿洲，沿柳格高速驶向青海，沿途地貌逐步过渡为高山草甸与苍茫戈壁",
             transitNext: {
               icon: "🚗",
               action: "接下来行驶",
@@ -4258,82 +4258,108 @@
             }
           },
           { 
-            time: "09:30", 
+            time: "10:00", 
             title: "翻越当金山垭口（海拔3648m）", 
-            desc: "正式告别甘肃进入大青海，地貌瞬间转为苍茫高原", 
+            desc: "正式告别甘肃进入大美青海，气温骤降，远眺阿尔金山终年雪峰", 
             subDetailKey: "d6_dangjinshan", 
             subDetailBadge: "🔭 当金山垭口观景",
             transitNext: {
               icon: "🚗",
               action: "接下来行驶",
               timeLabel: "预估车程",
-              km: "约 160 km",
-              time: "约 2 h",
+              km: "约 140 km",
+              time: "约 1.8 h",
               route: "G3011 柳格高速 · 柴达木北缘"
             }
           },
-          { time: "12:30", title: "大柴旦镇午餐与加油休整", desc: "补充热食，品尝青海特色炕锅羊肉", subDetailKey: "d6_dachaidan_food", subDetailBadge: "🥢 炕锅羊肉口碑榜首" },
+          { time: "12:00", title: "大柴旦镇午餐与加油整备", desc: "翻越高原后补充热量，品尝青海特色焦香炕锅羊肉与青砖奶茶", subDetailKey: "d6_dachaidan_food", subDetailBadge: "🥢 炕锅羊肉口碑榜首" },
           { 
             time: "13:30", 
-            title: "游览大柴旦翡翠湖（建议2h）", 
-            desc: "形态各异的盐池在阳光下呈现深浅不同的翠绿、碧蓝", 
+            title: "深度漫游大柴旦翡翠湖（建议3h）", 
+            desc: "乘小火车深入 4-6 号湖心核心区，下午顺光波光粼粼，出片率极高", 
             subDetailKey: "d6_feicuihu", 
             subDetailBadge: "💡 翡翠湖深度机位",
             cutoff: {
-              title: "大柴旦翡翠湖大漫游与穿越节奏决策",
+              title: "大柴旦翡翠湖漫游与德令哈行车节奏决策",
               zones: {
                 green: {
-                  condition: "若 ≤ 14:40 结束翡翠湖游览",
-                  desc: "【按计划 A 走】翡翠湖深度环游（小火车深入 4-6 号湖心区），15:00 前驶入德小高速/G3011；途中可在德令哈西服务区休整 25min 喝杯热茶，约 19:30 暮色初降时安抵茶卡镇。"
+                  condition: "若 ≤ 16:30 尽兴结束翡翠湖游览",
+                  desc: "【按计划 A 走】深度环游 5-6 号湖心，16:45 驶上 S20 德小高速；双向四车道荒漠直道平稳巡航，途中在饮马峡服务区稍作休整，约 18:45 暮色初降时安抵德令哈，开开心心吃晚餐。"
                 },
                 amber: {
-                  condition: "若 14:40 ~ 15:15 离开翡翠湖",
-                  desc: "【高速定速巡航】沿 G3011 柳格高速开阔段由老司机稳定提速巡航，中途精简服务区休整为 10min 纯如厕补水；19:45 西北天空尚有余晖时抵达茶卡酒店办理入住。"
+                  condition: "若 16:30 ~ 17:15 离开翡翠湖",
+                  desc: "【定速巡航直达】沿 S20 德小高速开阔段定速巡航，中途精简为 10min 纯如厕；19:15 西北天际尚有绚丽余晖时进入德令哈市区入住酒店。"
                 },
                 red: {
-                  condition: "若 > 15:15 才离开翡翠湖",
-                  desc: "【启动降级 Fallback】全线紧锁 G3011 柴达木主线高速疾驰，坚决不拐进德令哈市区；保障在 19:55 西北暮光彻底褪去前安全抵达茶卡镇，避免在高原山丘区走夜路。"
+                  condition: "若 > 17:15 才离开翡翠湖",
+                  desc: "【启动降级直奔酒店】沿德小高速主线直接导航至德令哈酒店，坚决中途不作非必要逗留；确保在 19:45 暮光完全褪去前安全进城，零夜路风险。"
                 }
               }
             }
           },
           { 
-            time: "16:00", 
-            title: "经德小高速向茶卡镇疾驰", 
-            desc: "远山如黛，夕阳洒在柴达木盆地戈壁之上",
+            time: "16:30", 
+            title: "沿 S20 德小高速前往德令哈", 
+            desc: "柴达木盆地经典平原戈壁大道，视野开阔笔直，夕阳洒在戈壁泛起金光",
             transitNext: {
               icon: "🚗",
               action: "接下来行驶",
               timeLabel: "预估车程",
-              km: "约 260 km",
-              time: "约 3.5 h",
-              route: "S20 德小高速 ➔ G3011 ➔ G6 京藏高速"
+              km: "约 200 km",
+              time: "约 2.2 h",
+              route: "S20 德小高速 · 柴达木平原大道"
             }
           },
-          { time: "19:30", title: "抵达茶卡镇入住休整", desc: "海拔提升至3100m，动作宜放缓，早歇防高反" }
+          { 
+            time: "19:00", 
+            title: "抵达海西州府德令哈市入住休整", 
+            desc: "入住高品质酒店（推荐义海大酒店/海西宾馆），海拔降至2980m安心无高反，享受热乎羊肉面片早歇",
+            subDetailKey: "d6_delingha_food",
+            subDetailBadge: "🥢 德令哈暖胃晚宴 (3家)"
+          }
         ]
       },
       {
         dayIndex: 7,
         tag: "Day 7",
         date: "10月01日 · 周四",
-        title: "天空之镜 ➔ 蔚蓝青海湖二郎剑 ➔ 西宁",
-        km: "约 300 km",
-        driveTime: "车程约 4.5 h",
+        title: "国庆首日！茶卡天空之镜 ➔ 蔚蓝青海湖 ➔ 西宁",
+        km: "约 490 km",
+        driveTime: "车程约 6.7 h（全线高等级公路）",
         hotel: "西宁全季酒店（新宁广场或五四西路店）/ 西宁新华联索菲特",
         hotelStatus: "tentative",
         spots: [
-          { name: "茶卡盐湖·天空之镜", lng: 99.0838, lat: 36.7027, desc: "国家旅游地理杂志必去之地，盐白倒影如梦境" },
-          { name: "青海湖二郎剑景区", lng: 100.4998, lat: 36.5779, desc: "中国最大内陆咸水湖，高原蓝宝石与经幡飞舞" },
-          { name: "日月山山口", lng: 101.2443, lat: 36.5645, desc: "文成公主进藏摔镜驻足处，农牧文明分界线" },
-          { name: "西宁市区", lng: 101.7789, lat: 36.6231, desc: "抵达青海省会西宁，享受国庆繁华夜景" }
+          { name: "茶卡盐湖·天空之镜", lng: 99.0838, lat: 36.7027, desc: "国家旅游地理必去之地，盐白倒影如梦境" },
+          { name: "青海湖二郎剑景区", lng: 100.4998, lat: 36.5779, desc: "高原蓝宝石，经幡猎猎与万顷碧波" },
+          { name: "日月山山口", lng: 101.2443, lat: 36.5645, desc: "文成公主进藏驻足处，农牧文明分界线" },
+          { name: "西宁市区", lng: 101.7789, lat: 36.6231, desc: "抵达青海省会西宁，享受国庆之夜庆功宴" }
         ],
         timeline: [
-          { time: "08:00", title: "早班进茶卡盐湖（避开大客流）", desc: "乘红皮小火车深入湖心，穿鲜艳裙子/冲锋衣拍出水天一色", subDetailKey: "d7_chaka_tips", subDetailBadge: "💡 天空之镜防坑秘籍" },
           { 
-            time: "11:30", 
-            title: "向青海湖南线进发", 
-            desc: "沿青海湖环湖公路前行，视野里逐渐出现浩瀚高原蓝", 
+            time: "07:30", 
+            title: "德令哈晨起启程赴茶卡盐湖", 
+            desc: "精神饱满出发，沿茶德高速/G3011东行，上午翻越旺尕秀垭口（海拔3680m）",
+            transitNext: {
+              icon: "🚗",
+              action: "接下来行驶",
+              timeLabel: "预估车程",
+              km: "约 200 km",
+              time: "约 2.2 h",
+              route: "G3011 茶德高速 · 翻越旺尕秀垭口"
+            }
+          },
+          { 
+            time: "09:50", 
+            title: "游览茶卡盐湖·天空之镜（建议2h）", 
+            desc: "乘红皮小火车深入湖心，穿鲜艳裙装/冲锋衣与洁白盐湖倒影同框", 
+            subDetailKey: "d7_chaka_tips", 
+            subDetailBadge: "💡 天空之镜防坑秘籍" 
+          },
+          { time: "12:15", title: "茶卡镇午餐整备", desc: "茶卡镇品尝青海特色干拌面或手抓羊肉，补充热量与饮用水" },
+          { 
+            time: "13:15", 
+            title: "向青海湖南线二郎剑进发", 
+            desc: "沿共茶高速翻越橡皮山（海拔3817m），逐渐进入浩瀚壮丽的青海湖盆地", 
             subDetailKey: "d7_qinghaihu_road", 
             subDetailBadge: "🔭 最美湖滨公路",
             transitNext: {
@@ -4346,31 +4372,31 @@
             }
           },
           { 
-            time: "13:30", 
-            title: "二郎剑景区游览青海湖", 
-            desc: "近距离触摸圣湖之水，与高原水鸟海鸥同框",
+            time: "15:15", 
+            title: "二郎剑景区或南线湖滨游览青海湖", 
+            desc: "触摸高原圣湖碧波，与水鸟同框，感受大湖如海的宽广胸怀",
             cutoff: {
               title: "国庆首日青海湖二郎剑避堵与亲水决策",
               zones: {
                 green: {
-                  condition: "若高德路况全绿且 ≤ 12:45 抵湖畔",
-                  desc: "【按计划 A 走】全员购票进入二郎剑景区核心游船码头与木栈道，近距离触摸圣湖碧波；15:45 准时集合翻越日月山，19:00 前抵达西宁新宁广场开国庆盛宴。"
+                  condition: "若高德路况顺畅且 ≤ 15:00 抵湖畔",
+                  desc: "【按计划 A 走】全员由二郎剑景区码头或木栈道深度亲水，近距离触摸圣湖碧波；17:15 准时集合翻越日月山，19:45 抵达西宁开国庆庆功盛宴。"
                 },
                 amber: {
-                  condition: "若遇轻度缓行（延误 15~25min，12:45~13:30）",
-                  desc: "【领队实地路况评估】领队通过高德实时航拍路况观察二郎剑大门排队车龙；若停车场积压，立即全员表决是否转投二郎剑外围观景平台或湖滨牧道。"
+                  condition: "若二郎剑周边轻度缓行（延误 15~25min）",
+                  desc: "【领队实地路况评估】领队观察二郎剑大门排队车流；若进门积压超 20min，立即转投湖南线合规公路观景台驻足眺望拍摄，节省排队时间。"
                 },
                 red: {
-                  condition: "若严重拥堵（延误 > 30min 或 > 13:30）",
-                  desc: "【启动降级 Fallback】坚决不进二郎剑收费景区排队大门！沿 G109 湖南线开阔观景台或当地藏民开辟的湖滨便道（祭海台附近）亲水拍照 40min（免票免堵无客流）；14:45 提前反超大车流开拔翻越日月山，17:30 顺风顺水进西宁，悠然开庆功宴。"
+                  condition: "若二郎剑严重拥堵（延误 > 30min 或 > 15:45）",
+                  desc: "【启动降级 Fallback】坚决不进二郎剑收费大门排队！沿 G109 湖南线开阔观景台或当地藏民湖滨便道（祭海台附近）亲水拍照 40min（免票免堵）；16:30 提前开拔翻越日月山，19:15 顺风顺水进西宁，悠闲开宴。"
                 }
               }
             }
           },
           { 
-            time: "16:30", 
+            time: "17:15", 
             title: "翻越日月山、倒淌河前往西宁", 
-            desc: "见证从高原草甸逐步过渡到西宁河谷盆地",
+            desc: "见证从高原草甸逐步过渡到西宁河谷盆地，经 G6 京藏高速顺畅挺进省会",
             transitNext: {
               icon: "🚗",
               action: "接下来行驶",
@@ -4380,7 +4406,13 @@
               route: "G109 ➔ G6 京藏高速 · 翻越日月山"
             }
           },
-          { time: "19:00", title: "入住西宁市区全季酒店", desc: "国庆之夜聚餐庆祝大环线穿越成功，手抓羊肉、甜醅子畅享", subDetailKey: "d7_xining_feast", subDetailBadge: "🥢 西宁国庆庆功宴 (3家)" }
+          { 
+            time: "19:45", 
+            title: "入住西宁市区全季酒店，开启国庆庆功宴", 
+            desc: "国庆之夜热烈庆祝西行大环线成功凯旋！央视舌尖手抓羊肉、金黄奶皮酸奶、甜醅子畅享", 
+            subDetailKey: "d7_xining_feast", 
+            subDetailBadge: "🥢 西宁国庆庆功宴 (3家)" 
+          }
         ]
       },
       {
@@ -4988,6 +5020,51 @@
             lng: 95.3025,
             lat: 37.8762,
             navName: "大柴旦翡翠湖旅游景区"
+          }
+        ]
+      },
+
+      // Day 6: 德令哈暖胃晚宴与老字号名店
+      "d6_delingha_food": {
+        title: "🥢 德令哈海西风味与暖胃晚宴推荐",
+        subtitle: "Day 6 · 海西州府德令哈 · 舒缓休整夜",
+        intro: "穿越柴达木盆地后抵达海西州府，海拔降至舒适的 2980m（无高反困扰）。精选 3 家本地老字号手抓、特色面片与品质宴请名店。",
+        items: [
+          {
+            name: "柴达木老手抓羊肉馆（昆仑路店）",
+            tag: "海西州地道老字号手抓",
+            story: "德令哈本地几十年的口碑老店。选用海西高寒草膘羊，清水慢炖大锅出锅，肉质极其软烂鲜美毫无膻味，撒上秘制椒盐与香辣面，配上一碗热气腾腾的羊肉原汤，暖身回血第一名。",
+            dishes: ["传统白条手抓羊肉", "黄焖羊肉", "羊肉生汆面片", "青海特色熬茶"],
+            price: "约 70~90 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。位于昆仑路主干道，门前路面宽敞，大客车路边停靠较为方便。",
+            lng: 97.3765,
+            lat: 37.3721,
+            navName: "柴达木老手抓(德令哈店)"
+          },
+          {
+            name: "老退骨牛肉面·特色羊肉面片（河西路老店）",
+            tag: "市井暖胃面食天花板",
+            story: "本地出租车师傅与老饕私藏小馆。退骨肉大块软烂浓香，手工揪面片薄而筋道，高汤浓郁醇厚，配上现炸油泼辣子和糖蒜，是长途行车后长辈最舒服的暖胃晚餐。",
+            dishes: ["大块退骨牛肉", "羊肉盖浇揪面片", "特色牛筋面", "手撕酱牛肉"],
+            price: "约 25~40 元/人",
+            trafficType: "taxi",
+            trafficText: "🚕 建议步行或打车。距市中心酒店仅约 600~800 米，打车起步价即达，老街区小巷考斯特大客车切勿驶入。",
+            lng: 97.3685,
+            lat: 37.3695,
+            navName: "老退骨牛肉面(德令哈店)"
+          },
+          {
+            name: "德令哈义海大酒店中餐厅（柴达木西路）",
+            tag: "品质四星大包间 · 长辈聚餐首选",
+            story: "德令哈标杆高品质商务酒店中餐厅，拥有多间 10~14 人大圆桌与独立景观包房。环境安静高雅、供暖充足、菜品卫生规范，长辈吃得舒心放心，特别适合全队集体晚餐休整。",
+            dishes: ["青海土火锅", "清炖羊排", "柴达木牦牛肉炒野生菌", "青稞甜醅子"],
+            price: "约 80~105 元/人",
+            trafficType: "coaster",
+            trafficText: "🚌 考斯特直达停靠。星级酒店配备超大专属平整停车场，考斯特大巴全员上下车与夜间停放极其从容。",
+            lng: 97.3612,
+            lat: 37.3782,
+            navName: "德令哈义海大酒店"
           }
         ]
       },
@@ -5676,12 +5753,12 @@
       { day: 3, from: [100.0465, 40.2978], to: [101.1448, 41.7766], waypoints: [[100.2952, 40.9633]] }, // 鼎新 -> 航天城 -> 额济纳怪树林
       { day: 4, from: [100.0465, 40.2978], to: [94.6620, 40.1421], waypoints: [[98.2198, 39.7997], [95.9925, 40.5285]] }, // 鼎新 -> 嘉峪关 -> 瓜州 -> 敦煌
       { day: 5, from: [94.6620, 40.1421], to: [94.6719, 40.0883], waypoints: [[94.7938, 40.1437]] }, // 敦煌市内
-      { day: 6, from: [94.6620, 40.1421], to: [99.0838, 36.7027], waypoints: [[94.3415, 39.3241], [95.3057, 37.8546]] }, // 敦煌 -> 当金山 -> 翡翠湖 -> 茶卡
-      { day: 7, from: [99.0838, 36.7027], to: [101.7789, 36.6231], waypoints: [[100.4998, 36.5779]] }, // 茶卡 -> 青海湖二郎剑 -> 西宁
+      { day: 6, from: [94.6620, 40.1421], to: [97.3708, 37.3758], waypoints: [[94.3415, 39.3241], [95.3057, 37.8546]] }, // 敦煌 -> 当金山 -> 翡翠湖 -> 德令哈 (G3011柳格高速 / S20德小高速)
+      { day: 7, from: [97.3708, 37.3758], to: [101.7789, 36.6231], waypoints: [[99.0838, 36.7027], [100.4998, 36.5779]] }, // 德令哈 -> 茶卡 -> 青海湖二郎剑 -> 西宁 (茶德高速 / 共茶高速 / G109 / G6京藏)
       { day: 8, from: [101.7789, 36.6231], to: [102.0435, 36.5298], waypoints: [[101.5683, 36.4851]] } // 西宁 -> 塔尔寺 -> 机场
     ];
 
-    // 全程总览 12 大核心枢纽城市/地理节点 (用于全览大尺度下防堆叠)
+    // 全程总览 13 大核心枢纽城市/地理节点 (用于全览大尺度下防堆叠)
     const HUB_CITIES = [
       { name: "兰州", lng: 103.8152, lat: 36.0682, tag: "集结提车" },
       { name: "张掖", lng: 100.4552, lat: 38.9328, tag: "七彩丹霞" },
@@ -5692,12 +5769,13 @@
       { name: "瓜州", lng: 95.9925, lat: 40.5285, tag: "雕塑长廊" },
       { name: "敦煌", lng: 94.6620, lat: 40.1421, tag: "莫高千佛" },
       { name: "大柴旦", lng: 95.3057, lat: 37.8546, tag: "翡翠秘境" },
+      { name: "德令哈", lng: 97.3708, lat: 37.3758, tag: "海西州府" },
       { name: "茶卡", lng: 99.0838, lat: 36.7027, tag: "天空之镜" },
       { name: "青海湖", lng: 100.4998, lat: 36.5779, tag: "高原明珠" },
       { name: "西宁", lng: 101.7789, lat: 36.6231, tag: "塔尔寺/收官" }
     ];
 
-    const ROUTE_CACHE_KEY = 'silkroad_highway_cache_v2';
+    const ROUTE_CACHE_KEY = 'silkroad_highway_cache_v3';
     let routeCache = {};
     try {
       const saved = localStorage.getItem(ROUTE_CACHE_KEY);
