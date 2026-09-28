@@ -766,6 +766,48 @@
       color: var(--text-main);
       flex: 1;
       min-width: 140px;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* ⛰️ 海拔高度微徽章 (High Altitude Badge) */
+    .node-altitude-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1.5px 7px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+      vertical-align: middle;
+      letter-spacing: 0.2px;
+      line-height: 1.4;
+    }
+    .node-altitude-badge.high-pass {
+      background: rgba(14, 165, 233, 0.22);
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      color: #7dd3fc;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.2);
+    }
+    .node-altitude-badge.highest-peak {
+      background: rgba(239, 68, 68, 0.22);
+      border: 1px solid rgba(248, 113, 113, 0.6);
+      color: #fca5a5;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+      animation: pulseAlert 2.5s infinite ease-in-out;
+    }
+    .node-altitude-badge.safe-basin {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      color: #6ee7b7;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+    }
+    @keyframes pulseAlert {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
     }
 
     .node-sub-capsule {
@@ -1991,6 +2033,29 @@
       color: var(--accent-gold);
     }
 
+    /* 📋 一键复制门票出票清单发群按钮 */
+    .btn-copy-tickets-summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.22) 100%);
+      border: 1px solid rgba(251, 191, 36, 0.55);
+      color: #fef08a;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn-copy-tickets-summary:hover, .btn-copy-tickets-summary:active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(217, 119, 6, 0.35) 100%);
+      color: #fff;
+      transform: scale(0.96);
+    }
+
     .tickets-progress-bar-bg {
       width: 100%;
       height: 6px;
@@ -2415,6 +2480,38 @@
       width: 100%;
       max-width: 360px;
       padding: 22px;
+    }
+
+    /* 记账模态框快速填充预设标签 */
+    .expense-presets-wrap {
+      margin-bottom: 14px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .expense-presets-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .preset-chip {
+      padding: 3.5px 8.5px;
+      border-radius: 6px;
+      background: rgba(245, 158, 11, 0.16);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      color: #fef08a;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-family: inherit;
+    }
+    .preset-chip:hover, .preset-chip:active {
+      background: rgba(245, 158, 11, 0.35);
+      border-color: rgba(251, 191, 36, 0.7);
+      color: #fff;
+      transform: scale(0.95);
     }
 
     .form-group {
@@ -3158,6 +3255,22 @@
       color: #ffffff;
       line-height: 1.5;
     }
+    body.senior-mode .node-altitude-badge {
+      font-size: 13px;
+      padding: 3px 10px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    body.senior-mode .btn-copy-tickets-summary {
+      font-size: 13px;
+      padding: 6px 14px;
+      min-height: 38px;
+    }
+    body.senior-mode .preset-chip {
+      font-size: 13px;
+      padding: 6px 12px;
+      min-height: 36px;
+    }
     /* 二级探索胶囊：靶区扩大至 >= 48px，杜绝晃动误触 */
     body.senior-mode .node-sub-capsule {
       min-height: 48px;
@@ -3575,7 +3688,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.7.0</span>
+          <span class="version-num">v3.8.0</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -3641,7 +3754,12 @@
             <div class="tickets-stat-title">
               <span>🎟️ 全程景点已出票进度</span>
             </div>
-            <div class="tickets-progress-count" id="tickets-progress-text">已购 0 / 11 处 (0%)</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="tickets-progress-count" id="tickets-progress-text">已购 0 / 11 处 (0%)</div>
+              <button type="button" class="btn-copy-tickets-summary" onclick="copyTicketsSummary()" title="一键复制门票出票清单发到微信群">
+                <span>📋 发群</span>
+              </button>
+            </div>
           </div>
           <div class="tickets-progress-bar-bg">
             <div class="tickets-progress-bar-fill" id="tickets-progress-fill"></div>
@@ -3811,7 +3929,18 @@
   <!-- 记账输入模态弹窗 -->
   <div class="modal-overlay" id="expense-modal">
     <div class="liquid-glass modal-box">
-      <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 16px;">➕ 记录团队公共支出</div>
+      <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 12px;">➕ 记录团队公共支出</div>
+      <div class="expense-presets-wrap">
+        <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 6px;">⚡ 常用开销一键填入：</div>
+        <div class="expense-presets-list">
+          <button type="button" class="preset-chip" onclick="applyExpensePreset('考斯特加油', '油费路桥', '司机')">⛽ 加油</button>
+          <button type="button" class="preset-chip" onclick="applyExpensePreset('高速过路费', '油费路桥', '司机')">🛣️ 过路费</button>
+          <button type="button" class="preset-chip" onclick="applyExpensePreset('团队聚餐', '团队餐饮', '领队')">🍖 聚餐</button>
+          <button type="button" class="preset-chip" onclick="applyExpensePreset('水果零食补给', '物资零食', '全队')">🍉 水果</button>
+          <button type="button" class="preset-chip" onclick="applyExpensePreset('矿泉水/功能饮料', '物资零食', '全队')">💧 饮水</button>
+          <button type="button" class="preset-chip" onclick="applyExpensePreset('景区停车费', '其他支出', '司机')">🅿️ 停车</button>
+        </div>
+      </div>
       <div class="form-group">
         <label>支出项目名称</label>
         <input type="text" id="exp-title-input" placeholder="例：考斯特连霍高速油费、兰州团体餐">
@@ -3959,6 +4088,8 @@
           { 
             time: "13:30", 
             title: "考斯特启程赴张掖（G30连霍高速 · 锁定安门服务区）", 
+            altitudeTag: "⛰️ 乌鞘岭 3562m",
+            altitudeLevel: "high-pass",
             desc: "翻越乌鞘岭隧道群进入河西走廊，途经安门服务区远眺马牙雪山", 
             subDetailKey: "d1_wushaoling", 
             subDetailBadge: "🔭 连霍高速景观站 (安门服务区已锁定)",
@@ -4260,6 +4391,8 @@
           { 
             time: "10:00", 
             title: "翻越当金山垭口（海拔3648m）", 
+            altitudeTag: "⛰️ 当金山 3648m",
+            altitudeLevel: "high-pass",
             desc: "正式告别甘肃进入大美青海，气温骤降，远眺阿尔金山终年雪峰", 
             subDetailKey: "d6_dangjinshan", 
             subDetailBadge: "🔭 当金山垭口观景",
@@ -4313,6 +4446,8 @@
           { 
             time: "19:00", 
             title: "抵达海西州府德令哈市入住休整", 
+            altitudeTag: "🌿 德令哈 2980m·低反适宜",
+            altitudeLevel: "safe-basin",
             desc: "入住高品质酒店（推荐义海大酒店/海西宾馆），海拔降至2980m安心无高反，享受热乎羊肉面片早歇",
             subDetailKey: "d6_delingha_food",
             subDetailBadge: "🥢 德令哈暖胃晚宴 (3家)"
@@ -4338,6 +4473,8 @@
           { 
             time: "07:30", 
             title: "德令哈晨起启程赴茶卡盐湖", 
+            altitudeTag: "⛰️ 旺尕秀 3680m",
+            altitudeLevel: "high-pass",
             desc: "精神饱满出发，沿茶德高速/G3011东行，上午翻越旺尕秀垭口（海拔3680m）",
             transitNext: {
               icon: "🚗",
@@ -4359,6 +4496,8 @@
           { 
             time: "13:15", 
             title: "向青海湖南线二郎剑进发", 
+            altitudeTag: "🏔️ 橡皮山 3817m·全程最高",
+            altitudeLevel: "highest-peak",
             desc: "沿共茶高速翻越橡皮山（海拔3817m），逐渐进入浩瀚壮丽的青海湖盆地", 
             subDetailKey: "d7_qinghaihu_road", 
             subDetailBadge: "🔭 最美湖滨公路",
@@ -4374,6 +4513,8 @@
           { 
             time: "15:15", 
             title: "二郎剑景区或南线湖滨游览青海湖", 
+            altitudeTag: "🌊 青海湖 3200m",
+            altitudeLevel: "high-pass",
             desc: "触摸高原圣湖碧波，与水鸟同框，感受大湖如海的宽广胸怀",
             cutoff: {
               title: "国庆首日青海湖二郎剑避堵与亲水决策",
@@ -4396,6 +4537,8 @@
           { 
             time: "17:15", 
             title: "翻越日月山、倒淌河前往西宁", 
+            altitudeTag: "⛰️ 日月山 3520m",
+            altitudeLevel: "high-pass",
             desc: "见证从高原草甸逐步过渡到西宁河谷盆地，经 G6 京藏高速顺畅挺进省会",
             transitNext: {
               icon: "🚗",
@@ -4432,6 +4575,8 @@
           { 
             time: "08:30", 
             title: "前往湟中区瞻仰塔尔寺", 
+            altitudeTag: "🌸 塔尔寺 2600m·舒适",
+            altitudeLevel: "safe-basin",
             desc: "顺时针转经，领略酥油花、壁画、堆绣「艺术三绝」", 
             subDetailKey: "d8_taersi_tips", 
             subDetailBadge: "💡 塔尔寺三绝与禁忌",
@@ -5253,15 +5398,103 @@
       }
     }
 
+    // 全局触觉反馈系统 (Haptic Feedback)
+    function triggerHaptic(type = 'light') {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try {
+          if (type === 'light') navigator.vibrate(12);
+          else if (type === 'medium') navigator.vibrate(25);
+          else if (type === 'success') navigator.vibrate([15, 60, 25]);
+          else if (type === 'warning') navigator.vibrate([35, 70, 35]);
+        } catch (e) {}
+      }
+    }
+
+    // 纯轻量 Canvas 打卡 Confetti 礼花粒子动效 (Zero Library Dependency)
+    function launchCheckinConfetti() {
+      let canvas = document.getElementById('confetti-canvas');
+      if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'confetti-canvas';
+        canvas.style.position = 'fixed';
+        canvas.style.inset = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '99999';
+        document.body.appendChild(canvas);
+      }
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const colors = ['#f59e0b', '#fbbf24', '#38bdf8', '#34d399', '#ec4899', '#f43f5e', '#60a5fa'];
+      const particles = [];
+      const count = 55;
+
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: width * (0.3 + Math.random() * 0.4),
+          y: height * 0.5,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.75) * 18 - 4,
+          size: Math.random() * 7 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 12,
+          opacity: 1,
+          gravity: 0.45
+        });
+      }
+
+      let startTime = null;
+      function animate(now) {
+        if (!startTime) startTime = now;
+        const elapsed = now - startTime;
+        ctx.clearRect(0, 0, width, height);
+
+        let alive = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.rotation += p.vRot;
+          p.vx *= 0.98;
+          if (elapsed > 900) {
+            p.opacity = Math.max(0, 1 - (elapsed - 900) / 600);
+          }
+          if (p.opacity > 0 && p.y < height + 20) {
+            alive = true;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.opacity;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+            ctx.restore();
+          }
+        });
+
+        if (alive && elapsed < 1800) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, width, height);
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
     function toggleSeniorMode() {
       const nextState = !isSeniorModeActive();
       try {
         localStorage.setItem(STORAGE_KEY_SENIOR, nextState ? "1" : "0");
       } catch (e) {}
       applySeniorMode(nextState, true);
-      if (navigator.vibrate) {
-        try { navigator.vibrate(25); } catch (e) {}
-      }
+      triggerHaptic('medium');
     }
 
     // --------------------------------------------------------------------------
@@ -5527,7 +5760,10 @@
             <div class="timeline-node">
               <div class="node-time">${t.time}</div>
               <div class="node-title-row">
-                <div class="node-title">${t.title}</div>
+                <div class="node-title">
+                  <span>${t.title}</span>
+                  ${t.altitudeTag ? `<span class="node-altitude-badge ${t.altitudeLevel || 'high-pass'}">${t.altitudeTag}</span>` : ''}
+                </div>
                 ${t.subDetailKey ? `
                   <button class="node-sub-capsule" onclick="openBottomSheet('${t.subDetailKey}')" title="点击展开深度探索与高德导航">
                     <span>${t.subDetailBadge}</span>
@@ -5613,8 +5849,11 @@
     function toggleDayCheckin(dayIndex) {
       if (stateCheckins[dayIndex]) {
         delete stateCheckins[dayIndex];
+        triggerHaptic('light');
       } else {
         stateCheckins[dayIndex] = true;
+        triggerHaptic('success');
+        launchCheckinConfetti();
         showToast(`🎉 恭喜完成 Day ${dayIndex} 的行程打卡！`);
       }
       localStorage.setItem(STORAGE_KEY_CHECKINS, JSON.stringify(stateCheckins));
@@ -5658,6 +5897,7 @@
     let scheduleScrollY = 0;
 
     function switchTab(tabIndex, btnEl, targetDayIndex) {
+      triggerHaptic('light');
       if (currentActiveTab === 0 && tabIndex !== 0) {
         scheduleScrollY = window.scrollY || document.documentElement.scrollTop || 0;
       }
@@ -5906,6 +6146,7 @@
     // 卫星地图切换 (浅色标准公路地图 与 真实高清卫星实景 双模切换)
     function toggleMapSatellite() {
       if (!mapInstance) return;
+      triggerHaptic('medium');
       isSatellite = !isSatellite;
       const btn = document.getElementById("btn-toggle-satellite");
       if (!satelliteLayer) {
@@ -6106,6 +6347,7 @@
 
     // 地图切换天数
     function switchMapDay(dayIndex, btnEl) {
+      triggerHaptic('light');
       document.querySelectorAll(".map-pill-btn").forEach(b => b.classList.remove("active"));
       if (btnEl) {
         btnEl.classList.add("active");
@@ -6350,6 +6592,7 @@
 
     // 二级点位图钉显示/隐藏切换
     function toggleL2Markers() {
+      triggerHaptic('light');
       stateShowL2Markers = !stateShowL2Markers;
       const btn = document.getElementById("btn-toggle-l2");
       if (btn) {
@@ -6709,6 +6952,7 @@
     // F. 行李清单交互 (Packing Checklist)
     // --------------------------------------------------------------------------
     function togglePackingItem(el, id) {
+      triggerHaptic('light');
       if (statePacking[id]) {
         delete statePacking[id];
         el.classList.remove("checked");
@@ -7042,6 +7286,7 @@
 
     function toggleTicketBought(ticketId, event) {
       if (event) event.stopPropagation();
+      triggerHaptic('success');
       if (stateTickets[ticketId]) {
         delete stateTickets[ticketId];
         showToast("已取消出票标记");
@@ -7069,6 +7314,55 @@
       }
     }
 
+    // 一键复制门票出票清单并生成微信群格式
+    function copyTicketsSummary() {
+      triggerHaptic('success');
+      const boughtCount = Object.keys(stateTickets).length;
+      const total = TRIP_TICKETS.length;
+      const pct = Math.round((boughtCount / total) * 100);
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+
+      let boughtList = [];
+      let pendingList = [];
+
+      TRIP_TICKETS.forEach(t => {
+        const isBought = !!stateTickets[t.id];
+        if (isBought) {
+          boughtList.push(`✓ [${t.day} ${t.dayName}] ${t.name} (${t.channelBadge})`);
+        } else {
+          pendingList.push(`⭕ [${t.day} ${t.dayName}] ${t.name} (全价:${t.priceAdult} | 军人:${t.militaryActive.split('，')[0]})`);
+        }
+      });
+
+      const text = 
+`【西行计划 · 景点门票与军人优待备忘清单】
+📅 统计日期：${dateStr}
+🎟️ 出票进度：已出票 ${boughtCount} / ${total} 处 (${pct}%)
+-------------------------
+✅ 已购/已锁定项目 (${boughtList.length}处)：
+${boughtList.length > 0 ? boughtList.join('\n') : '暂无'}
+
+📋 待购/待办入园项目 (${pendingList.length}处)：
+${pendingList.length > 0 ? pendingList.join('\n') : '全员门票均已准备就绪！'}
+-------------------------
+🎖️ 现役/退役军人随车备忘：
+1. 必须随身携带《现役军官证/士兵证》或《退役军人优待证》原件 + 二代身份证原件；
+2. 绝大部分核心景区首道大门票全免（单人累计可省超 600 元）；
+3. 特许观光车/小火车不属免票范围，需按需线上或现场提前购买。
+*由「西行计划·丝路自驾路书」自动生成`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("📋 已复制门票清单，快发到微信群吧！");
+        }).catch(() => {
+          promptCopyFallback(text);
+        });
+      } else {
+        promptCopyFallback(text);
+      }
+    }
+
     function filterTickets(category, btnEl) {
       currentTicketFilter = category;
       document.querySelectorAll(".tickets-filter-chip").forEach(c => c.classList.remove("active"));
@@ -7089,6 +7383,7 @@
     // 官方小程序名称一键复制并自动唤起微信
     function copyMiniProgramName(mpName, spotName, event) {
       if (event) event.stopPropagation();
+      triggerHaptic('success');
       const textToCopy = mpName || spotName;
 
       const notifyUser = () => {
@@ -7182,12 +7477,27 @@
     }
 
     function adjustPeopleCount(delta) {
+      triggerHaptic('light');
       statePeople = Math.max(1, statePeople + delta);
       localStorage.setItem(STORAGE_KEY_PEOPLE, statePeople.toString());
       renderLedgerList();
     }
 
+    // 快捷填充支出预设项目
+    function applyExpensePreset(title, cat, payer) {
+      triggerHaptic('light');
+      const titleInput = document.getElementById("exp-title-input");
+      const catSelect = document.getElementById("exp-cat-select");
+      const payerInput = document.getElementById("exp-payer-input");
+      const amountInput = document.getElementById("exp-amount-input");
+      if (titleInput) titleInput.value = title;
+      if (catSelect) catSelect.value = cat;
+      if (payerInput && !payerInput.value) payerInput.value = payer;
+      if (amountInput) amountInput.focus();
+    }
+
     function openExpenseModal() {
+      triggerHaptic('light');
       document.getElementById("expense-modal").classList.add("active");
     }
 
@@ -7205,6 +7515,7 @@
       const payer = document.getElementById("exp-payer-input").value.trim();
 
       if (!title || isNaN(amount) || amount <= 0) {
+        triggerHaptic('warning');
         alert("请填写准确的项目名称和大于0的金额！");
         return;
       }
@@ -7223,20 +7534,24 @@
       localStorage.setItem(STORAGE_KEY_LEDGER, JSON.stringify(stateLedger));
       closeExpenseModal();
       renderLedgerList();
+      triggerHaptic('success');
       showToast("✓ 成功添加一笔公共支出");
     }
 
     function deleteExpenseItem(index) {
+      triggerHaptic('warning');
       if (confirm("确定删除该笔支出记录吗？")) {
         stateLedger.splice(index, 1);
         localStorage.setItem(STORAGE_KEY_LEDGER, JSON.stringify(stateLedger));
         renderLedgerList();
+        triggerHaptic('light');
         showToast("已删除支出项");
       }
     }
 
     // 复制微信群汇总文本
     function copyWeChatSummary() {
+      triggerHaptic('success');
       if (stateLedger.length === 0) {
         alert("暂无账目记录，无法生成汇总！");
         return;
@@ -7296,6 +7611,7 @@ ${itemsText}-------------------------
     let currentDetailKey = null;
 
     function openBottomSheet(detailKey) {
+      triggerHaptic('light');
       if (spotInfoWindow) {
         spotInfoWindow.close();
       }
