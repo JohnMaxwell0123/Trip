@@ -2,7 +2,7 @@
 
 > **项目定位**：专为 9 天西北大环线（济南往返 9.24 - 10.02 · 兰州/张掖/酒泉/鼎新/额济纳/嘉峪关/瓜州/敦煌/当金山/柴达木/茶卡/西宁）考斯特 10 人+团队自驾深度定制的高颜值移动端 Web App。  
 > **核心原则**：纯静态单文件免构建打包、零后端、全套苹果液态玻璃（Liquid Glass）视觉系统、移动端优先（响应式兼顾桌面浏览器）、Cloudflare Pages 静态边缘秒开。  
-> **当前生产版本**：`RELEASE v3.9.0 · 2026.09` ｜ **全球直达**：[trip-cts.pages.dev](https://trip-cts.pages.dev) ｜ **主分支 Commit**：`Auto-Push`  
+> **当前生产版本**：`RELEASE v3.9.1 · 2026.09` ｜ **全球直达**：[trip-cts.pages.dev](https://trip-cts.pages.dev) ｜ **主分支 Commit**：`Auto-Push`  
 > 📌 **项目阶段记忆规范**：**在每一次对话或开发阶段完成后，必须在此文件中更新当前最新状态与技术决策，以便在新的对话中实现秒级上下文恢复并无缝衔接后续开发！**
 
 ---
@@ -527,6 +527,21 @@ Pilgrimage to the West/
     - 更新版本号至 `RELEASE v3.9.0 · 2026.09`；
     - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致）；
     - Node 沙箱语法校验 100% 通过（4 大 script 块零错误）。
+- **v3.9.1 (液态玻璃高光自然化重塑 · 长辈大字关怀模式流变过渡引擎)**：
+  - **高光与焦散自然化重塑（Natural Specular Rim & Satin Reflection）**：
+    - **剔除多色彩虹激光与荧光蓝晕**：彻底移除 `.liquid-glass::before` 中高对比度的天蓝（`#38bdf8`）与橙红（`#f59e0b`）硬性色散冲突，并移除了 `box-shadow` 中的 `0 0 20px rgba(56, 189, 248, 0.08)` 荧光蓝雾；
+    - **重构为 480px 柔和淡金香槟菲涅尔微透镜反射**：以苹果光学拟真哲学重构，采用 `rgba(255,255,255,0.65)`Spec 白色高光，柔和过渡至 `rgba(254,240,138,0.24)` 淡金香槟及 `rgba(251,191,36,0.08)` 琥珀，并以 `transparent 75%` 极限柔滑淡出；
+    - **消除文字雾化污染**：剔除卡片内部的 `mix-blend-mode: overlay`，重构为 520px 纯净温润缎面漫反射微光（`opacity: 0.7`），保证文字无论在何种光照角度下均保持 100% 锐利高对比度；
+    - **消除卡片透视倾斜晃动**：移除 `initLiquidGlassOptics` 中的 `perspective rotateX/Y` 3D 倾斜，卡片在滑动与悬停时保持沉静稳定，仅光线焦点如丝般顺滑游走；
+    - **抽屉焦散区域优化**：底部抽屉 `.sheet-optical-caustic` 限制于顶部 130px 弯曲折射区域，把手拖拽高光采用淡金金辉混合，彻底杜绝下部物料区泛白。
+  - **长辈大字关怀模式流变过渡引擎（Fluid Mode Transition Coordinator）**：
+    - **全局过渡协调器 (`html.mode-morphing`)**：在切换瞬间激活全局协调类，为 `font-size`, `line-height`, `padding`, `margin`, `background-color`, `border-color`, `box-shadow`, `color` 统一赋予 0.38s `cubic-bezier(0.16, 1, 0.3, 1)` 苹果级贝塞尔插值，消灭布局瞬跳与生硬撕裂感；
+    - **微透镜光晕扩散遮罩 (`.mode-morph-veil`)**：在点击切换胶囊瞬间，从右上角自然散开一道柔和淡金/薄荷绿光圈，优雅掩盖瞬态回流，随后 240ms 自然融解消隐；
+    - **切换按钮胶囊物理宽度稳定**：为 `.senior-toggle-pill` 设定 `min-width: 98px; justify-content: center;`，并将文案状态对称统一为双向 4 字（`👓 长辈大字` ⇄ `✅ 大字关怀`），杜绝因字符长度突变导致的导航栏横向震颤；
+    - **按钮弹性果冻微冲激**：注入 380ms `scale(1) -> scale(0.88) -> scale(1.08) -> scale(1)` 液态弹性微触觉动效。
+  - **双向字节镜像同步与发布**：
+    - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致）；
+    - 底部版本号递增发布为 `RELEASE v3.9.1 · 2026.09`。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：

@@ -86,6 +86,13 @@
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      transition: font-size 0.38s cubic-bezier(0.16, 1, 0.3, 1), 
+                  line-height 0.38s cubic-bezier(0.16, 1, 0.3, 1), 
+                  background-color 0.38s ease;
+    }
+
+    html {
+      transition: font-size 0.38s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* 顶部流光氛围背景 */
@@ -118,65 +125,61 @@
        ========================================================================== */
     .liquid-glass {
       --glass-light-x: 50%;
-      --glass-light-y: 20%;
-      --glass-caustic-rot: 135deg;
-      --glass-caustic-opacity: 0.75;
+      --glass-light-y: 15%;
+      --glass-caustic-opacity: 0.55;
       background: var(--glass-surface);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
       box-shadow: 
         var(--glass-shadow),
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.42),
-        inset 0 -1.5px 2px rgba(0, 0, 0, 0.45),
-        0 0 20px rgba(56, 189, 248, 0.08); /* 边缘微透镜色散微光 */
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
       border-radius: var(--radius-lg);
       position: relative;
       overflow: hidden;
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
-      will-change: transform;
+      transition: background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
     }
 
-    /* iOS 27 动态色散棱镜高光 (Chromatic Prismatic Caustic Edge) */
+    /* iOS 27 自然菲涅尔微透镜边缘反射 (Natural Specular Rim & Soft Fresnel Glint) */
     .liquid-glass::before {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      padding: 1.2px;
+      padding: 1px;
       background: radial-gradient(
-        340px circle at var(--glass-light-x, 50%) var(--glass-light-y, 20%),
-        rgba(255, 255, 255, 0.88) 0%,
-        rgba(56, 189, 248, 0.52) 28%,
-        rgba(245, 158, 11, 0.32) 55%,
+        480px circle at var(--glass-light-x, 50%) var(--glass-light-y, 15%),
+        rgba(255, 255, 255, 0.65) 0%,
+        rgba(254, 240, 138, 0.24) 25%,
+        rgba(251, 191, 36, 0.08) 50%,
         transparent 75%
       );
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events: none;
-      opacity: var(--glass-caustic-opacity, 0.75);
-      transition: opacity 0.3s ease;
+      opacity: var(--glass-caustic-opacity, 0.55);
+      transition: opacity 0.35s ease;
       z-index: 2;
     }
 
-    /* iOS 27 内部焦散折射扭曲微波纹 (Internal Caustic Refraction Shimmer) */
+    /* iOS 27 表面温润漫反射微光 (Smooth Satin Ambient Reflection) */
     .liquid-glass::after {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: inherit;
       background: radial-gradient(
-        ellipse 90% 60% at var(--glass-light-x, 50%) var(--glass-light-y, 20%),
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(56, 189, 248, 0.05) 45%,
-        transparent 75%
+        520px circle at var(--glass-light-x, 50%) var(--glass-light-y, 15%),
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(254, 240, 138, 0.02) 40%,
+        transparent 70%
       );
-      mix-blend-mode: overlay;
       pointer-events: none;
       z-index: 1;
-      opacity: 0.85;
-      transition: background 0.15s ease-out;
+      opacity: 0.7;
+      transition: opacity 0.35s ease;
     }
 
     .liquid-pill {
@@ -272,8 +275,9 @@
       align-items: center;
       justify-content: center;
       gap: 5px;
-      padding: 7px 13px;
+      padding: 7px 14px;
       min-height: 40px;
+      min-width: 98px; /* 稳定胶囊物理宽度，避免文字改变时造成导航栏震颤 */
       border-radius: var(--radius-full);
       background: rgba(245, 158, 11, 0.18);
       border: 1.2px solid rgba(251, 191, 36, 0.52);
@@ -285,7 +289,7 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 3px 12px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(254, 240, 138, 0.3);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       flex-shrink: 0;
       white-space: nowrap;
       user-select: none;
@@ -2711,23 +2715,24 @@
     /* iOS 27 受力双折射流体光焦散层 (Liquid Stress Birefringence & Caustic Refraction) */
     .sheet-optical-caustic {
       position: absolute;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 130px;
       pointer-events: none;
       z-index: 1;
       border-radius: inherit;
       background: 
         radial-gradient(
-          420px circle at 50% var(--sheet-caustic-y, 0px),
-          rgba(255, 255, 255, 0.22) 0%,
-          rgba(56, 189, 248, 0.18) 25%,
-          rgba(245, 158, 11, 0.14) 50%,
+          560px circle at 50% var(--sheet-caustic-y, 0px),
+          rgba(255, 255, 255, 0.18) 0%,
+          rgba(254, 240, 138, 0.10) 30%,
           transparent 75%
         ),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, transparent 60px);
-      opacity: var(--sheet-caustic-opacity, 0.7);
-      mix-blend-mode: screen;
-      transition: opacity 0.2s ease-out;
-      will-change: opacity, background;
+        linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, transparent 100%);
+      opacity: var(--sheet-caustic-opacity, 0.65);
+      transition: opacity 0.25s ease-out;
+      will-change: opacity;
     }
 
     /* 顶部拖拽把手区 */
@@ -2758,8 +2763,8 @@
     }
 
     .bottom-sheet-modal.dragging .sheet-drag-pill {
-      background: linear-gradient(90deg, #38bdf8, #fbbf24, #38bdf8);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6), inset 0 1px 1.5px rgba(255, 255, 255, 0.8);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), #fbbf24, rgba(255, 255, 255, 0.95));
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.5), inset 0 1px 1px #fff;
     }
 
     /* 抽屉头部 */
@@ -3135,6 +3140,50 @@
     }
 
     /* ==========================================================================
+       8.5 iOS 27 长辈关怀模式无缝流变过渡态 (Fluid Mode Transition Coordinator)
+       ========================================================================== */
+    html.mode-morphing,
+    html.mode-morphing body,
+    html.mode-morphing .app-header,
+    html.mode-morphing .main-container,
+    html.mode-morphing .liquid-glass,
+    html.mode-morphing .day-card,
+    html.mode-morphing .senior-toggle-pill,
+    html.mode-morphing .dock-bar,
+    html.mode-morphing .trip-overview-card,
+    html.mode-morphing .tickets-summary-card,
+    html.mode-morphing .theme-spot-card,
+    html.mode-morphing .timeline-item,
+    html.mode-morphing * {
+      transition: 
+        font-size 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        line-height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        padding 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        margin 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        gap 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    /* 切换时的微透镜光晕扩散遮罩 (Liquid Glass Aperture Veil) */
+    .mode-morph-veil {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at 82% 28px, rgba(251, 191, 36, 0.22) 0%, rgba(16, 185, 129, 0.15) 35%, transparent 70%);
+      backdrop-filter: blur(6px) saturate(180%);
+      -webkit-backdrop-filter: blur(6px) saturate(180%);
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mode-morph-veil.active {
+      opacity: 1;
+    }
+
+    /* ==========================================================================
        9. 长辈关怀大字模式 (Senior Care Mode - Apple Liquid Glass Accessible)
        ========================================================================== */
     html.senior-mode,
@@ -3178,7 +3227,7 @@
       opacity: 0.98;
     }
 
-    /* 切换胶囊激活态：✅ 关怀模式已开启 */
+    /* 切换胶囊激活态：✅ 大字关怀已开启 */
     body.senior-mode .senior-toggle-pill,
     html.senior-mode .senior-toggle-pill,
     .senior-toggle-pill.active {
@@ -3186,10 +3235,11 @@
       border: 1.5px solid rgba(52, 211, 153, 0.88);
       color: #a7f3d0;
       box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.5);
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 800;
-      min-height: 44px;
-      padding: 8px 15px;
+      min-height: 42px;
+      min-width: 98px;
+      padding: 8px 14px;
     }
 
     body.senior-mode .senior-toggle-pill .senior-toggle-icon,
@@ -3799,7 +3849,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.9.0</span>
+          <span class="version-num">v3.9.1</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -5499,7 +5549,7 @@
         const iconEl = toggleBtn.querySelector(".senior-toggle-icon");
         const textEl = toggleBtn.querySelector(".senior-toggle-text");
         if (iconEl) iconEl.textContent = isActive ? "✅" : "👓";
-        if (textEl) textEl.textContent = isActive ? "关怀模式已开启" : "长辈大字";
+        if (textEl) textEl.textContent = isActive ? "大字关怀" : "长辈大字";
       }
       if (showToastNotice) {
         if (isActive) {
@@ -5605,8 +5655,47 @@
       try {
         localStorage.setItem(STORAGE_KEY_SENIOR, nextState ? "1" : "0");
       } catch (e) {}
-      applySeniorMode(nextState, true);
-      triggerHaptic('medium');
+
+      // 1. 触发按钮液态果冻微冲激动画 (Spring micro-bounce)
+      const toggleBtn = document.getElementById("btn-senior-toggle");
+      if (toggleBtn && toggleBtn.animate) {
+        toggleBtn.animate([
+          { transform: 'scale(1)' },
+          { transform: 'scale(0.88)' },
+          { transform: 'scale(1.08)' },
+          { transform: 'scale(1)' }
+        ], {
+          duration: 380,
+          easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+        });
+      }
+
+      // 2. 挂载并激活全局微透镜流变遮罩 (Liquid Glass Aperture Veil)
+      let veil = document.getElementById("mode-morph-veil");
+      if (!veil) {
+        veil = document.createElement("div");
+        veil.id = "mode-morph-veil";
+        veil.className = "mode-morph-veil";
+        document.body.appendChild(veil);
+      }
+
+      document.documentElement.classList.add("mode-morphing");
+      document.body.classList.add("mode-morphing");
+      veil.classList.add("active");
+
+      // 3. 在光圈柔和展开的瞬间切换状态并施加触觉反馈，随后自然消隐
+      setTimeout(() => {
+        applySeniorMode(nextState, true);
+        triggerHaptic('medium');
+
+        setTimeout(() => {
+          veil.classList.remove("active");
+          setTimeout(() => {
+            document.documentElement.classList.remove("mode-morphing");
+            document.body.classList.remove("mode-morphing");
+          }, 240);
+        }, 160);
+      }, 50);
     }
 
     // --------------------------------------------------------------------------
@@ -7865,8 +7954,8 @@ ${itemsText}-------------------------
           const radiusTop = Math.round(28 + strain * 36);
           const pillScaleX = Math.max(0.42, 1 - strain * 0.42);
           const pillScaleY = 1 + strain * 1.6;
-          const causticY = deltaY * 0.72;
-          const causticOpacity = Math.min(1.0, 0.75 + strain * 0.45);
+          const causticY = deltaY * 0.45;
+          const causticOpacity = Math.min(0.82, 0.60 + strain * 0.22);
 
           modal.style.transform = `translateY(${deltaY}px) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})`;
           modal.style.borderTopLeftRadius = `${radiusTop}px`;
@@ -7887,7 +7976,7 @@ ${itemsText}-------------------------
           modal.style.borderTopLeftRadius = '28px';
           modal.style.borderTopRightRadius = '28px';
           modal.style.setProperty('--sheet-caustic-y', '0px');
-          modal.style.setProperty('--sheet-caustic-opacity', '0.75');
+          modal.style.setProperty('--sheet-caustic-opacity', '0.65');
           modal.style.setProperty('--pill-scale-x', '1');
           modal.style.setProperty('--pill-scale-y', '1');
         }
@@ -7946,7 +8035,7 @@ ${itemsText}-------------------------
           modal.style.borderTopLeftRadius = "28px";
           modal.style.borderTopRightRadius = "28px";
           modal.style.setProperty('--sheet-caustic-y', '0px');
-          modal.style.setProperty('--sheet-caustic-opacity', '0.75');
+          modal.style.setProperty('--sheet-caustic-opacity', '0.65');
           modal.style.setProperty('--pill-scale-x', '1');
           modal.style.setProperty('--pill-scale-y', '1');
 
@@ -8043,14 +8132,7 @@ ${itemsText}-------------------------
 
         card.style.setProperty('--glass-light-x', `${clampedX.toFixed(1)}%`);
         card.style.setProperty('--glass-light-y', `${clampedY.toFixed(1)}%`);
-        card.style.setProperty('--glass-caustic-opacity', '0.95');
-
-        // 仅在支持精密指针（鼠标）的环境下开启三维透视微倾斜，避免触控端滚动抖动
-        if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-          const tiltX = ((clampedY - 50) / 50) * -2.4;
-          const tiltY = ((clampedX - 50) / 50) * 2.4;
-          card.style.transform = `perspective(900px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateZ(2px)`;
-        }
+        card.style.setProperty('--glass-caustic-opacity', '0.70');
 
         if (activeCard && activeCard !== card) {
           resetCard(activeCard);
@@ -8063,7 +8145,6 @@ ${itemsText}-------------------------
         card.style.removeProperty('--glass-light-x');
         card.style.removeProperty('--glass-light-y');
         card.style.removeProperty('--glass-caustic-opacity');
-        card.style.transform = '';
       }
 
       window.addEventListener('pointermove', (e) => {
