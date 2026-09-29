@@ -2,7 +2,7 @@
 
 > **项目定位**：专为 9 天西北大环线（济南往返 9.24 - 10.02 · 兰州/张掖/酒泉/鼎新/额济纳/嘉峪关/瓜州/敦煌/当金山/柴达木/茶卡/西宁）考斯特 10 人+团队自驾深度定制的高颜值移动端 Web App。  
 > **核心原则**：纯静态单文件免构建打包、零后端、全套苹果液态玻璃（Liquid Glass）视觉系统、移动端优先（响应式兼顾桌面浏览器）、Cloudflare Pages 静态边缘秒开。  
-> **当前生产版本**：`RELEASE v3.7.0 · 2026.09` ｜ **全球直达**：[trip-cts.pages.dev](https://trip-cts.pages.dev) ｜ **主分支 Commit**：`Auto-Push`  
+> **当前生产版本**：`RELEASE v3.9.0 · 2026.09` ｜ **全球直达**：[trip-cts.pages.dev](https://trip-cts.pages.dev) ｜ **主分支 Commit**：`Auto-Push`  
 > 📌 **项目阶段记忆规范**：**在每一次对话或开发阶段完成后，必须在此文件中更新当前最新状态与技术决策，以便在新的对话中实现秒级上下文恢复并无缝衔接后续开发！**
 
 ---
@@ -504,6 +504,29 @@ Pilgrimage to the West/
   - **文件镜像与版本发布**：
     - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致）；
     - 底部版本号递增发布为 `RELEASE v3.8.0 · 2026.09`。
+- **v3.9.0 (iOS 27 前沿液态玻璃流体形变与光学物理折射引擎全栈实装)**：
+  - **iOS 27 动态色散棱镜高光与双折射焦散核心类 (`.liquid-glass`, `.liquid-pill`)**：
+    - 引入 `--glass-light-x/y`、`--glass-caustic-opacity` 动态坐标变量；
+    - `::before` 340px 径向微透镜环状棱镜色散高光（Prismatic Caustic Edge）；
+    - `::after` 内部焦散折射扭曲微波纹（Internal Caustic Refraction Shimmer）；
+    - `.liquid-pill` 悬浮态 1.03x 微动并激发琥珀金辉。
+  - **底部悬浮抽屉流体形变与受力双折射焦散引擎 (`initBottomSheetGestures`)**：
+    - **泊松比流体体积守恒（Poisson's Ratio Fluid Deformation）**：拖拽位移 `deltaY` 与阻尼应变率 `strain = Math.min(deltaY / 380, 0.72)`，水平挤压 `scaleX = 1 - strain * 0.15`，纵向拉长 `scaleY = 1 + strain * 0.12`；
+    - **粘滞附着液滴效应**：抽屉顶部圆角由 `28px` 随拉伸增大至 `28 + strain * 36 px`；
+    - **拖拽把手拉丝效果**：把手变细至 0.42x，纵向拉长至 2.6x，高光自适应转为天蓝与金辉混合渐变并伴随 12px 边缘光晕；
+    - **玻璃受力双折射随动（Stress Birefringence）**：专设 `.sheet-optical-caustic` 遮罩层，受力光焦点随下拉位移沉降扭曲（`--sheet-caustic-y: deltaY * 0.72px`），产生真实玻璃弯曲时的应力光学折射奇观；
+    - **黏性果冻超弹性回弹（Viscous Jelly Spring Snapback）**：手势释放若未过阈值，通过 `cubic-bezier(0.175, 0.885, 0.32, 1.275)` 执行 480ms 果冻级微冲激回弹；
+    - **桌面与移动端无缝手势融合**：采用 Pointer Events API（`pointerdown`, `pointermove`, `pointerup`, `setPointerCapture`），兼顾桌面端鼠标左键拖拽、触控笔以及移动端 Touch 事件。
+  - **全局动态折射与 3D 透视光学引擎 (`initLiquidGlassOptics`)**：
+    - 基于 `requestAnimationFrame` 驱动的指针光线追踪算法；
+    - 鼠标/触控指针划过任意 `.liquid-glass` 与 `.day-card` 时，实时计算光照焦点坐标并无缝注入 `--glass-light-x/y`；
+    - 在支持精细指针（桌面鼠标）环境下，施加 `perspective(900px) rotateX/rotateY` 三维透视微倾斜（±2.4°），呈现如玉石晶体般的折射层次感，且在移动端自动休眠倾斜以保证滑动平稳。
+  - **底部 Dock 水银液滴滑块惯性形变 (`.dock-indicator.mercury-morph`)**：
+    - 在 Tab 切换时触发 `@keyframes mercuryDroplet`，历经 `scale(1.18, 0.82) -> scale(0.92, 1.08) -> scale(1, 1)` 的 420ms 惯性水银形变冲激。
+  - **版本发布与双向镜像同步**：
+    - 更新版本号至 `RELEASE v3.9.0 · 2026.09`；
+    - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致）；
+    - Node 沙箱语法校验 100% 通过（4 大 script 块零错误）。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：

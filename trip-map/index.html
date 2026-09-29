@@ -117,32 +117,73 @@
        2. 液态玻璃核心通用类 (Liquid Glass Utility Classes)
        ========================================================================== */
     .liquid-glass {
+      --glass-light-x: 50%;
+      --glass-light-y: 20%;
+      --glass-caustic-rot: 135deg;
+      --glass-caustic-opacity: 0.75;
       background: var(--glass-surface);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      box-shadow: 
+        var(--glass-shadow),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.42),
+        inset 0 -1.5px 2px rgba(0, 0, 0, 0.45),
+        0 0 20px rgba(56, 189, 248, 0.08); /* 边缘微透镜色散微光 */
       border-radius: var(--radius-lg);
       position: relative;
       overflow: hidden;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+      will-change: transform;
     }
 
+    /* iOS 27 动态色散棱镜高光 (Chromatic Prismatic Caustic Edge) */
     .liquid-glass::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
-      opacity: 0.7;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.2px;
+      background: radial-gradient(
+        340px circle at var(--glass-light-x, 50%) var(--glass-light-y, 20%),
+        rgba(255, 255, 255, 0.88) 0%,
+        rgba(56, 189, 248, 0.52) 28%,
+        rgba(245, 158, 11, 0.32) 55%,
+        transparent 75%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: var(--glass-caustic-opacity, 0.75);
+      transition: opacity 0.3s ease;
+      z-index: 2;
+    }
+
+    /* iOS 27 内部焦散折射扭曲微波纹 (Internal Caustic Refraction Shimmer) */
+    .liquid-glass::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(
+        ellipse 90% 60% at var(--glass-light-x, 50%) var(--glass-light-y, 20%),
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(56, 189, 248, 0.05) 45%,
+        transparent 75%
+      );
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.85;
+      transition: background 0.15s ease-out;
     }
 
     .liquid-pill {
       background: rgba(255, 248, 235, 0.12);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(251, 191, 36, 0.35);
+      backdrop-filter: blur(18px) saturate(190%);
+      -webkit-backdrop-filter: blur(18px) saturate(190%);
+      border: 1px solid rgba(251, 191, 36, 0.4);
       border-radius: var(--radius-full);
       padding: 6px 14px;
       font-size: 13px;
@@ -151,7 +192,13 @@
       align-items: center;
       gap: 6px;
       color: var(--text-main);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 1.5px rgba(255, 255, 255, 0.45);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .liquid-pill:hover, .liquid-pill:active {
+      transform: scale(1.03);
+      border-color: rgba(251, 191, 36, 0.75);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.7);
     }
 
     /* ==========================================================================
@@ -2626,24 +2673,61 @@
       height: 68vh;
       max-height: 74vh;
       min-height: 40vh;
-      background: linear-gradient(180deg, rgba(28, 17, 10, 0.48) 0%, rgba(16, 10, 6, 0.68) 100%);
-      backdrop-filter: blur(24px) saturate(210%);
-      -webkit-backdrop-filter: blur(24px) saturate(210%);
-      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: linear-gradient(180deg, rgba(28, 17, 10, 0.52) 0%, rgba(16, 10, 6, 0.72) 100%);
+      backdrop-filter: blur(28px) saturate(220%);
+      -webkit-backdrop-filter: blur(28px) saturate(220%);
+      border: 1px solid rgba(255, 255, 255, 0.28);
       border-bottom: none;
       border-radius: 28px 28px 0 0;
-      box-shadow: 0 -20px 48px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+      box-shadow: 0 -20px 48px rgba(0, 0, 0, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.45);
       display: flex;
       flex-direction: column;
       transform: translateY(105%);
-      transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: bottom center;
+      transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       visibility: hidden;
       touch-action: pan-y;
+      will-change: transform, border-radius;
+      overflow: hidden;
     }
 
     .bottom-sheet-modal.active {
       transform: translateY(0);
       visibility: visible;
+    }
+
+    /* iOS 27 液态果冻超弹性回弹动画态 (Viscous Jelly Spring Snapback) */
+    .bottom-sheet-modal.snapping {
+      transition: transform 0.48s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  border-radius 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .bottom-sheet-modal.dragging {
+      transition: none !important;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* iOS 27 受力双折射流体光焦散层 (Liquid Stress Birefringence & Caustic Refraction) */
+    .sheet-optical-caustic {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      border-radius: inherit;
+      background: 
+        radial-gradient(
+          420px circle at 50% var(--sheet-caustic-y, 0px),
+          rgba(255, 255, 255, 0.22) 0%,
+          rgba(56, 189, 248, 0.18) 25%,
+          rgba(245, 158, 11, 0.14) 50%,
+          transparent 75%
+        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, transparent 60px);
+      opacity: var(--sheet-caustic-opacity, 0.7);
+      mix-blend-mode: screen;
+      transition: opacity 0.2s ease-out;
+      will-change: opacity, background;
     }
 
     /* 顶部拖拽把手区 */
@@ -2654,14 +2738,28 @@
       justify-content: center;
       cursor: grab;
       touch-action: none;
+      position: relative;
+      z-index: 5;
+    }
+    .sheet-drag-handle-wrap:active {
+      cursor: grabbing;
     }
 
     .sheet-drag-pill {
       width: 42px;
       height: 4.5px;
       border-radius: var(--radius-full);
-      background: rgba(255, 255, 255, 0.35);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      background: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+      transform: scaleX(var(--pill-scale-x, 1)) scaleY(var(--pill-scale-y, 1));
+      transform-origin: center center;
+      transition: transform 0.1s ease-out, background 0.25s ease, box-shadow 0.25s ease;
+      will-change: transform;
+    }
+
+    .bottom-sheet-modal.dragging .sheet-drag-pill {
+      background: linear-gradient(90deg, #38bdf8, #fbbf24, #38bdf8);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6), inset 0 1px 1.5px rgba(255, 255, 255, 0.8);
     }
 
     /* 抽屉头部 */
@@ -3014,13 +3112,26 @@
       top: 6px;
       bottom: 6px;
       border-radius: var(--radius-full);
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.5), rgba(217, 119, 6, 0.4));
-      border: 1px solid rgba(251, 191, 36, 0.65);
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.52), rgba(217, 119, 6, 0.42));
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.55);
+      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.25);
       z-index: 1;
       width: calc((100% - 12px) / 3);
       left: 6px;
+      transform-origin: center center;
+      will-change: transform, left;
+    }
+
+    .dock-indicator.mercury-morph {
+      animation: mercuryDroplet 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+    }
+
+    @keyframes mercuryDroplet {
+      0% { transform: scale(1, 1); }
+      35% { transform: scale(1.18, 0.82); }
+      70% { transform: scale(0.92, 1.08); }
+      100% { transform: scale(1, 1); }
     }
 
     /* ==========================================================================
@@ -3688,7 +3799,7 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v3.8.0</span>
+          <span class="version-num">v3.9.0</span>
           <span class="footer-sep">·</span>
           <span class="version-date">2026.09</span>
         </div>
@@ -3973,6 +4084,7 @@
   <!-- ==================== 苹果液态玻璃底部悬浮抽屉 (Bottom Sheet) ==================== -->
   <div id="bottom-sheet-backdrop" class="bottom-sheet-backdrop" onclick="closeBottomSheet()"></div>
   <div id="bottom-sheet-modal" class="bottom-sheet-modal" role="dialog" aria-modal="true">
+    <div class="sheet-optical-caustic" aria-hidden="true"></div>
     <div class="sheet-drag-handle-wrap" id="sheet-drag-handle">
       <div class="sheet-drag-pill"></div>
     </div>
@@ -5506,6 +5618,7 @@
       renderPackingStatus();
       renderTicketsDashboard();
       renderLedgerList();
+      initLiquidGlassOptics();
       // 后台静默预热地图（此时容器 visibility: hidden 且拥有 100vw/100vh 真实几何尺寸）
       setTimeout(() => {
         ensureMapInit();
@@ -5923,6 +6036,9 @@
       const indicator = document.getElementById("dock-indicator");
       if (indicator) {
         indicator.style.left = `calc(6px + ${tabIndex} * ((100% - 12px) / 3))`;
+        indicator.classList.remove("mercury-morph");
+        void indicator.offsetWidth; // 触发 reflow 重置动画
+        indicator.classList.add("mercury-morph");
       }
 
       currentActiveTab = tabIndex;
@@ -7700,7 +7816,15 @@ ${itemsText}-------------------------
 
       backdrop.classList.add("active");
       modal.classList.add("active");
+      modal.classList.remove("snapping");
+      modal.classList.remove("dragging");
       modal.style.transform = "translateY(0)";
+      modal.style.borderTopLeftRadius = "";
+      modal.style.borderTopRightRadius = "";
+      modal.style.removeProperty('--sheet-caustic-y');
+      modal.style.removeProperty('--sheet-caustic-opacity');
+      modal.style.removeProperty('--pill-scale-x');
+      modal.style.removeProperty('--pill-scale-y');
       document.body.style.overflow = "hidden";
     }
 
@@ -7716,61 +7840,244 @@ ${itemsText}-------------------------
       currentDetailKey = null;
     }
 
-    // 下拉手势拖拽关闭支持
+    // ==========================================================================
+    // iOS 27 液态玻璃流体形变与光学折射手势引擎 (Liquid Glass Viscous Gestures)
+    // ==========================================================================
     (function initBottomSheetGestures() {
-      let touchStartY = 0;
-      let touchCurrentY = 0;
+      let startY = 0;
+      let currentY = 0;
       let isDragging = false;
+      let activePointerId = null;
+      let animationFrameId = null;
+
       const modal = document.getElementById("bottom-sheet-modal");
       const handle = document.getElementById("sheet-drag-handle");
       const header = document.querySelector(".sheet-header");
 
-      function onTouchStart(e) {
-        touchStartY = e.touches[0].clientY;
-        touchCurrentY = touchStartY;
-        isDragging = true;
-        modal.style.transition = "none";
-      }
+      function applyFluidDeformation(deltaY) {
+        if (!modal) return;
 
-      function onTouchMove(e) {
-        if (!isDragging) return;
-        touchCurrentY = e.touches[0].clientY;
-        const delta = touchCurrentY - touchStartY;
-        if (delta > 0) {
-          modal.style.transform = `translateY(${delta}px)`;
+        if (deltaY >= 0) {
+          // 下拉拉伸与泊松比流体体积守恒 (Poisson's Ratio Fluid Deformation)
+          const strain = Math.min(deltaY / 380, 0.72);
+          const scaleX = 1 - strain * 0.15;
+          const scaleY = 1 + strain * 0.12;
+          const radiusTop = Math.round(28 + strain * 36);
+          const pillScaleX = Math.max(0.42, 1 - strain * 0.42);
+          const pillScaleY = 1 + strain * 1.6;
+          const causticY = deltaY * 0.72;
+          const causticOpacity = Math.min(1.0, 0.75 + strain * 0.45);
+
+          modal.style.transform = `translateY(${deltaY}px) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})`;
+          modal.style.borderTopLeftRadius = `${radiusTop}px`;
+          modal.style.borderTopRightRadius = `${radiusTop}px`;
+          modal.style.setProperty('--sheet-caustic-y', `${causticY.toFixed(1)}px`);
+          modal.style.setProperty('--sheet-caustic-opacity', causticOpacity.toFixed(2));
+          modal.style.setProperty('--pill-scale-x', pillScaleX.toFixed(3));
+          modal.style.setProperty('--pill-scale-y', pillScaleY.toFixed(3));
+        } else {
+          // 上拉过冲弹性阻尼挤压 (Rubber-band Viscous Compression)
+          const absDelta = Math.abs(deltaY);
+          const strain = Math.min(absDelta / 260, 0.35);
+          const dampedY = -Math.pow(absDelta, 0.75);
+          const scaleX = 1 + strain * 0.08;
+          const scaleY = 1 - strain * 0.06;
+
+          modal.style.transform = `translateY(${dampedY.toFixed(1)}px) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})`;
+          modal.style.borderTopLeftRadius = '28px';
+          modal.style.borderTopRightRadius = '28px';
+          modal.style.setProperty('--sheet-caustic-y', '0px');
+          modal.style.setProperty('--sheet-caustic-opacity', '0.75');
+          modal.style.setProperty('--pill-scale-x', '1');
+          modal.style.setProperty('--pill-scale-y', '1');
         }
       }
 
-      function onTouchEnd() {
+      function resetModalAppearance() {
+        if (!modal) return;
+        modal.style.transform = '';
+        modal.style.borderTopLeftRadius = '';
+        modal.style.borderTopRightRadius = '';
+        modal.style.removeProperty('--sheet-caustic-y');
+        modal.style.removeProperty('--sheet-caustic-opacity');
+        modal.style.removeProperty('--pill-scale-x');
+        modal.style.removeProperty('--pill-scale-y');
+      }
+
+      function onDragStart(clientY, pointerId) {
+        if (!modal.classList.contains("active")) return;
+        startY = clientY;
+        currentY = clientY;
+        isDragging = true;
+        activePointerId = pointerId !== undefined ? pointerId : null;
+        modal.classList.remove("snapping");
+        modal.classList.add("dragging");
+        triggerHaptic('light');
+      }
+
+      function onDragMove(clientY) {
+        if (!isDragging) return;
+        currentY = clientY;
+        const delta = currentY - startY;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(() => {
+          applyFluidDeformation(delta);
+        });
+      }
+
+      function onDragEnd() {
         if (!isDragging) return;
         isDragging = false;
-        modal.style.transition = "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)";
-        const delta = touchCurrentY - touchStartY;
-        if (delta > 75) {
+        activePointerId = null;
+        modal.classList.remove("dragging");
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+        const delta = currentY - startY;
+        if (delta > 85) {
+          triggerHaptic('medium');
           closeBottomSheet();
+          setTimeout(() => {
+            resetModalAppearance();
+          }, 360);
         } else {
-          modal.style.transform = "translateY(0)";
+          triggerHaptic('light');
+          modal.classList.add("snapping");
+          modal.style.transform = "translateY(0) scale(1, 1)";
+          modal.style.borderTopLeftRadius = "28px";
+          modal.style.borderTopRightRadius = "28px";
+          modal.style.setProperty('--sheet-caustic-y', '0px');
+          modal.style.setProperty('--sheet-caustic-opacity', '0.75');
+          modal.style.setProperty('--pill-scale-x', '1');
+          modal.style.setProperty('--pill-scale-y', '1');
+
+          setTimeout(() => {
+            modal.classList.remove("snapping");
+            resetModalAppearance();
+          }, 480);
         }
       }
 
+      // Pointer Events 支持 (PC鼠标拖拽 + 触控笔 + 现代触控统一)
+      function setupPointerEvents(targetEl) {
+        if (!targetEl) return;
+        targetEl.addEventListener("pointerdown", (e) => {
+          if (e.target.closest(".sheet-close-btn")) return;
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          onDragStart(e.clientY, e.pointerId);
+          try {
+            targetEl.setPointerCapture(e.pointerId);
+          } catch (_) {}
+        });
+
+        targetEl.addEventListener("pointermove", (e) => {
+          if (!isDragging) return;
+          if (activePointerId !== null && e.pointerId !== activePointerId) return;
+          onDragMove(e.clientY);
+        });
+
+        const handlePointerUp = (e) => {
+          if (!isDragging) return;
+          if (activePointerId !== null && e.pointerId !== activePointerId) return;
+          try {
+            targetEl.releasePointerCapture(e.pointerId);
+          } catch (_) {}
+          onDragEnd();
+        };
+
+        targetEl.addEventListener("pointerup", handlePointerUp);
+        targetEl.addEventListener("pointercancel", handlePointerUp);
+      }
+
+      setupPointerEvents(handle);
+      setupPointerEvents(header);
+
+      // 兜底原生 Touch 监听 (防范移动端特定内核事件冒泡)
       if (handle) {
-        handle.addEventListener("touchstart", onTouchStart, { passive: true });
-        handle.addEventListener("touchmove", onTouchMove, { passive: true });
-        handle.addEventListener("touchend", onTouchEnd);
+        handle.addEventListener("touchstart", (e) => {
+          if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientY);
+        }, { passive: true });
+        handle.addEventListener("touchmove", (e) => {
+          if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientY);
+        }, { passive: true });
+        handle.addEventListener("touchend", onDragEnd);
       }
       if (header) {
         header.addEventListener("touchstart", (e) => {
           if (e.target.closest(".sheet-close-btn")) return;
-          onTouchStart(e);
+          if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientY);
         }, { passive: true });
-        header.addEventListener("touchmove", onTouchMove, { passive: true });
-        header.addEventListener("touchend", onTouchEnd);
+        header.addEventListener("touchmove", (e) => {
+          if (!e.target.closest(".sheet-close-btn") && e.touches && e.touches[0]) {
+            onDragMove(e.touches[0].clientY);
+          }
+        }, { passive: true });
+        header.addEventListener("touchend", onDragEnd);
       }
 
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeBottomSheet();
       });
     })();
+
+    // ==========================================================================
+    // iOS 27 液态玻璃全局动态折射与棱镜色散高光引擎 (Optical Refraction Engine)
+    // ==========================================================================
+    function initLiquidGlassOptics() {
+      let activeCard = null;
+      let rafId = null;
+
+      function updateCardLight(e) {
+        const card = e.target.closest('.liquid-glass');
+        if (!card) {
+          if (activeCard) resetCard(activeCard);
+          activeCard = null;
+          return;
+        }
+
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        
+        const clampedX = Math.max(0, Math.min(100, x));
+        const clampedY = Math.max(0, Math.min(100, y));
+
+        card.style.setProperty('--glass-light-x', `${clampedX.toFixed(1)}%`);
+        card.style.setProperty('--glass-light-y', `${clampedY.toFixed(1)}%`);
+        card.style.setProperty('--glass-caustic-opacity', '0.95');
+
+        // 仅在支持精密指针（鼠标）的环境下开启三维透视微倾斜，避免触控端滚动抖动
+        if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+          const tiltX = ((clampedY - 50) / 50) * -2.4;
+          const tiltY = ((clampedX - 50) / 50) * 2.4;
+          card.style.transform = `perspective(900px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateZ(2px)`;
+        }
+
+        if (activeCard && activeCard !== card) {
+          resetCard(activeCard);
+        }
+        activeCard = card;
+      }
+
+      function resetCard(card) {
+        if (!card) return;
+        card.style.removeProperty('--glass-light-x');
+        card.style.removeProperty('--glass-light-y');
+        card.style.removeProperty('--glass-caustic-opacity');
+        card.style.transform = '';
+      }
+
+      window.addEventListener('pointermove', (e) => {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => updateCardLight(e));
+      }, { passive: true });
+
+      window.addEventListener('pointerleave', () => {
+        if (activeCard) {
+          resetCard(activeCard);
+          activeCard = null;
+        }
+      }, { passive: true });
+    }
   </script>
 </body>
 </html>
