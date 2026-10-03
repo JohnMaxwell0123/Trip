@@ -1,0 +1,2558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>西行壮歌 · 丝路与额济纳自驾大环线电影级生成式渲染器</title>
+  <style>
+    /* ==========================================================================
+       1. 苹果液态玻璃与电影级黑色主题 (Liquid Glass Cinematic Dark Theme)
+       ========================================================================== */
+    :root {
+      --bg-cinematic: #080605;
+      --glass-surface: rgba(26, 18, 12, 0.72);
+      --glass-surface-hover: rgba(45, 30, 20, 0.85);
+      --glass-border: rgba(245, 158, 11, 0.28);
+      --glass-highlight: rgba(254, 240, 138, 0.6);
+      --accent-gold: #f59e0b;
+      --accent-amber: #fbbf24;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --text-main: #fffdfa;
+      --text-dim: #cbd5e1;
+      --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --font-serif: "Songti SC", "SimSun", "STSong", "Noto Serif CJK SC", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-cinematic);
+      color: var(--text-main);
+      font-family: var(--font-display);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background-image: radial-gradient(circle at 50% 30%, #1c130b 0%, #080605 85%);
+    }
+
+    /* 播放视口容器：自动适配并保持 16:9 黄金画幅 */
+    .viewport-container {
+      position: relative;
+      width: 95vw;
+      max-width: 1440px;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 1px 1px rgba(245, 158, 11, 0.25);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#renderCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background-color: #000;
+    }
+
+    /* 顶部微型悬浮状态条 (Top Bar) */
+    .top-status-bar {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 30;
+      opacity: 0.92;
+      transition: opacity 0.3s ease;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 10, 6, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(245, 158, 11, 0.22);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      color: #fef08a;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .status-badge .dot.recording {
+      background: #ef4444;
+      box-shadow: 0 0 12px #ef4444;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+    }
+
+    /* 悬浮控制面板 (Liquid Glass Control Dock) */
+    .control-dock {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 1200px;
+      background: var(--glass-surface);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.75);
+      z-index: 40;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* 时间轴进度条 */
+    .timeline-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .time-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .time-label.current {
+      color: var(--accent-amber);
+      font-weight: 600;
+    }
+
+    .scrubber-track {
+      flex: 1;
+      position: relative;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .scrubber-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      border-radius: 9999px;
+      width: 0%;
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    .scrubber-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border: 2px solid var(--accent-gold);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+      transition: transform 0.1s ease;
+    }
+
+    .scrubber-track:hover .scrubber-thumb {
+      transform: translate(-50%, -50%) scale(1.25);
+    }
+
+    /* 镜头分段刻度指示器 */
+    .shot-markers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .shot-marker-tick {
+      position: absolute;
+      top: -2px;
+      height: 12px;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    /* 操作按钮行 */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .btn:hover {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      border-color: #f59e0b;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .btn.primary:hover {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+    }
+
+    .btn.record-active {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      border-color: #ef4444;
+      animation: pulse 1s infinite;
+    }
+
+    select.shot-select {
+      background: rgba(20, 14, 9, 0.85);
+      border: 1px solid var(--glass-border);
+      color: #fef08a;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+      max-width: 220px;
+    }
+
+    /* 键盘提示说明区 */
+    .hotkey-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #78716c;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    kbd {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, monospace;
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 视口容器 -->
+  <div class="viewport-container" id="viewport">
+    <canvas id="renderCanvas" width="1920" height="1080"></canvas>
+
+    <!-- 顶部状态指示 -->
+    <div class="top-status-bar">
+      <div class="status-badge">
+        <span class="dot" id="liveDot"></span>
+        <span id="shotBadgeText">SHOT 01 · 序曲 · 兰州黄河启程</span>
+      </div>
+      <div class="status-badge" style="color: #cbd5e1;">
+        <span>1920×1080 · 30 FPS · 严格确定性渲染内核</span>
+      </div>
+    </div>
+
+    <!-- 底部控制面板 -->
+    <div class="control-dock" id="controlDock">
+      <div class="timeline-row">
+        <span class="time-label current" id="timeCurrent">00:00:00 [F0000]</span>
+        <div class="scrubber-track" id="scrubberTrack">
+          <div class="shot-markers" id="shotMarkers"></div>
+          <div class="scrubber-fill" id="scrubberFill"></div>
+          <div class="scrubber-thumb" id="scrubberThumb"></div>
+        </div>
+        <span class="time-label" id="timeTotal">02:00:00 [F3600]</span>
+      </div>
+
+      <div class="controls-row">
+        <div class="btn-group">
+          <button class="btn primary" id="playBtn">▶ 播放</button>
+          <button class="btn" id="prevFrameBtn">◀ 逐帧步退</button>
+          <button class="btn" id="nextFrameBtn">逐帧步进 ▶</button>
+          <select class="shot-select" id="shotSelect">
+            <!-- 动态填充 16 镜头 -->
+          </select>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn" id="speedBtn">倍速: 1.0×</button>
+          <button class="btn" id="snapshotBtn">📸 捕获当前帧 (PNG)</button>
+          <button class="btn" id="recordBtn">🎬 录制整段视频 (WebM/MP4)</button>
+          <button class="btn" id="fullscreenBtn">⛶ 全屏</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hotkey-hint">
+    <span>快捷键：<kbd>Space</kbd> 播放/暂停</span>
+    <span><kbd>←</kbd> / <kbd>→</kbd> 逐帧步退/步进</span>
+    <span><kbd>Home</kbd> 归零第一帧</span>
+    <span><kbd>F</kbd> 全屏视口</span>
+    <span>内置接口：<kbd>window.renderFrame(f, 3600)</kbd></span>
+  </div>
+
+  <!-- ==========================================================================
+       2. 渲染器核心脚本 (Deterministic Cinema Engine)
+       ========================================================================== -->
+  <script>
+    /**
+     * 16 镜头电影时间轴与场景元数据字典
+     * 总帧数: 3600 帧 (120 秒 @ 30fps)
+     */
+    const TOTAL_FRAMES = 3600;
+    const FPS = 30;
+
+    const SHOTS = [
+      {
+        id: 1,
+        code: "SHOT_01",
+        name: "序曲 · 兰州黄河启程",
+        enName: "Lanzhou Yellow River · Departure",
+        start: 0,
+        end: 209,
+        duration: 210,
+        loc: "甘肃 · 兰州中山铁桥",
+        ele: 1520,
+        mileage: 0,
+        speed: 45,
+        coords: "36.06° N, 103.83° E",
+        zhSub: "黄河东去，孤鹜齐飞 · 丝路长征自此启程",
+        enSub: "Where the Yellow River flows east, the Western Odyssey begins.",
+        themeColor: "#f59e0b"
+      },
+      {
+        id: 2,
+        code: "SHOT_02",
+        name: "绝壁丹霞 · 临泽七彩丹霞",
+        enName: "Zhangye Danxia · Palette of the Earth",
+        start: 210,
+        end: 419,
+        duration: 210,
+        loc: "张掖 · 临泽七彩丹霞",
+        ele: 1800,
+        mileage: 510,
+        speed: 60,
+        coords: "38.97° N, 100.14° E",
+        zhSub: "色如渥丹，灿若明霞 · 上帝打翻的地质调色盘",
+        enSub: "Crimson crests and glowing ochre, earth sculpted by ancient oceans.",
+        themeColor: "#ef4444"
+      },
+      {
+        id: 3,
+        code: "SHOT_03",
+        name: "瀚海长风 · 戈壁荒漠穿越",
+        enName: "Hexi Corridor · Crossing the Gobi",
+        start: 420,
+        end: 659,
+        duration: 240,
+        loc: "河西走廊 · 连霍高速 G30",
+        ele: 1650,
+        mileage: 720,
+        speed: 110,
+        coords: "39.42° N, 99.18° E",
+        zhSub: "大漠孤烟直，长河落日圆 · 穿越河西走廊千里戈壁",
+        enSub: "Vast expanse under an endless sky, traversing the millennium corridor.",
+        themeColor: "#d97706"
+      },
+      {
+        id: 4,
+        code: "SHOT_04",
+        name: "金秋礼赞 · 额济纳金秋胡杨",
+        enName: "Ejina Poplars · Autumn Symphony",
+        start: 660,
+        end: 929,
+        duration: 270,
+        loc: "内蒙古 · 额济纳一道至八道桥",
+        ele: 940,
+        mileage: 1080,
+        speed: 35,
+        coords: "41.96° N, 101.07° E",
+        zhSub: "生而一千年不死，死而一千年不倒 · 金秋额济纳胡杨狂想",
+        enSub: "Living a thousand years without dying; Golden Poplars ablaze in the autumn wind.",
+        themeColor: "#fbbf24"
+      },
+      {
+        id: 5,
+        code: "SHOT_05",
+        name: "苍凉挽歌 · 额济纳怪树林与黑城",
+        enName: "Weird Forest & Khara-Khoto Ruins",
+        start: 930,
+        end: 1169,
+        duration: 240,
+        loc: "额济纳 · 居延海与黑城遗址",
+        ele: 930,
+        mileage: 1140,
+        speed: 30,
+        coords: "41.76° N, 101.14° E",
+        zhSub: "倒而一千年不朽 · 黑城断壁，古道西风残阳",
+        enSub: "Unrotting for a millennium. Whispering sands around fallen desert kingdoms.",
+        themeColor: "#b45309"
+      },
+      {
+        id: 6,
+        code: "SHOT_06",
+        name: "天下第一雄关 · 嘉峪关城楼",
+        enName: "Jiayuguan · First Pass Under Heaven",
+        start: 1170,
+        end: 1409,
+        duration: 240,
+        loc: "嘉峪关 · 明长城西端第一关",
+        ele: 1600,
+        mileage: 1520,
+        speed: 50,
+        coords: "39.81° N, 98.22° E",
+        zhSub: "锁钥边陲，金戈铁马 · 明长城西端第一雄关",
+        enSub: "The western bastion of the Great Wall, guardian of the Silk Road.",
+        themeColor: "#f59e0b"
+      },
+      {
+        id: 7,
+        code: "SHOT_07",
+        name: "瓜州大地之子 · 边塞荒原雕塑",
+        enName: "Guazhou · Son of the Earth",
+        start: 1410,
+        end: 1619,
+        duration: 210,
+        loc: "酒泉 · 瓜州红山坡荒原",
+        ele: 1170,
+        mileage: 1750,
+        speed: 70,
+        coords: "40.52° N, 95.78° E",
+        zhSub: "赤子沉眠于大地之腹 · 荒凉与温情的时空对话",
+        enSub: "A gentle infant resting on the red earth, a poignant embrace in the wilderness.",
+        themeColor: "#ea580c"
+      },
+      {
+        id: 8,
+        code: "SHOT_08",
+        name: "千年佛窟 · 莫高窟九层楼与飞天",
+        enName: "Dunhuang Mogao · Millennial Echoes",
+        start: 1620,
+        end: 1889,
+        duration: 270,
+        loc: "敦煌 · 莫高窟第 96 窟大佛殿",
+        ele: 1360,
+        mileage: 1880,
+        speed: 25,
+        coords: "40.04° N, 94.81° E",
+        zhSub: "敦者大也，煌者盛也 · 崖壁上的千年文明史诗",
+        enSub: "Dunhuang Mogao: Millennia of Buddhist wisdom etched into cliff and color.",
+        themeColor: "#fcd34d"
+      },
+      {
+        id: 9,
+        code: "SHOT_09",
+        name: "沙泉共生 · 鸣沙山与月牙泉",
+        enName: "Mingsha Dunes & Crescent Spring",
+        start: 1890,
+        end: 2129,
+        duration: 240,
+        loc: "敦煌 · 鸣沙山金色沙丘",
+        ele: 1250,
+        mileage: 1910,
+        speed: 40,
+        coords: "40.09° N, 94.67° E",
+        zhSub: "山泉共处，沙水共生 · 千年不涸的荒漠翡翠",
+        enSub: "A crescent spring cradled by singing sands, eternal oasis through centuries.",
+        themeColor: "#d97706"
+      },
+      {
+        id: 10,
+        code: "SHOT_10",
+        name: "天堑险途 · 当金山大坂 3648m",
+        enName: "Dangjin Pass · 3648m Ascent",
+        start: 2130,
+        end: 2369,
+        duration: 240,
+        loc: "阿尔金山 · 柳格高速当金山口",
+        ele: 3648,
+        mileage: 2180,
+        speed: 65,
+        coords: "39.31° N, 94.27° E",
+        zhSub: "天堑越昆仑，风雪当金山 · 海拔 3648 米的极限攀升",
+        enSub: "Climbing to 3,648 meters over Dangjin Pass, gateway to the Qaidam Plateau.",
+        themeColor: "#38bdf8"
+      },
+      {
+        id: 11,
+        code: "SHOT_11",
+        name: "高原奇迹 · 大柴旦翡翠湖",
+        enName: "Dachaidan · Emerald Lake",
+        start: 2370,
+        end: 2609,
+        duration: 240,
+        loc: "柴达木盆地 · 大柴旦翡翠湖",
+        ele: 3148,
+        mileage: 2460,
+        speed: 50,
+        coords: "37.85° N, 95.30° E",
+        zhSub: "柴达木高原的翡翠琉璃 · 盐矿与天空碰撞的纯净画卷",
+        enSub: "Mineral green and pure white salt crusts, glowing beneath plateau sunlight.",
+        themeColor: "#10b981"
+      },
+      {
+        id: 12,
+        code: "SHOT_12",
+        name: "天空之镜 · 茶卡盐湖倒影",
+        enName: "Chaka Salt Lake · Mirror of the Sky",
+        start: 2610,
+        end: 2849,
+        duration: 240,
+        loc: "海西州 · 茶卡盐湖天空之镜",
+        ele: 3059,
+        mileage: 2870,
+        speed: 35,
+        coords: "36.70° N, 99.08° E",
+        zhSub: "水天一色，如梦似幻 · 漫步云端的天空之镜",
+        enSub: "Where heaven meets earth: boundless reflections across Chaka Salt Lake.",
+        themeColor: "#67e8f9"
+      },
+      {
+        id: 13,
+        code: "SHOT_13",
+        name: "蔚蓝圣湖 · 青海湖与金黄油菜花",
+        enName: "Qinghai Lake · The Sapphire Crown",
+        start: 2850,
+        end: 3119,
+        duration: 270,
+        loc: "青海湖 · 二郎剑半岛与环湖西路",
+        ele: 3200,
+        mileage: 3080,
+        speed: 75,
+        coords: "36.63° N, 100.49° E",
+        zhSub: "高原上的蓝宝石明珠 · 碧波万顷，洗涤凡心尘埃",
+        enSub: "Sapphire waves on the Tibetan plateau, an endless ocean touching the sky.",
+        themeColor: "#2563eb"
+      },
+      {
+        id: 14,
+        code: "SHOT_14",
+        name: "信仰之光 · 塔尔寺宗喀巴圣迹",
+        enName: "Kumbum Monastery · Sacred Light",
+        start: 3120,
+        end: 3299,
+        duration: 180,
+        loc: "西宁湟中 · 藏传佛教宗祠塔尔寺",
+        ele: 2680,
+        mileage: 3240,
+        speed: 40,
+        coords: "36.49° N, 101.57° E",
+        zhSub: "酥油繁花，堆绣流光 · 六百年梵音回响圣地",
+        enSub: "Butter sculptures and gilded roofs, six centuries of devotion and peace.",
+        themeColor: "#f59e0b"
+      },
+      {
+        id: 15,
+        code: "SHOT_15",
+        name: "大环线凯旋 · 西宁与全景轨迹回顾",
+        enName: "Xining · Grand Loop Complete",
+        start: 3300,
+        end: 3479,
+        duration: 180,
+        loc: "丝路大环线 · 3400公里闭环总览",
+        ele: 2260,
+        mileage: 3400,
+        speed: 80,
+        coords: "36.62° N, 101.78° E",
+        zhSub: "三千四百公里行囊渐丰 · 丈量天地，凯旋归程",
+        enSub: "3,400 kilometers conquered. A life-defining voyage carved into memory.",
+        themeColor: "#10b981"
+      },
+      {
+        id: 16,
+        code: "SHOT_16",
+        name: "终章余韵 · 演职员表与纪念铭刻",
+        enName: "Epilogue · Cast & Memorial Roll",
+        start: 3480,
+        end: 3599,
+        duration: 120,
+        loc: "西行壮歌 · 终章纪念印章",
+        ele: 2260,
+        mileage: 3400,
+        speed: 0,
+        coords: "THE END · 2026.09",
+        zhSub: "山海自有归期，风雨自有相逢 · 下一段旅程见",
+        enSub: "Until we meet on the road again. Journey into the vastness.",
+        themeColor: "#fbbf24"
+      }
+    ];
+
+    /**
+     * 确定性伪随机数发生器 (Deterministic Seeded PRNG)
+     * 确保同一帧号无论何时渲染都产生完全一模一样的粒子形态与景观细节
+     */
+    function pseudoRandom(seed) {
+      const x = Math.sin(seed * 9301 + 49297) * 233280;
+      return x - Math.floor(x);
+    }
+
+    /**
+     * 缓动辅助函数
+     */
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+    function easeOutQuad(t) {
+      return 1 - (1 - t) * (1 - t);
+    }
+
+    // 初始化画布与上下文
+    const canvas = document.getElementById("renderCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = 1920;
+    const H = 1080;
+
+    const FONT_SERIF = '"Songti SC", "SimSun", "STSong", "Noto Serif CJK SC", "Microsoft YaHei", serif';
+    const FONT_DISPLAY = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+    const FONT_MONO = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+
+    let currentFrame = 0;
+    let isPlaying = false;
+    let playbackSpeed = 1.0;
+    let animReqId = null;
+    let lastTimestamp = 0;
+
+    // MediaRecorder 导出视频实例
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+
+    /**
+     * 检索指定帧对应的镜头对象
+     */
+    function getShotByFrame(frame) {
+      for (let i = 0; i < SHOTS.length; i++) {
+        if (frame >= SHOTS[i].start && frame <= SHOTS[i].end) {
+          return SHOTS[i];
+        }
+      }
+      return SHOTS[SHOTS.length - 1];
+    }
+
+    /**
+     * ==========================================================================
+     * 核心渲染驱动函数: renderFrame(frameIndex, totalFrames)
+     * 满足无状态、纯函数式确定性渲染，输入 frameIndex 返回唯一固定画面
+     * ==========================================================================
+     */
+    window.renderFrame = function(frameIndex, totalFrames = TOTAL_FRAMES) {
+      // 限制边界
+      const frame = Math.max(0, Math.min(frameIndex, totalFrames - 1));
+      const shot = getShotByFrame(frame);
+      const shotFrame = frame - shot.start;
+      const shotProgress = shotFrame / shot.duration; // 0.0 ~ 1.0
+      const totalProgress = frame / totalFrames;
+
+      // 1. 清空画布
+      ctx.save();
+      ctx.clearRect(0, 0, W, H);
+
+      // 2. 依据各镜头渲染专属的电影级程序化景观与视觉图层
+      renderShotScene(shot, shotProgress, frame);
+
+      // 3. 渲染统一的电影级环境光晕与暗角 (Vignette & Film Atmosphere)
+      renderAtmosphere(shot, shotProgress);
+
+      // 4. 渲染 HUD 仪表盘与自驾路线生长信标 (Telemetry & GPS Loop HUD)
+      renderHUD(shot, shotProgress, totalProgress, frame);
+
+      // 5. 渲染高雅电影级中英双语字幕 (Cinematic Bilingual Subtitles)
+      renderSubtitles(shot, shotProgress);
+
+      // 6. 镜头淡入淡出转场 (Shot In/Out Transition)
+      renderTransitions(shot, shotFrame);
+
+      ctx.restore();
+    };
+
+    /**
+     * 镜头场景分发渲染
+     */
+    function renderShotScene(shot, t, frame) {
+      switch (shot.id) {
+        case 1:
+          drawShot01_Lanzhou(t, frame);
+          break;
+        case 2:
+          drawShot02_Danxia(t, frame);
+          break;
+        case 3:
+          drawShot03_HexiGobi(t, frame);
+          break;
+        case 4:
+          drawShot04_EjinaPoplars(t, frame);
+          break;
+        case 5:
+          drawShot05_WeirdForest(t, frame);
+          break;
+        case 6:
+          drawShot06_Jiayuguan(t, frame);
+          break;
+        case 7:
+          drawShot07_GuazhouSon(t, frame);
+          break;
+        case 8:
+          drawShot08_MogaoCaves(t, frame);
+          break;
+        case 9:
+          drawShot09_MingshaDunes(t, frame);
+          break;
+        case 10:
+          drawShot10_Dangjinshan(t, frame);
+          break;
+        case 11:
+          drawShot11_EmeraldLake(t, frame);
+          break;
+        case 12:
+          drawShot12_ChakaSaltLake(t, frame);
+          break;
+        case 13:
+          drawShot13_QinghaiLake(t, frame);
+          break;
+        case 14:
+          drawShot14_Kumbum(t, frame);
+          break;
+        case 15:
+          drawShot15_GrandLoopOverview(t, frame);
+          break;
+        case 16:
+          drawShot16_Epilogue(t, frame);
+          break;
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 01: 兰州黄河启程 (Dawn on Yellow River & Zhongshan Bridge)
+    // --------------------------------------------------------------------------
+    function drawShot01_Lanzhou(t, frame) {
+      // 晨曦天空渐变
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+      skyGrad.addColorStop(0, "#1e1b4b");
+      skyGrad.addColorStop(0.4, "#4c1d95");
+      skyGrad.addColorStop(0.7, "#b45309");
+      skyGrad.addColorStop(1, "#f59e0b");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 晨曦太阳柔光
+      const sunY = 560 - t * 40;
+      const sunGrad = ctx.createRadialGradient(W * 0.72, sunY, 10, W * 0.72, sunY, 320);
+      sunGrad.addColorStop(0, "rgba(254, 240, 138, 0.95)");
+      sunGrad.addColorStop(0.3, "rgba(251, 146, 60, 0.45)");
+      sunGrad.addColorStop(1, "rgba(251, 146, 60, 0)");
+      ctx.fillStyle = sunGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 远景黄土高原山脉轮廓
+      ctx.fillStyle = "rgba(49, 24, 15, 0.75)";
+      ctx.beginPath();
+      ctx.moveTo(0, 620);
+      for (let x = 0; x <= W; x += 40) {
+        const y = 580 + Math.sin(x * 0.003 + 1.2) * 45 + Math.cos(x * 0.007) * 20;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, H);
+      ctx.lineTo(0, H);
+      ctx.fill();
+
+      // 黄河滔滔水流图层
+      const waterGrad = ctx.createLinearGradient(0, 640, 0, H);
+      waterGrad.addColorStop(0, "#b45309");
+      waterGrad.addColorStop(0.5, "#78350f");
+      waterGrad.addColorStop(1, "#451a03");
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(0, 640, W, H - 640);
+
+      // 黄河波光涟漪 (动态正弦波动)
+      ctx.strokeStyle = "rgba(254, 243, 199, 0.28)";
+      ctx.lineWidth = 2.5;
+      for (let row = 0; row < 12; row++) {
+        const yBase = 660 + row * 32;
+        ctx.beginPath();
+        for (let x = 0; x <= W; x += 30) {
+          const wave = Math.sin(x * 0.02 + frame * 0.08 + row) * (3 + row * 0.6);
+          if (x === 0) ctx.moveTo(x, yBase + wave);
+          else ctx.lineTo(x, yBase + wave);
+        }
+        ctx.stroke();
+      }
+
+      // 中山铁桥剪影 (钢桁架几何结构)
+      ctx.fillStyle = "#180f08";
+      ctx.strokeStyle = "#180f08";
+      ctx.lineWidth = 4;
+      const bridgeY = 640;
+      // 桥面主梁
+      ctx.fillRect(0, bridgeY, W, 18);
+      // 5 孔钢桁拱架
+      const numArches = 5;
+      const archW = W / numArches;
+      for (let i = 0; i < numArches; i++) {
+        const ax = i * archW;
+        ctx.beginPath();
+        ctx.arc(ax + archW / 2, bridgeY, archW / 2, Math.PI, 0);
+        ctx.stroke();
+
+        // 桁架斜撑
+        for (let s = 1; s <= 6; s++) {
+          const sx = ax + (archW / 7) * s;
+          const sy = bridgeY - Math.sin((Math.PI / 7) * s) * (archW / 2);
+          ctx.beginPath();
+          ctx.moveTo(sx, bridgeY);
+          ctx.lineTo(sx, sy);
+          ctx.stroke();
+        }
+      }
+
+      // 晨雾粒子 (Procedural River Mist)
+      ctx.fillStyle = "rgba(254, 215, 170, 0.08)";
+      for (let i = 0; i < 60; i++) {
+        const px = ((i * 73 + frame * 0.8) % (W + 200)) - 100;
+        const py = 620 + Math.sin(i + frame * 0.03) * 35;
+        const pr = 40 + (i % 30) * 2;
+        ctx.beginPath();
+        ctx.arc(px, py, pr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 启程标题徽记淡入
+      if (t < 0.85) {
+        ctx.save();
+        const titleAlpha = Math.min(1, t * 2.5);
+        ctx.fillStyle = `rgba(254, 240, 138, ${titleAlpha})`;
+        ctx.font = `bold 64px ${FONT_SERIF}`;
+        ctx.textAlign = "center";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+        ctx.shadowBlur = 24;
+        ctx.fillText("西行壮歌 · 丝路自驾大环线", W / 2, 340);
+        ctx.font = `22px ${FONT_DISPLAY}`;
+        ctx.fillStyle = `rgba(254, 215, 170, ${titleAlpha * 0.9})`;
+        ctx.fillText("AN EPIC EXPEDITION INTO THE ANCIENT SILK ROAD", W / 2, 395);
+        ctx.restore();
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 02: 临泽七彩丹霞 (Zhangye Rainbow Danxia Strata)
+    // --------------------------------------------------------------------------
+    function drawShot02_Danxia(t, frame) {
+      // 晴朗天空
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.6);
+      skyGrad.addColorStop(0, "#0284c7");
+      skyGrad.addColorStop(1, "#bae6fd");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 七彩丹霞多层彩条褶皱山脉 (Strata layers)
+      const strataColors = [
+        "#991b1b", "#ea580c", "#facc15", "#15803d",
+        "#7c2d12", "#b91c1c", "#f59e0b", "#047857"
+      ];
+
+      const cameraPan = t * 120; // 缓移航拍镜头
+
+      // 远景丹霞山峰
+      drawDanxiaMountain(480, 140, 0.002, "#7f1d1d", "#ca8a04", cameraPan * 0.3);
+      // 中景主峰
+      drawDanxiaMountain(620, 220, 0.0035, "#991b1b", "#ea580c", cameraPan * 0.6);
+      // 近景波浪彩丘
+      for (let band = 0; band < strataColors.length; band++) {
+        const baseY = 720 + band * 38;
+        ctx.fillStyle = strataColors[band % strataColors.length];
+        ctx.beginPath();
+        ctx.moveTo(0, baseY);
+        for (let x = 0; x <= W; x += 25) {
+          const wave = Math.sin((x + cameraPan) * 0.004 + band * 0.6) * 35 +
+                       Math.cos((x + cameraPan) * 0.008) * 15;
+          ctx.lineTo(x, baseY + wave);
+        }
+        ctx.lineTo(W, H);
+        ctx.lineTo(0, H);
+        ctx.fill();
+      }
+
+      // 阳光斜照阴影与山脊光影
+      const lightGrad = ctx.createLinearGradient(0, 0, W, H);
+      lightGrad.addColorStop(0, "rgba(254, 240, 138, 0.25)");
+      lightGrad.addColorStop(0.6, "rgba(0, 0, 0, 0)");
+      lightGrad.addColorStop(1, "rgba(0, 0, 0, 0.3)");
+      ctx.fillStyle = lightGrad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    function drawDanxiaMountain(baseY, height, freq, col1, col2, pan) {
+      const grad = ctx.createLinearGradient(0, baseY - height, 0, baseY);
+      grad.addColorStop(0, col1);
+      grad.addColorStop(1, col2);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(0, baseY);
+      for (let x = 0; x <= W; x += 30) {
+        const y = baseY - Math.abs(Math.sin((x + pan) * freq)) * height;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, H);
+      ctx.lineTo(0, H);
+      ctx.fill();
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 03: 戈壁千里长风 (Hexi Corridor G30 Highway & Dust)
+    // --------------------------------------------------------------------------
+    function drawShot03_HexiGobi(t, frame) {
+      // 灼热大漠苍穹
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 580);
+      skyGrad.addColorStop(0, "#38bdf8");
+      skyGrad.addColorStop(0.7, "#fef08a");
+      skyGrad.addColorStop(1, "#fdba74");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 580);
+
+      // 烈日与眩光
+      ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+      ctx.beginPath();
+      ctx.arc(W * 0.78, 200, 48, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(254, 240, 138, 0.35)";
+      ctx.beginPath();
+      ctx.arc(W * 0.78, 200, 160, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 远方祁连山积雪连绵 (Snow-capped Qilian Mountains)
+      ctx.fillStyle = "#e2e8f0";
+      ctx.beginPath();
+      ctx.moveTo(0, 580);
+      for (let x = 0; x <= W; x += 40) {
+        const y = 520 - Math.abs(Math.sin(x * 0.005 + 0.5)) * 90 - Math.cos(x * 0.01) * 30;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, 580);
+      ctx.fill();
+
+      // 戈壁荒漠地平线 (Gobi Gravel Plain)
+      const gobiGrad = ctx.createLinearGradient(0, 580, 0, H);
+      gobiGrad.addColorStop(0, "#78350f");
+      gobiGrad.addColorStop(1, "#291508");
+      ctx.fillStyle = gobiGrad;
+      ctx.fillRect(0, 580, W, H - 580);
+
+      // 透视无限延伸的高速公路 (G30 Expressway Perspective)
+      const vpX = W * 0.5; // 灭点
+      const vpY = 575;
+      const roadBottomLeft = W * 0.15;
+      const roadBottomRight = W * 0.85;
+
+      ctx.fillStyle = "#1e293b";
+      ctx.beginPath();
+      ctx.moveTo(vpX - 8, vpY);
+      ctx.lineTo(vpX + 8, vpY);
+      ctx.lineTo(roadBottomRight, H);
+      ctx.lineTo(roadBottomLeft, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // 白色虚线高速车道标线 (高速向前推移运动)
+      ctx.strokeStyle = "#f8fafc";
+      ctx.lineWidth = 14;
+      const dashOffset = (frame * 18) % 120;
+      ctx.setLineDash([40, 50]);
+      ctx.lineDashOffset = -dashOffset;
+      ctx.beginPath();
+      ctx.moveTo(vpX, vpY + 2);
+      ctx.lineTo(W * 0.5, H);
+      ctx.stroke();
+      ctx.setLineDash([]); // 还原
+
+      // 电线杆与通讯信标沿道路两侧透视后退
+      for (let p = 0; p < 8; p++) {
+        const progressP = ((p * 0.125 + frame * 0.02) % 1.0);
+        if (progressP > 0.05) {
+          const px = vpX + (roadBottomRight - vpX + 80) * progressP;
+          const py = vpY + (H - vpY) * progressP;
+          const poleH = progressP * 240;
+          ctx.strokeStyle = "#451a03";
+          ctx.lineWidth = Math.max(1, progressP * 6);
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px, py - poleH);
+          // 横臂
+          ctx.moveTo(px - poleH * 0.2, py - poleH * 0.85);
+          ctx.lineTo(px + poleH * 0.2, py - poleH * 0.85);
+          ctx.stroke();
+        }
+      }
+
+      // 戈壁热浪与风沙漫卷粒子
+      ctx.fillStyle = "rgba(251, 191, 36, 0.4)";
+      for (let i = 0; i < 90; i++) {
+        const sx = ((i * 89 + frame * 12) % (W + 200)) - 100;
+        const sy = 590 + ((i * 37) % 480);
+        const sz = 2 + (i % 5);
+        ctx.fillRect(sx, sy, sz * 3, sz);
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 04: 额济纳金秋胡杨 (Golden Poplar Leaves Falling)
+    // --------------------------------------------------------------------------
+    function drawShot04_EjinaPoplars(t, frame) {
+      // 额济纳湛蓝天空
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+      skyGrad.addColorStop(0, "#0284c7");
+      skyGrad.addColorStop(0.5, "#38bdf8");
+      skyGrad.addColorStop(1, "#fef08a");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 沙漠地面
+      ctx.fillStyle = "#d97706";
+      ctx.beginPath();
+      ctx.ellipse(W / 2, H + 100, W * 0.7, 300, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 几株雄伟的金色胡杨巨树 (Golden Poplar Trunks & Foliage)
+      const trees = [
+        { x: W * 0.2, scale: 1.1, angle: -0.05 },
+        { x: W * 0.82, scale: 1.25, angle: 0.06 },
+        { x: W * 0.5, scale: 0.9, angle: 0.02 }
+      ];
+
+      trees.forEach((tr, idx) => {
+        ctx.save();
+        ctx.translate(tr.x, H - 40);
+        ctx.rotate(tr.angle);
+        ctx.scale(tr.scale, tr.scale);
+
+        // 苍劲树干
+        ctx.fillStyle = "#451a03";
+        ctx.beginPath();
+        ctx.moveTo(-40, 0);
+        ctx.bezierCurveTo(-30, -250, -90, -420, -50, -680);
+        ctx.bezierCurveTo(0, -750, 60, -700, 50, -650);
+        ctx.bezierCurveTo(90, -450, 40, -200, 45, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        // 繁茂金色胡杨树冠球簇
+        const clusters = [
+          { cx: -80, cy: -680, r: 160 },
+          { cx: 70, cy: -720, r: 180 },
+          { cx: 0, cy: -820, r: 210 },
+          { cx: -150, cy: -600, r: 130 },
+          { cx: 160, cy: -640, r: 140 }
+        ];
+
+        clusters.forEach((cl, cIdx) => {
+          const clGrad = ctx.createRadialGradient(cl.cx, cl.cy, 20, cl.cx, cl.cy, cl.r);
+          clGrad.addColorStop(0, "#fef08a");
+          clGrad.addColorStop(0.5, "#f59e0b");
+          clGrad.addColorStop(1, "#b45309");
+          ctx.fillStyle = clGrad;
+          ctx.beginPath();
+          ctx.arc(cl.cx, cl.cy, cl.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.restore();
+      });
+
+      // 飘落胡杨金叶粒子系统 (Golden Poplar Leaves Drift)
+      const numLeaves = 150;
+      for (let i = 0; i < numLeaves; i++) {
+        // 确定性位置计算
+        const seed = i * 133.7;
+        const speed = 2.5 + (i % 5) * 1.2;
+        const lx = ((i * 67 + frame * speed * 1.5 + Math.sin(frame * 0.05 + i) * 60) % (W + 200)) - 100;
+        const ly = ((i * 43 + frame * speed) % (H + 150)) - 50;
+        const leafAngle = frame * 0.06 + i;
+        const leafSize = 8 + (i % 7) * 2;
+
+        ctx.save();
+        ctx.translate(lx, ly);
+        ctx.rotate(leafAngle);
+        ctx.fillStyle = (i % 2 === 0) ? "#facc15" : "#f59e0b";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, leafSize, leafSize * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 金色光斑闪烁 (Bokeh Glints)
+      ctx.fillStyle = "rgba(254, 240, 138, 0.22)";
+      for (let b = 0; b < 25; b++) {
+        const bx = (b * 97 + frame * 0.4) % W;
+        const by = 150 + (b * 41) % 450;
+        const br = 20 + Math.sin(frame * 0.08 + b) * 12;
+        ctx.beginPath();
+        ctx.arc(bx, by, br, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 05: 额济纳怪树林与黑城遗址 (Weird Forest & Khara-Khoto Ruins)
+    // --------------------------------------------------------------------------
+    function drawShot05_WeirdForest(t, frame) {
+      // 苍凉血色残阳天空 (Crimson & Twilight Purple)
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+      skyGrad.addColorStop(0, "#3b0764");
+      skyGrad.addColorStop(0.4, "#831843");
+      skyGrad.addColorStop(0.7, "#991b1b");
+      skyGrad.addColorStop(1, "#f97316");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 残阳斜照巨大的血红夕阳
+      ctx.fillStyle = "rgba(239, 68, 68, 0.45)";
+      ctx.beginPath();
+      ctx.arc(W * 0.35, 620, 180, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 黑城佛塔夯土断壁剪影 (Khara-Khoto Stupas & City Walls)
+      ctx.fillStyle = "#180a06";
+      // 城墙轮廓
+      ctx.beginPath();
+      ctx.moveTo(W * 0.6, 680);
+      ctx.lineTo(W * 0.62, 590);
+      ctx.lineTo(W * 0.72, 600);
+      ctx.lineTo(W * 0.74, 520); // 佛塔尖
+      ctx.lineTo(W * 0.76, 520);
+      ctx.lineTo(W * 0.78, 605);
+      ctx.lineTo(W * 0.88, 610);
+      ctx.lineTo(W * 0.95, 680);
+      ctx.lineTo(W, 700);
+      ctx.lineTo(W, H);
+      ctx.lineTo(0, H);
+      ctx.lineTo(0, 720);
+      ctx.closePath();
+      ctx.fill();
+
+      // 怪树林枯死千年的扭曲古胡杨剪影 (Dead Poplar Skeletal Silhouettes)
+      const deadTrees = [
+        { x: W * 0.15, h: 420 },
+        { x: W * 0.3, h: 360 },
+        { x: W * 0.48, h: 480 },
+        { x: W * 0.62, h: 320 }
+      ];
+
+      deadTrees.forEach(dt => {
+        drawDeadTree(dt.x, 750, dt.h);
+      });
+
+      // 漫天飞砂与狂风粒子
+      ctx.fillStyle = "rgba(251, 146, 60, 0.35)";
+      for (let i = 0; i < 120; i++) {
+        const sx = ((i * 91 + frame * 18) % (W + 200)) - 100;
+        const sy = 450 + (i * 27) % 550;
+        ctx.fillRect(sx, sy, 8 + (i % 12), 2);
+      }
+    }
+
+    function drawDeadTree(x, y, h) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = "#120603";
+      ctx.beginPath();
+      ctx.moveTo(-18, 0);
+      ctx.quadraticCurveTo(-35, -h * 0.5, 0, -h);
+      ctx.quadraticCurveTo(25, -h * 0.6, 18, 0);
+      ctx.fill();
+
+      // 枯干分叉
+      ctx.strokeStyle = "#120603";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(0, -h * 0.7);
+      ctx.lineTo(-60, -h * 0.95);
+      ctx.lineTo(-90, -h * 1.05);
+
+      ctx.moveTo(5, -h * 0.6);
+      ctx.lineTo(70, -h * 0.85);
+      ctx.lineTo(95, -h * 0.75);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 06: 天下第一雄关 · 嘉峪关城楼 (Jiayuguan Fortress)
+    // --------------------------------------------------------------------------
+    function drawShot06_Jiayuguan(t, frame) {
+      // 雄关暮色金黄天空
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 600);
+      skyGrad.addColorStop(0, "#1e3a8a");
+      skyGrad.addColorStop(0.5, "#d97706");
+      skyGrad.addColorStop(1, "#f59e0b");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 600);
+
+      // 背景祁连雪山巍峨耸立
+      ctx.fillStyle = "#f8fafc";
+      ctx.beginPath();
+      ctx.moveTo(0, 580);
+      for (let x = 0; x <= W; x += 50) {
+        const y = 440 - Math.abs(Math.sin(x * 0.004 + 1.2)) * 140;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, 580);
+      ctx.fill();
+
+      // 嘉峪关三层飞檐木结构箭楼与夯土城台
+      const fortX = W * 0.5;
+      const fortBaseY = 720;
+
+      // 夯土高台城墙
+      ctx.fillStyle = "#78350f";
+      ctx.beginPath();
+      ctx.moveTo(fortX - 350, fortBaseY);
+      ctx.lineTo(fortX - 300, 560);
+      ctx.lineTo(fortX + 300, 560);
+      ctx.lineTo(fortX + 350, fortBaseY);
+      ctx.closePath();
+      ctx.fill();
+
+      // 城门洞
+      ctx.fillStyle = "#1e130a";
+      ctx.beginPath();
+      ctx.arc(fortX, fortBaseY, 70, Math.PI, 0);
+      ctx.fill();
+
+      // 城台三层楼阁建筑 (嘉峪关光化楼/柔远楼特色三层歇山顶)
+      drawTierRoof(fortX, 560, 480, 50, "#991b1b");
+      drawTierRoof(fortX, 510, 360, 45, "#b91c1c");
+      drawTierRoof(fortX, 465, 260, 40, "#7f1d1d");
+
+      // 关城战旗猎猎招展
+      const flagWave = Math.sin(frame * 0.15) * 8;
+      ctx.strokeStyle = "#451a03";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(fortX - 180, 560);
+      ctx.lineTo(fortX - 180, 490);
+      ctx.stroke();
+
+      ctx.fillStyle = "#dc2626";
+      ctx.beginPath();
+      ctx.moveTo(fortX - 180, 490);
+      ctx.lineTo(fortX - 120 + flagWave, 505);
+      ctx.lineTo(fortX - 180, 520);
+      ctx.closePath();
+      ctx.fill();
+
+      // 前景黄土古道
+      const groundGrad = ctx.createLinearGradient(0, fortBaseY, 0, H);
+      groundGrad.addColorStop(0, "#451a03");
+      groundGrad.addColorStop(1, "#1c0d02");
+      ctx.fillStyle = groundGrad;
+      ctx.fillRect(0, fortBaseY, W, H - fortBaseY);
+    }
+
+    function drawTierRoof(cx, y, w, h, col) {
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx - w / 2 - 25, y);
+      ctx.quadraticCurveTo(cx - w / 2, y - h, cx, y - h - 15);
+      ctx.quadraticCurveTo(cx + w / 2, y - h, cx + w / 2 + 25, y);
+      ctx.closePath();
+      ctx.fill();
+
+      // 阁楼红柱
+      ctx.fillStyle = "#450a0a";
+      ctx.fillRect(cx - w * 0.35, y - h, w * 0.7, h);
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 07: 瓜州大地之子雕塑 (Guazhou Son of the Earth)
+    // --------------------------------------------------------------------------
+    function drawShot07_GuazhouSon(t, frame) {
+      // 瓜州红砂岩荒原与辽阔天空
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 600);
+      skyGrad.addColorStop(0, "#0284c7");
+      skyGrad.addColorStop(0.6, "#fed7aa");
+      skyGrad.addColorStop(1, "#fb923c");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 600);
+
+      // 红色戈壁荒原地表
+      const desertGrad = ctx.createLinearGradient(0, 600, 0, H);
+      desertGrad.addColorStop(0, "#9a3412");
+      desertGrad.addColorStop(0.4, "#7c2d12");
+      desertGrad.addColorStop(1, "#431407");
+      ctx.fillStyle = desertGrad;
+      ctx.fillRect(0, 600, W, H - 600);
+
+      // 大地之子巨型红砂岩睡婴雕塑轮廓
+      ctx.save();
+      const cx = W * 0.5;
+      const cy = 720;
+
+      // 睡婴隆起的背部与头部曲线
+      ctx.fillStyle = "#c2410c";
+      ctx.beginPath();
+      // 头部
+      ctx.arc(cx - 240, cy + 20, 95, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 躯干与弯曲的背部
+      ctx.beginPath();
+      ctx.moveTo(cx - 200, cy - 30);
+      ctx.bezierCurveTo(cx - 100, cy - 140, cx + 180, cy - 120, cx + 280, cy + 40);
+      ctx.bezierCurveTo(cx + 260, cy + 120, cx - 120, cy + 130, cx - 200, cy + 60);
+      ctx.closePath();
+      ctx.fill();
+
+      // 红砂岩雕塑阴影雕刻感
+      ctx.strokeStyle = "rgba(67, 20, 7, 0.45)";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(cx - 220, cy + 20, 70, 0.5, 2.5);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 08: 敦煌莫高窟九层楼与飞天 (Mogao Caves & Feitian Silk)
+    // --------------------------------------------------------------------------
+    function drawShot08_MogaoCaves(t, frame) {
+      // 莫高窟圣境微暮背景
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      bgGrad.addColorStop(0, "#1e1b4b");
+      bgGrad.addColorStop(0.5, "#431407");
+      bgGrad.addColorStop(1, "#180903");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 三危山与鸣沙山东麓崖壁 (Cliff Face with Grotto Openings)
+      ctx.fillStyle = "#78350f";
+      ctx.fillRect(0, 280, W * 0.45, H - 280);
+
+      // 崖壁蜂窝状石窟群洞口
+      ctx.fillStyle = "#1e0b04";
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 6; c++) {
+          const gx = 60 + c * 90;
+          const gy = 360 + r * 110;
+          ctx.beginPath();
+          ctx.arc(gx, gy, 28, Math.PI, 0);
+          ctx.rect(gx - 28, gy, 56, 40);
+          ctx.fill();
+        }
+      }
+
+      // 莫高窟标志性红木九层楼建筑 (Cave 96 Nine-Storey Pagoda)
+      const pagodaX = W * 0.58;
+      const numStoreys = 9;
+      for (let s = 0; s < numStoreys; s++) {
+        const py = 880 - s * 65;
+        const pw = 420 - s * 28;
+        // 红色挑檐
+        ctx.fillStyle = (s % 2 === 0) ? "#b91c1c" : "#991b1b";
+        ctx.beginPath();
+        ctx.moveTo(pagodaX - pw / 2 - 20, py);
+        ctx.lineTo(pagodaX + pw / 2 + 20, py);
+        ctx.lineTo(pagodaX + pw / 2, py - 20);
+        ctx.lineTo(pagodaX - pw / 2, py - 20);
+        ctx.closePath();
+        ctx.fill();
+
+        // 楼层红柱与门窗
+        ctx.fillStyle = "#450a0a";
+        ctx.fillRect(pagodaX - pw * 0.4, py - 45, pw * 0.8, 25);
+      }
+
+      // 飞天流金飘带粒子 (Celestial Apsaras Silk Trails)
+      ctx.save();
+      for (let ribbon = 0; ribbon < 3; ribbon++) {
+        ctx.strokeStyle = (ribbon === 0) ? "rgba(251, 191, 36, 0.75)" : "rgba(244, 114, 182, 0.65)";
+        ctx.lineWidth = 6 - ribbon * 1.5;
+        ctx.beginPath();
+        for (let x = 0; x <= W; x += 25) {
+          const wave = Math.sin(x * 0.005 + frame * 0.08 + ribbon * 1.5) * 80 +
+                       Math.cos(x * 0.01 + frame * 0.04) * 40;
+          const y = 300 + ribbon * 70 + wave;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // 佛光金色微尘粒子
+      ctx.fillStyle = "rgba(254, 240, 138, 0.6)";
+      for (let g = 0; g < 80; g++) {
+        const px = (g * 73 + frame * 1.2) % W;
+        const py = (g * 47 + Math.sin(frame * 0.04 + g) * 60) % H;
+        ctx.beginPath();
+        ctx.arc(px, py, 2.5 + (g % 3), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 09: 鸣沙山与月牙泉 (Mingsha Dunes & Crescent Spring)
+    // --------------------------------------------------------------------------
+    function drawShot09_MingshaDunes(t, frame) {
+      // 敦煌落日余晖
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 550);
+      skyGrad.addColorStop(0, "#0369a1");
+      skyGrad.addColorStop(0.5, "#d97706");
+      skyGrad.addColorStop(1, "#fef08a");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 550);
+
+      // 鸣沙山金色刀刃沙脊 (Sharp Barchan Sand Ridge)
+      // 阳面（金黄）与阴面（深紫褐）
+      ctx.fillStyle = "#f59e0b";
+      ctx.beginPath();
+      ctx.moveTo(0, 520);
+      ctx.bezierCurveTo(W * 0.35, 340, W * 0.65, 620, W, 420);
+      ctx.lineTo(W, H);
+      ctx.lineTo(0, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // 阴影阴坡
+      ctx.fillStyle = "#78350f";
+      ctx.beginPath();
+      ctx.moveTo(0, 520);
+      ctx.bezierCurveTo(W * 0.35, 340, W * 0.65, 620, W, 420);
+      ctx.lineTo(W, 680);
+      ctx.bezierCurveTo(W * 0.6, 750, W * 0.2, 600, 0, 680);
+      ctx.closePath();
+      ctx.fill();
+
+      // 沙窝深处的月牙泉 (Crescent Spring Oasis)
+      const springX = W * 0.42;
+      const springY = 780;
+      ctx.fillStyle = "#059669";
+      ctx.beginPath();
+      ctx.arc(springX, springY, 130, 0.4, 2.7);
+      ctx.quadraticCurveTo(springX - 20, springY + 30, springX + 110, springY + 60);
+      ctx.closePath();
+      ctx.fill();
+
+      // 月牙泉水波微漾
+      ctx.fillStyle = "#34d399";
+      ctx.beginPath();
+      ctx.arc(springX - 10, springY + 15, 75, 0.5, 2.5);
+      ctx.fill();
+
+      // 沙脊上缓缓行进的骆驼队剪影 (Camel Caravan Silhouette)
+      const caravanBaseX = (W * 0.3 + frame * 0.5) % W;
+      for (let c = 0; c < 5; c++) {
+        const cx = caravanBaseX - c * 55;
+        const cy = 410 + Math.sin(cx * 0.003) * 30;
+        drawCamel(cx, cy, 0.85);
+      }
+    }
+
+    function drawCamel(x, y, s) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(s, s);
+      ctx.fillStyle = "#1c0d02";
+      // 躯干与双峰
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 22, 14, 0, 0, Math.PI * 2);
+      ctx.arc(-8, -12, 7, 0, Math.PI * 2); // 前驼峰
+      ctx.arc(8, -12, 7, 0, Math.PI * 2);  // 后驼峰
+      // 长颈与头部
+      ctx.moveTo(-16, -5);
+      ctx.quadraticCurveTo(-26, -26, -24, -34);
+      ctx.arc(-26, -34, 6, 0, Math.PI * 2);
+      // 四肢
+      ctx.rect(-14, 8, 4, 24);
+      ctx.rect(-6, 8, 4, 24);
+      ctx.rect(6, 8, 4, 24);
+      ctx.rect(14, 8, 4, 24);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 10: 当金山大坂 3648m (Dangjin Pass High Ascent & Snow)
+    // --------------------------------------------------------------------------
+    function drawShot10_Dangjinshan(t, frame) {
+      // 高原阴霾冷冽苍穹
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 600);
+      skyGrad.addColorStop(0, "#0f172a");
+      skyGrad.addColorStop(0.5, "#334155");
+      skyGrad.addColorStop(1, "#64748b");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 600);
+
+      // 阿尔金山险峻黑岩与皑皑积雪
+      ctx.fillStyle = "#1e293b";
+      ctx.beginPath();
+      ctx.moveTo(0, 580);
+      for (let x = 0; x <= W; x += 45) {
+        const y = 320 + Math.sin(x * 0.006) * 160 + Math.cos(x * 0.015) * 60;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, H);
+      ctx.lineTo(0, H);
+      ctx.fill();
+
+      // 冰雪山坡斑块
+      ctx.fillStyle = "rgba(241, 245, 249, 0.75)";
+      for (let i = 0; i < 15; i++) {
+        const sx = (i * 131) % W;
+        const sy = 380 + (i * 29) % 220;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy, 60 + (i % 5) * 15, 25, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 当金山口连续盘山发卡公路 S 弯 (G3011 Switchbacks)
+      ctx.strokeStyle = "#475569";
+      ctx.lineWidth = 26;
+      ctx.beginPath();
+      ctx.moveTo(W * 0.1, H);
+      ctx.bezierCurveTo(W * 0.8, 850, W * 0.1, 720, W * 0.6, 620);
+      ctx.bezierCurveTo(W * 0.9, 560, W * 0.4, 520, W * 0.5, 480);
+      ctx.stroke();
+
+      // 护栏反光条
+      ctx.strokeStyle = "#facc15";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([15, 20]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 高原暴风雪粒子横扫
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      for (let s = 0; s < 180; s++) {
+        const px = ((s * 79 - frame * 22) % (W + 200) + (W + 200)) % (W + 200) - 100;
+        const py = (s * 33 + frame * 9) % H;
+        ctx.fillRect(px, py, 6 + (s % 6), 2);
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 11: 大柴旦翡翠湖 (Dachaidan Emerald Lake Crystalline Pools)
+    // --------------------------------------------------------------------------
+    function drawShot11_EmeraldLake(t, frame) {
+      // 柴达木高原澄澈天空
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 520);
+      skyGrad.addColorStop(0, "#0284c7");
+      skyGrad.addColorStop(0.7, "#7dd3fc");
+      skyGrad.addColorStop(1, "#e0f2fe");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 520);
+
+      // 远景柴达木黄色矿山
+      ctx.fillStyle = "#ca8a04";
+      ctx.beginPath();
+      ctx.moveTo(0, 520);
+      for (let x = 0; x <= W; x += 50) {
+        const y = 460 - Math.sin(x * 0.005) * 45;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, 520);
+      ctx.fill();
+
+      // 纯白雪白盐晶路基 (White Salt Crust Ground)
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillRect(0, 520, W, H - 520);
+
+      // 多个如翡翠琉璃般剔透的盐湖水塘拼图
+      const pools = [
+        { x: W * 0.25, y: 640, rx: 240, ry: 90, color: "#10b981" }, // 祖母绿
+        { x: W * 0.72, y: 680, rx: 280, ry: 110, color: "#06b6d4" }, // 蒂芙尼蓝
+        { x: W * 0.45, y: 840, rx: 360, ry: 130, color: "#059669" }, // 薄荷翡翠绿
+        { x: W * 0.12, y: 920, rx: 220, ry: 80, color: "#34d399" }
+      ];
+
+      pools.forEach(p => {
+        // 翡翠湖水面
+        const lakeGrad = ctx.createRadialGradient(p.x, p.y, 20, p.x, p.y, p.rx);
+        lakeGrad.addColorStop(0, p.color);
+        lakeGrad.addColorStop(0.8, p.color);
+        lakeGrad.addColorStop(1, "rgba(255, 255, 255, 0.9)"); // 白色盐花边缘
+        ctx.fillStyle = lakeGrad;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, p.rx, p.ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 水面波光晶莹倒影
+        ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y - 10, p.rx * 0.7, p.ry * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 12: 茶卡盐湖天空之镜 (Chaka Salt Lake Sky Mirror)
+    // --------------------------------------------------------------------------
+    function drawShot12_ChakaSaltLake(t, frame) {
+      // 水天无界的天空之镜 (Seamless Sky & Mirror Water)
+      const horizonY = 540;
+
+      // 天空
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+      skyGrad.addColorStop(0, "#38bdf8");
+      skyGrad.addColorStop(0.6, "#bae6fd");
+      skyGrad.addColorStop(1, "#f0f9ff");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, horizonY);
+
+      // 云朵
+      drawFluffyCloud(W * 0.25, 220, 140);
+      drawFluffyCloud(W * 0.75, 180, 180);
+
+      // 镜面倒影水面 (1:1 纯净对称镜面)
+      const lakeGrad = ctx.createLinearGradient(0, horizonY, 0, H);
+      lakeGrad.addColorStop(0, "#f0f9ff");
+      lakeGrad.addColorStop(0.4, "#bae6fd");
+      lakeGrad.addColorStop(1, "#38bdf8");
+      ctx.fillStyle = lakeGrad;
+      ctx.fillRect(0, horizonY, W, H - horizonY);
+
+      // 远景微青色雪山与盐丘
+      ctx.fillStyle = "rgba(148, 163, 184, 0.4)";
+      ctx.beginPath();
+      ctx.moveTo(0, horizonY);
+      for (let x = 0; x <= W; x += 40) {
+        ctx.lineTo(x, horizonY - Math.abs(Math.sin(x * 0.005)) * 40);
+      }
+      ctx.lineTo(W, horizonY);
+      ctx.fill();
+
+      // 水面山体倒影
+      ctx.fillStyle = "rgba(148, 163, 184, 0.22)";
+      ctx.beginPath();
+      ctx.moveTo(0, horizonY);
+      for (let x = 0; x <= W; x += 40) {
+        ctx.lineTo(x, horizonY + Math.abs(Math.sin(x * 0.005)) * 34);
+      }
+      ctx.lineTo(W, horizonY);
+      ctx.fill();
+
+      // 云朵倒影
+      ctx.save();
+      ctx.scale(1, -1);
+      ctx.translate(0, -horizonY * 2);
+      ctx.globalAlpha = 0.75;
+      drawFluffyCloud(W * 0.25, 220, 140);
+      drawFluffyCloud(W * 0.75, 180, 180);
+      ctx.restore();
+
+      // 伸向水天尽头的复古采盐小火车铁轨 (Vintage Salt Tracks)
+      const trackVpX = W * 0.5;
+      ctx.strokeStyle = "#475569";
+      ctx.lineWidth = 4;
+      // 左右钢轨
+      ctx.beginPath();
+      ctx.moveTo(trackVpX - 4, horizonY);
+      ctx.lineTo(W * 0.35, H);
+      ctx.moveTo(trackVpX + 4, horizonY);
+      ctx.lineTo(W * 0.65, H);
+      ctx.stroke();
+
+      // 枕木
+      ctx.strokeStyle = "#334155";
+      for (let s = 1; s <= 20; s++) {
+        const pr = s / 20;
+        const py = horizonY + (H - horizonY) * (pr * pr);
+        const halfW = (W * 0.15) * pr;
+        ctx.lineWidth = 2 + pr * 6;
+        ctx.beginPath();
+        ctx.moveTo(trackVpX - halfW, py);
+        ctx.lineTo(trackVpX + halfW, py);
+        ctx.stroke();
+      }
+
+      // 红裙女子站在盐湖中央倒影剪影
+      const girlX = W * 0.70;
+      const girlY = horizonY + 80;
+
+      // 脚下涟漪 (Concentric Ripples)
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+      ctx.lineWidth = 1.5;
+      for (let r = 1; r <= 3; r++) {
+        const rippleR = (r * 18 + frame * 0.4) % 50;
+        ctx.beginPath();
+        ctx.ellipse(girlX, girlY, rippleR * 2.2, rippleR * 0.6, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // 本体
+      drawRedDressTraveler(girlX, girlY, 1.4, frame);
+      // 镜面倒影
+      ctx.save();
+      ctx.translate(girlX, girlY);
+      ctx.scale(1, -0.85);
+      ctx.globalAlpha = 0.45;
+      drawRedDressTraveler(0, 0, 1.4, frame);
+      ctx.restore();
+    }
+
+    function drawFluffyCloud(x, y, r) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
+      ctx.beginPath();
+      ctx.arc(x, y, r * 0.5, 0, Math.PI * 2);
+      ctx.arc(x - r * 0.4, y + 10, r * 0.4, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.4, y + 10, r * 0.4, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.2, y - 20, r * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawRedDressTraveler(x, y, s, frame = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(s, s);
+
+      // 飘逸红纱丝巾 (Flowing Silk Scarf)
+      const scarfWave = Math.sin((frame || 0) * 0.12) * 8;
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -60);
+      ctx.quadraticCurveTo(25, -68 + scarfWave, 55, -60 + scarfWave * 1.5);
+      ctx.stroke();
+
+      // 红裙
+      ctx.fillStyle = "#dc2626";
+      ctx.beginPath();
+      ctx.moveTo(0, -50);
+      ctx.quadraticCurveTo(-15, -20, -22, 0);
+      ctx.lineTo(22, 0);
+      ctx.quadraticCurveTo(15, -20, 0, -50);
+      ctx.closePath();
+      ctx.fill();
+
+      // 上身与头部
+      ctx.fillStyle = "#1e1b4b";
+      ctx.beginPath();
+      ctx.arc(0, -68, 7, 0, Math.PI * 2);
+      ctx.rect(-3.5, -60, 7, 12);
+      ctx.fill();
+
+      // 草帽
+      ctx.fillStyle = "#fef08a";
+      ctx.beginPath();
+      ctx.ellipse(0, -72, 16, 4.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 13: 青海湖与金黄油菜花 (Qinghai Lake Sapphire Waters & Canola)
+    // --------------------------------------------------------------------------
+    function drawShot13_QinghaiLake(t, frame) {
+      // 高原晴空
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 480);
+      skyGrad.addColorStop(0, "#1d4ed8");
+      skyGrad.addColorStop(1, "#60a5fa");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 480);
+
+      // 青海湖万顷深蓝圣水 (Deep Sapphire Lake Surface)
+      const lakeGrad = ctx.createLinearGradient(0, 480, 0, 780);
+      lakeGrad.addColorStop(0, "#1e40af");
+      lakeGrad.addColorStop(0.5, "#1d4ed8");
+      lakeGrad.addColorStop(1, "#0284c7");
+      ctx.fillStyle = lakeGrad;
+      ctx.fillRect(0, 480, W, 300);
+
+      // 湖面起伏波浪
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.lineWidth = 2;
+      for (let row = 0; row < 8; row++) {
+        const yBase = 500 + row * 34;
+        ctx.beginPath();
+        for (let x = 0; x <= W; x += 40) {
+          const wave = Math.sin(x * 0.015 + frame * 0.07 + row) * 4;
+          if (x === 0) ctx.moveTo(x, yBase + wave);
+          else ctx.lineTo(x, yBase + wave);
+        }
+        ctx.stroke();
+      }
+
+      // 前景满铺盛开的金黄油菜花田 (Golden Rapeseed Canola Fields)
+      ctx.fillStyle = "#facc15";
+      ctx.fillRect(0, 780, W, H - 780);
+
+      // 油菜花簇微动
+      for (let i = 0; i < 180; i++) {
+        const fx = (i * 47) % W;
+        const fy = 780 + (i * 29) % (H - 780);
+        const sway = Math.sin(frame * 0.08 + i) * 6;
+        ctx.fillStyle = (i % 3 === 0) ? "#fef08a" : "#eab308";
+        ctx.beginPath();
+        ctx.arc(fx + sway, fy, 6 + (i % 5), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 飘扬的五彩经幡 (Tibetan Prayer Flags)
+      const flagColors = ["#2563eb", "#ffffff", "#dc2626", "#16a34a", "#eab308"];
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#475569";
+      ctx.beginPath();
+      ctx.moveTo(0, 520);
+      ctx.quadraticCurveTo(W * 0.5, 620, W, 500);
+      ctx.stroke();
+
+      for (let f = 0; f < 35; f++) {
+        const pr = f / 35;
+        const fx = pr * W;
+        const fy = 520 + Math.sin(pr * Math.PI) * 100;
+        const flap = Math.sin(frame * 0.18 + f) * 12;
+        ctx.fillStyle = flagColors[f % flagColors.length];
+        ctx.beginPath();
+        ctx.moveTo(fx, fy);
+        ctx.lineTo(fx + 22, fy + 35 + flap);
+        ctx.lineTo(fx, fy + 30);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 14: 塔尔寺宗喀巴圣迹 (Kumbum Monastery Golden Roofs)
+    // --------------------------------------------------------------------------
+    function drawShot14_Kumbum(t, frame) {
+      // 祥和午后斜阳
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 560);
+      skyGrad.addColorStop(0, "#0369a1");
+      skyGrad.addColorStop(1, "#fed7aa");
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, 560);
+
+      // 塔尔寺藏式白塔群 (Eight Tathagata Stupas)
+      ctx.fillStyle = "#7f1d1d"; // 绛红院墙
+      ctx.fillRect(0, 680, W, H - 680);
+
+      // 大金瓦殿殿顶金碧辉煌 (Golden Roof of the Grand Gilded Pavilion)
+      const roofX = W * 0.5;
+      const roofY = 560;
+
+      // 鎏金宝顶反光
+      const goldGrad = ctx.createLinearGradient(roofX - 300, 0, roofX + 300, 0);
+      goldGrad.addColorStop(0, "#d97706");
+      goldGrad.addColorStop(0.5, "#fef08a");
+      goldGrad.addColorStop(1, "#b45309");
+
+      ctx.fillStyle = goldGrad;
+      ctx.beginPath();
+      ctx.moveTo(roofX - 320, roofY);
+      ctx.quadraticCurveTo(roofX - 250, roofY - 120, roofX, roofY - 160);
+      ctx.quadraticCurveTo(roofX + 250, roofY - 120, roofX + 320, roofY);
+      ctx.closePath();
+      ctx.fill();
+
+      // 宝顶金幢
+      ctx.fillStyle = "#facc15";
+      ctx.fillRect(roofX - 12, roofY - 210, 24, 50);
+      ctx.beginPath();
+      ctx.arc(roofX, roofY - 215, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 洁白佛塔排开
+      for (let st = 0; st < 6; st++) {
+        const sx = W * 0.15 + st * 140;
+        const sy = 680;
+        drawStupa(sx, sy, 0.7);
+      }
+
+      // 桑烟缕缕升腾 (Incense Smoke Particles)
+      ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
+      for (let m = 0; m < 45; m++) {
+        const mx = W * 0.82 + Math.sin(frame * 0.05 + m) * 35;
+        const my = 650 - ((m * 19 + frame * 3) % 400);
+        ctx.beginPath();
+        ctx.arc(mx, my, 12 + (m % 8) * 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawStupa(x, y, s) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(s, s);
+      // 白色基座与塔身
+      ctx.fillStyle = "#f8fafc";
+      ctx.beginPath();
+      ctx.moveTo(-45, 0);
+      ctx.lineTo(-30, -50);
+      ctx.arc(0, -75, 35, 0, Math.PI * 2);
+      ctx.lineTo(30, -50);
+      ctx.lineTo(45, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // 金色塔刹十三天
+      ctx.fillStyle = "#f59e0b";
+      for (let t = 0; t < 6; t++) {
+        ctx.fillRect(-18 + t * 2, -110 - t * 8, 36 - t * 4, 6);
+      }
+      ctx.restore();
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 15: 全景轨迹回顾与凯旋 (Grand Loop Overview & GPS Trail)
+    // --------------------------------------------------------------------------
+    function drawShot15_GrandLoopOverview(t, frame) {
+      // 科技感深空大地蓝图
+      const mapGrad = ctx.createRadialGradient(W / 2, H / 2, 50, W / 2, H / 2, W * 0.7);
+      mapGrad.addColorStop(0, "#172554");
+      mapGrad.addColorStop(0.6, "#0f172a");
+      mapGrad.addColorStop(1, "#020617");
+      ctx.fillStyle = mapGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 地图经纬网格线 (Grid lines)
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.12)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= W; x += 120) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= H; y += 100) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+
+      // 3400公里自驾大环线拓扑关键节点
+      const loopWaypoints = [
+        { name: "兰州", x: 1250, y: 720 },
+        { name: "张掖", x: 1020, y: 560 },
+        { name: "额济纳", x: 980, y: 320 },
+        { name: "嘉峪关", x: 800, y: 520 },
+        { name: "瓜州", x: 680, y: 510 },
+        { name: "敦煌", x: 580, y: 530 },
+        { name: "当金山 3648m", x: 550, y: 640 },
+        { name: "大柴旦", x: 660, y: 720 },
+        { name: "茶卡盐湖", x: 890, y: 760 },
+        { name: "青海湖", x: 1040, y: 740 },
+        { name: "西宁", x: 1180, y: 700 },
+        { name: "兰州", x: 1250, y: 720 }
+      ];
+
+      // 动态绘制生长路线 (Growing GPS Track)
+      const progressIndex = t * (loopWaypoints.length - 1);
+      const curSegment = Math.floor(progressIndex);
+      const segT = progressIndex - curSegment;
+
+      ctx.save();
+      // 霓虹发光轨迹
+      ctx.strokeStyle = "#fbbf24";
+      ctx.lineWidth = 6;
+      ctx.shadowColor = "#f59e0b";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.moveTo(loopWaypoints[0].x, loopWaypoints[0].y);
+
+      for (let i = 1; i <= curSegment; i++) {
+        ctx.lineTo(loopWaypoints[i].x, loopWaypoints[i].y);
+      }
+      if (curSegment < loopWaypoints.length - 1) {
+        const curPt = loopWaypoints[curSegment];
+        const nextPt = loopWaypoints[curSegment + 1];
+        const nx = curPt.x + (nextPt.x - curPt.x) * segT;
+        const ny = curPt.y + (nextPt.y - curPt.y) * segT;
+        ctx.lineTo(nx, ny);
+      }
+      ctx.stroke();
+
+      // 各地标光标节点
+      loopWaypoints.forEach((wp, idx) => {
+        if (idx <= curSegment) {
+          ctx.fillStyle = "#fef08a";
+          ctx.beginPath();
+          ctx.arc(wp.x, wp.y, 7, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "#fff";
+          ctx.font = `bold 18px ${FONT_DISPLAY}`;
+          ctx.textAlign = "center";
+          ctx.shadowBlur = 10;
+          ctx.fillText(wp.name, wp.x, wp.y - 14);
+        }
+      });
+      ctx.restore();
+
+      // 居中大环线凯旋统计数据面板
+      ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(W * 0.22, 140, W * 0.56, 130, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#fef08a";
+      ctx.font = `bold 38px ${FONT_SERIF}`;
+      ctx.textAlign = "center";
+      ctx.fillText("丝路与额济纳自驾大环线 · 凯旋总览", W / 2, 195);
+
+      ctx.font = `20px ${FONT_DISPLAY}`;
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText("总行程: 3,400 KM   最高海拔: 3,648 M (当金山)   核心镜头: 16 幕全记录", W / 2, 235);
+    }
+
+    // --------------------------------------------------------------------------
+    // SHOT 16: 终章余韵与演职员表 (Epilogue & Memorial Roll)
+    // --------------------------------------------------------------------------
+    function drawShot16_Epilogue(t, frame) {
+      // 浩瀚星空与暗夜宇宙
+      ctx.fillStyle = "#050403";
+      ctx.fillRect(0, 0, W, H);
+
+      // 闪烁繁星 (Twinkling Stars)
+      for (let s = 0; s < 120; s++) {
+        const sx = (s * 97) % W;
+        const sy = (s * 53) % H;
+        const blink = (Math.sin(frame * 0.1 + s) + 1) * 0.5;
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.2 + blink * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 1.2 + (s % 3) * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 中央传统朱砂印章徽标 (Dunhuang Silk Road Memorial Seal)
+      ctx.save();
+      const sealX = W / 2;
+      const sealY = 380;
+      ctx.strokeStyle = "rgba(220, 38, 38, 0.9)";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.roundRect(sealX - 70, sealY - 70, 140, 140, 16);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(239, 68, 68, 0.85)";
+      ctx.font = `bold 42px ${FONT_SERIF}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("西行", sealX, sealY - 22);
+      ctx.fillText("壮歌", sealX, sealY + 28);
+      ctx.restore();
+
+      // 电影级演职员滚动表 (Cinematic Production Credits)
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fef08a";
+      ctx.font = `bold 34px ${FONT_SERIF}`;
+      ctx.fillText("西行壮歌 · 丝路与额济纳自驾大环线", W / 2, 530);
+
+      ctx.font = `18px ${FONT_DISPLAY}`;
+      ctx.fillStyle = "#cbd5e1";
+      const credits = [
+        "路线规划 & 人文知识库: 西行计划团队",
+        "程序化渲染引擎: HTML5 Canvas 2D / 1080P 30FPS Deterministic Engine",
+        "合成配乐 & 音效工程: Python DSP Synthesizer (48kHz Stereo)",
+        "致敬每一位勇敢奔赴山海的自驾行者"
+      ];
+      credits.forEach((cr, idx) => {
+        ctx.fillText(cr, W / 2, 600 + idx * 36);
+      });
+      ctx.restore();
+    }
+
+    /**
+     * ==========================================================================
+     * 3. 电影级暗角与大气光晕 (Vignette & Atmospheric Grading)
+     * ==========================================================================
+     */
+    function renderAtmosphere(shot, t) {
+      // 电影级 2.39:1 / 16:9 暗角 (Vignette)
+      const vigGrad = ctx.createRadialGradient(W / 2, H / 2, W * 0.35, W / 2, H / 2, W * 0.72);
+      vigGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
+      vigGrad.addColorStop(0.8, "rgba(0, 0, 0, 0.35)");
+      vigGrad.addColorStop(1, "rgba(0, 0, 0, 0.78)");
+      ctx.fillStyle = vigGrad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    /**
+     * ==========================================================================
+     * 4. 自驾 HUD 仪表盘与 GPS 生长指示器 (HUD Telemetry)
+     * ==========================================================================
+     */
+    function renderHUD(shot, shotProgress, totalProgress, frame) {
+      // 镜头 16（演职员表）不显示行车 HUD，保留纯粹电影感
+      if (shot.id === 16) return;
+
+      ctx.save();
+      // 右上角：自驾动态遥测仪表盘 (HUD Telemetry Card)
+      const hudW = 320;
+      const hudH = 135;
+      const hudX = W - hudW - 48;
+      const hudY = 48;
+
+      // 液态玻璃底板
+      ctx.fillStyle = "rgba(18, 12, 8, 0.62)";
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.32)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(hudX, hudY, hudW, hudH, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      // 地理位置
+      ctx.fillStyle = "#fef08a";
+      ctx.font = `bold 16px ${FONT_DISPLAY}`;
+      ctx.textAlign = "left";
+      ctx.fillText(`📍 ${shot.loc}`, hudX + 18, hudY + 32);
+
+      // 海拔数据（带数值动画插值）
+      const curEle = Math.round(shot.ele);
+      ctx.font = `14px ${FONT_DISPLAY}`;
+      ctx.fillStyle = (curEle >= 3500) ? "#ef4444" : "#38bdf8";
+      ctx.fillText(`海拔 ALT: ${curEle} m ${(curEle >= 3500) ? "⚠ 极高海拔" : ""}`, hudX + 18, hudY + 62);
+
+      // 海拔指示条
+      const elePct = Math.min(1.0, curEle / 4000);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.beginPath();
+      ctx.roundRect(hudX + 18, hudY + 72, hudW - 36, 6, 3);
+      ctx.fill();
+
+      ctx.fillStyle = (curEle >= 3500) ? "#ef4444" : "#38bdf8";
+      ctx.beginPath();
+      ctx.roundRect(hudX + 18, hudY + 72, (hudW - 36) * elePct, 6, 3);
+      ctx.fill();
+
+      // 累计里程与当前车速
+      const curMileage = Math.round(shot.mileage + shotProgress * 30);
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = `13px ${FONT_MONO}`;
+      ctx.fillText(`里程: ${curMileage} km   车速: ${shot.speed} km/h`, hudX + 18, hudY + 104);
+      ctx.fillText(`坐标: ${shot.coords}`, hudX + 18, hudY + 122);
+
+      // 左下角：全览微型迷你雷达轨迹图 (Mini GPS Map Radar)
+      const radarR = 55;
+      const radarX = 48 + radarR;
+      const radarY = H - 180;
+
+      ctx.fillStyle = "rgba(15, 10, 6, 0.65)";
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.35)";
+      ctx.beginPath();
+      ctx.arc(radarX, radarY, radarR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // 雷达扫描线
+      const scanAngle = frame * 0.05;
+      ctx.strokeStyle = "rgba(251, 191, 36, 0.4)";
+      ctx.beginPath();
+      ctx.moveTo(radarX, radarY);
+      ctx.lineTo(radarX + Math.cos(scanAngle) * radarR, radarY + Math.sin(scanAngle) * radarR);
+      ctx.stroke();
+
+      // 行程整体完成度刻度圈
+      ctx.strokeStyle = "#10b981";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(radarX, radarY, radarR - 3, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * totalProgress);
+      ctx.stroke();
+
+      ctx.fillStyle = "#fff";
+      ctx.font = `bold 13px ${FONT_DISPLAY}`;
+      ctx.textAlign = "center";
+      ctx.fillText(`${Math.round(totalProgress * 100)}%`, radarX, radarY + 5);
+
+      ctx.restore();
+    }
+
+    /**
+     * ==========================================================================
+     * 5. 电影级中英双语字幕渲染 (Cinematic Bilingual Subtitles)
+     * ==========================================================================
+     */
+    function renderSubtitles(shot, t) {
+      if (!shot.zhSub) return;
+
+      // 淡入淡出计算 (前 15% 淡入，后 15% 淡出)
+      let alpha = 1.0;
+      if (t < 0.15) {
+        alpha = t / 0.15;
+      } else if (t > 0.85) {
+        alpha = (1.0 - t) / 0.15;
+      }
+      alpha = Math.max(0, Math.min(1, alpha));
+
+      ctx.save();
+      ctx.textAlign = "center";
+
+      // 中文字幕 (优雅宋体 / 华文宋体，辅以柔和阴影)
+      ctx.font = `bold 38px ${FONT_SERIF}`;
+      ctx.fillStyle = `rgba(255, 253, 245, ${alpha})`;
+      ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 4;
+      ctx.fillText(shot.zhSub, W / 2, H - 110);
+
+      // 英文字幕 (SF Pro Display / 精致小写英文字距)
+      ctx.font = `italic 20px ${FONT_DISPLAY}`;
+      ctx.fillStyle = `rgba(254, 240, 138, ${alpha * 0.95})`;
+      ctx.shadowBlur = 12;
+      ctx.fillText(shot.enSub, W / 2, H - 70);
+
+      ctx.restore();
+    }
+
+    /**
+     * ==========================================================================
+     * 6. 镜头淡入淡出转场特效 (Transitions)
+     * ==========================================================================
+     */
+    function renderTransitions(shot, shotFrame) {
+      const transFrames = 12;
+      // 镜头起始淡入
+      if (shotFrame < transFrames && shot.id !== 1) {
+        const transAlpha = (transFrames - shotFrame) / transFrames;
+        ctx.fillStyle = `rgba(0, 0, 0, ${transAlpha})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+      // 镜头末尾淡出
+      const leftFrames = shot.duration - shotFrame;
+      if (leftFrames < transFrames) {
+        const transAlpha = (transFrames - leftFrames) / transFrames;
+        ctx.fillStyle = `rgba(0, 0, 0, ${transAlpha})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    /**
+     * ==========================================================================
+     * 7. 播放控制与用户交互绑定 (Player Controls & UI)
+     * ==========================================================================
+     */
+    const playBtn = document.getElementById("playBtn");
+    const prevFrameBtn = document.getElementById("prevFrameBtn");
+    const nextFrameBtn = document.getElementById("nextFrameBtn");
+    const speedBtn = document.getElementById("speedBtn");
+    const shotSelect = document.getElementById("shotSelect");
+    const scrubberTrack = document.getElementById("scrubberTrack");
+    const scrubberFill = document.getElementById("scrubberFill");
+    const scrubberThumb = document.getElementById("scrubberThumb");
+    const timeCurrent = document.getElementById("timeCurrent");
+    const timeTotal = document.getElementById("timeTotal");
+    const shotBadgeText = document.getElementById("shotBadgeText");
+    const snapshotBtn = document.getElementById("snapshotBtn");
+    const recordBtn = document.getElementById("recordBtn");
+    const liveDot = document.getElementById("liveDot");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    // 填充镜头下拉选择框与时间轴刻度
+    const shotMarkersContainer = document.getElementById("shotMarkers");
+    SHOTS.forEach((st, idx) => {
+      // 下拉项
+      const opt = document.createElement("option");
+      opt.value = st.start;
+      opt.textContent = `[${idx + 1 < 10 ? '0' + (idx + 1) : idx + 1}] ${st.name}`;
+      shotSelect.appendChild(opt);
+
+      // 刻度
+      const pct = (st.start / TOTAL_FRAMES) * 100;
+      const marker = document.createElement("div");
+      marker.className = "shot-marker-tick";
+      marker.style.left = `${pct}%`;
+      shotMarkersContainer.appendChild(marker);
+    });
+
+    function formatTimecode(frames) {
+      const totalSec = Math.floor(frames / FPS);
+      const min = Math.floor(totalSec / 60);
+      const sec = totalSec % 60;
+      const f = frames % FPS;
+      return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}:${String(f).padStart(2, '0')}`;
+    }
+
+    function updateUI(frame) {
+      const shot = getShotByFrame(frame);
+      const pct = (frame / TOTAL_FRAMES) * 100;
+      scrubberFill.style.width = `${pct}%`;
+      scrubberThumb.style.left = `${pct}%`;
+
+      timeCurrent.textContent = `${formatTimecode(frame)} [F${String(frame).padStart(4, '0')}]`;
+      shotBadgeText.textContent = `${shot.code} · ${shot.name}`;
+
+      // 联动下拉框
+      for (let i = 0; i < shotSelect.options.length; i++) {
+        const val = parseInt(shotSelect.options[i].value, 10);
+        if (frame >= val && (i === shotSelect.options.length - 1 || frame < parseInt(shotSelect.options[i + 1].value, 10))) {
+          shotSelect.selectedIndex = i;
+          break;
+        }
+      }
+    }
+
+    function setFrame(f) {
+      currentFrame = Math.max(0, Math.min(f, TOTAL_FRAMES - 1));
+      window.renderFrame(currentFrame, TOTAL_FRAMES);
+      updateUI(currentFrame);
+    }
+
+    // 播放循环
+    function animationLoop(timestamp) {
+      if (!isPlaying) return;
+
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const delta = timestamp - lastTimestamp;
+      const frameDuration = (1000 / FPS) / playbackSpeed;
+
+      if (delta >= frameDuration) {
+        lastTimestamp = timestamp - (delta % frameDuration);
+        currentFrame++;
+        if (currentFrame >= TOTAL_FRAMES) {
+          currentFrame = 0;
+          if (isRecording) stopRecording();
+        }
+        window.renderFrame(currentFrame, TOTAL_FRAMES);
+        updateUI(currentFrame);
+      }
+
+      animReqId = requestAnimationFrame(animationLoop);
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        playBtn.textContent = "⏸ 暂停";
+        lastTimestamp = 0;
+        animReqId = requestAnimationFrame(animationLoop);
+      } else {
+        playBtn.textContent = "▶ 播放";
+        if (animReqId) cancelAnimationFrame(animReqId);
+      }
+    }
+
+    // 事件绑定
+    playBtn.addEventListener("click", togglePlay);
+    prevFrameBtn.addEventListener("click", () => { if (isPlaying) togglePlay(); setFrame(currentFrame - 1); });
+    nextFrameBtn.addEventListener("click", () => { if (isPlaying) togglePlay(); setFrame(currentFrame + 1); });
+
+    shotSelect.addEventListener("change", (e) => {
+      setFrame(parseInt(e.target.value, 10));
+    });
+
+    speedBtn.addEventListener("click", () => {
+      if (playbackSpeed === 1.0) playbackSpeed = 2.0;
+      else if (playbackSpeed === 2.0) playbackSpeed = 0.5;
+      else playbackSpeed = 1.0;
+      speedBtn.textContent = `倍速: ${playbackSpeed.toFixed(1)}×`;
+    });
+
+    // 进度条拖拽交互
+    let isScrubbing = false;
+    function handleScrub(e) {
+      const rect = scrubberTrack.getBoundingClientRect();
+      const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      setFrame(Math.floor(pos * TOTAL_FRAMES));
+    }
+    scrubberTrack.addEventListener("mousedown", (e) => {
+      isScrubbing = true;
+      handleScrub(e);
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (isScrubbing) handleScrub(e);
+    });
+    window.addEventListener("mouseup", () => {
+      isScrubbing = false;
+    });
+
+    // 截图导出当前帧为 PNG
+    snapshotBtn.addEventListener("click", () => {
+      const shot = getShotByFrame(currentFrame);
+      const link = document.createElement("a");
+      link.download = `silkroad_${shot.code}_frame_${String(currentFrame).padStart(4, '0')}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+
+    // 录制视频功能 (基于原生 Canvas Stream + MediaRecorder)
+    function startRecording() {
+      try {
+        const stream = canvas.captureStream(FPS);
+        let mimeType = 'video/webm;codecs=vp9';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = 'video/webm';
+        }
+
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 16000000 });
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: mimeType });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `silkroad_rendered_video_1080p_${Date.now()}.webm`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        recordBtn.textContent = "⏹ 停止录制并下载";
+        recordBtn.classList.add("record-active");
+        liveDot.classList.add("recording");
+      } catch (err) {
+        alert("浏览器 MediaRecorder 启动失败: " + err.message);
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordBtn.textContent = "🎬 录制整段视频 (WebM/MP4)";
+        recordBtn.classList.remove("record-active");
+        liveDot.classList.remove("recording");
+      }
+    }
+
+    recordBtn.addEventListener("click", () => {
+      if (!isRecording) {
+        setFrame(0);
+        startRecording();
+        if (!isPlaying) togglePlay();
+      } else {
+        stopRecording();
+      }
+    });
+
+    // 全屏支持
+    fullscreenBtn.addEventListener("click", () => {
+      const vp = document.getElementById("viewport");
+      if (!document.fullscreenElement) {
+        vp.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    // 键盘全局快捷键
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        if (isPlaying) togglePlay();
+        setFrame(currentFrame - 1);
+      } else if (e.code === "ArrowRight") {
+        e.preventDefault();
+        if (isPlaying) togglePlay();
+        setFrame(currentFrame + 1);
+      } else if (e.code === "Home") {
+        e.preventDefault();
+        setFrame(0);
+      } else if (e.code === "KeyF") {
+        fullscreenBtn.click();
+      }
+    });
+
+    /**
+     * 暴露给无头脚本（Puppeteer / CDP / Node）调用的接口
+     */
+    window.getVideoInfo = function() {
+      return {
+        totalFrames: TOTAL_FRAMES,
+        fps: FPS,
+        duration: 120,
+        width: W,
+        height: H,
+        shots: SHOTS
+      };
+    };
+
+    window.getFrameDataUrl = function(f) {
+      window.renderFrame(f, TOTAL_FRAMES);
+      return canvas.toDataURL("image/png");
+    };
+
+    // 首屏立即渲染第 0 帧
+    setFrame(0);
+  </script>
+</body>
+</html>

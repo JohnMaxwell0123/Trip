@@ -11,3 +11,10 @@ desktop.ini
 
 # Temporary logs
 *.log
+
+# Video generation artifacts
+frames/
+test_frames/
+.temp_render_profile/
+*.mp4
+*.webm
