@@ -609,6 +609,22 @@ Pilgrimage to the West/
   - **双向字节镜像同步与发布**：
     - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致），同步同步 `sw.js` 与 `manifest.json`；
     - 底部版本号递增发布为 `RELEASE v4.2.0 · 2026.10`。
+- **v4.2.1 (PWA离线缓存健壮性加固 · 抽屉滑动隔离防穿透 · 记账器键盘无障碍完整对齐)**：
+  - **Service Worker 运行时与离线策略加固**：
+    - 在 `caches.match` 中显式启用 `{ ignoreSearch: true }`，确保带参数或分享链接在离线无信号戈壁下仍可 0ms 秒级命中离线缓存；
+    - 移除原本过严的 `networkResponse.type === 'basic'` 约束，使带有 CORS 属性的 `manifest.json` 与静态切片资源能正常受控更新；
+    - 根治了非导航资源离线请求返回 `undefined` 导致浏览器抛出 `TypeError: Failed to convert value to 'Response'` 的隐患，优雅透传原生网络错误；
+    - 在页面底部 Service Worker 注册逻辑中追加 `document.readyState === 'complete'` 判定，彻底消除页面首屏极速加载时 `window.load` 监听时序竞争风险；
+  - **半屏抽屉 (Bottom Sheet) 物理级滑动穿透杜绝**：
+    - 在 `.sheet-body` 注入 `overscroll-behavior: contain;`，切断 iOS/Android 触摸滚动到达边界时的回弹传递链；
+    - 在遮罩层 `.bottom-sheet-backdrop` 上注册 `touchmove` 原生阻止默认事件（`e.preventDefault()`），与 `overflow: hidden; touch-action: none;` 形成三维防穿透防护；
+  - **AA 记账器键盘交互无障碍与样式精细化**：
+    - 扩充 `.people-btn` 键盘无障碍支持，接入 Enter / Space 键击监听，并固化 `line-height: 1; outline: none; box-sizing: border-box;`，确保全平台点击与聚焦渲染零偏移；
+  - **PWA 桌面安装与主屏幕图标优化**：
+    - 在 `<head>` 注入 `<meta name="apple-mobile-web-app-title" content="丝路自驾">`；
+    - 在 `manifest.json` 中补齐 `scope: "./"` 与 `id: "silkroad-roadtrip-pwa"` 规范；
+  - **双向字节镜像同步**：
+    - 保持 `trip-map/index.html`、`trip-map/sw.js`、`trip-map/manifest.json` 与根目录同名文件 100% 字节镜像一致。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：

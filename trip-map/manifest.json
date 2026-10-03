@@ -3,6 +3,8 @@
   "short_name": "丝路自驾",
   "description": "西北自驾全景数字化智能路书，支持离线防护、长辈大字模式、全流程AA记账与高德实景导航",
   "start_url": "./index.html",
+  "scope": "./",
+  "id": "silkroad-roadtrip-pwa",
   "display": "standalone",
   "background_color": "#140d07",
   "theme_color": "#1c120a",

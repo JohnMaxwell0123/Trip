@@ -44,11 +44,29 @@ self.addEventListener('fetch', (event) => {
   // Only handle same-origin shell resources
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        // Stale-While-Revalidate / Cache-First with Network fallback
-        const fetchPromise = fetch(event.request)
+      caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+        // Cache Hit: Return cached resource immediately for instant offline shell response
+        if (cachedResponse) {
+          // Stale-While-Revalidate: fetch in background to refresh cache when online
+          fetch(event.request)
+            .then((networkResponse) => {
+              if (networkResponse && networkResponse.status === 200) {
+                const responseToCache = networkResponse.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
+              }
+            })
+            .catch(() => {
+              // Ignore background fetch failure when offline
+            });
+          return cachedResponse;
+        }
+
+        // Cache Miss: Fetch from network
+        return fetch(event.request)
           .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            if (networkResponse && networkResponse.status === 200) {
               const responseToCache = networkResponse.clone();
               caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, responseToCache);
@@ -56,25 +74,16 @@ self.addEventListener('fetch', (event) => {
             }
             return networkResponse;
           })
-          .catch(() => {
-            // When offline: if navigating to a page, fallback to cached index.html
+          .catch((fetchError) => {
+            // When offline or network disconnected:
+            // If navigating to a page, fallback to cached index.html or root
             if (event.request.mode === 'navigate') {
-              return caches.match('./index.html').then((res) => res || caches.match('./'));
+              return caches.match('./index.html', { ignoreSearch: true })
+                .then((res) => res || caches.match('./', { ignoreSearch: true }) || caches.match(self.registration.scope));
             }
+            // For other same-origin assets, rethrow so browser handles normal network failure cleanly
+            throw fetchError;
           });
-
-        // If cached resource exists, return it immediately for instant response
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        // Otherwise await network, with navigation fallback on error
-        return fetchPromise.then((networkRes) => {
-          if (!networkRes && event.request.mode === 'navigate') {
-            return caches.match('./index.html').then((r) => r || caches.match('./'));
-          }
-          return networkRes;
-        });
       })
     );
   }
