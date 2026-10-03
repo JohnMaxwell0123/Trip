@@ -587,6 +587,28 @@ Pilgrimage to the West/
   - **双向字节镜像同步与发布**：
     - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致）；
     - 底部版本号递增发布为 `RELEASE v4.1.0 · 2026.09`。
+- **v4.2.0 (全身体检优化补丁 · PWA离线防护与Service Worker · 当金山50+高反医学预警 · AA记账触控热区升级 · CSS性能降级与抽屉防穿透)**：
+  - **[P0 - R-01] 离线防护与 Service Worker (PWA Shell Cache)**：
+    - 落地 `trip-map/sw.js` 与根目录 `sw.js`，基于 Cache-First + Network-Fallback / SWR 缓存策略全量预缓存 `./index.html`、`./manifest.json` 及核心大漠背景与印章图物料；
+    - 在页面底部注入 Service Worker 自动注册脚本；彻底根除 G3011 柳格高速当金山、柴达木盆地戈壁无人区弱网或无信号断网环境下页面刷新白屏 404 故障；
+    - 补齐 W3C 标准 `manifest.json` 配置（PWA standalone、背景色、多尺寸图标），并完成 `<head>` 声明；
+  - **[P0 - R-02] D6 当金山高反医学预警与适老化指引**：
+    - 针对 2 小时内由敦煌 1100m 骤升至垭口 3648m（垂直落差超 2500m）的剧烈海拔突变，在 `d6_dangjinshan` 二级规划与路书时间线节点注入【🚨长辈高反与防寒医学预警】；
+    - 明确指导 50+ 长辈耳膜鼓胀/胸闷属于正常急性代偿反应，必须穿好三合一冲锋衣保暖防风，下车慢行，严禁兴奋跳跃或快步跑动拍照，严格控时 15 分钟内；
+    - 同步更新 [`路书第二层级规划.md`](file:///d:/Document/Project/Pilgrimage%20to%20the%20West/路书第二层级规划.md) 保持知识库一致；
+  - **[P1 - R-03] AA 记账器触控热区升级 (Anti-Jitter Ergonomics)**：
+    - 将 `.people-btn` 触控尺寸从原 26px 提升至 44px（长辈模式升级至 48px），增加加减按钮间距与数字容器自适应宽度；
+    - 适配颠簸考斯特乘车环境，防止误触与连触，支持 `touch-action: manipulation; user-select: none;`；
+  - **[P1 - R-04] CSS 性能降级与省电模式适配 (Battery Saver)**：
+    - 引入 `@media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce)` 规则，在低电量模式与降低透明度无障碍配置下自动禁用高开销的 `backdrop-filter: blur(...)`，平滑回退至高对比度实色背景并压缩过渡动画耗时；
+  - **[P1 - R-06] 半屏抽屉 (Bottom Sheet) 防滑动穿透**：
+    - 在 `openBottomSheet` 与 `closeBottomSheet` 中联动锁定/恢复 `document.body.style.overflow = "hidden"` 与 `document.body.style.touchAction = "none"`；
+    - 为 `.bottom-sheet-backdrop` 增加 `touch-action: none;`，并为 `.sheet-body` 设置 `touch-action: pan-y;`，彻底杜绝上下滑动抽屉时背景地图与时间轴误滑穿透；
+  - **[P2 - R-07] 体验打磨与全览枢纽计数校准**：
+    - 修正高德地图 `HUB_CITIES` 注释中的枢纽城市计数（由 12 修正为实际数组长度 13）；
+  - **双向字节镜像同步与发布**：
+    - 强制同步 `trip-map/index.html` 至根目录 `index.html`（SHA256 100% 字节镜像一致），同步同步 `sw.js` 与 `manifest.json`；
+    - 底部版本号递增发布为 `RELEASE v4.2.0 · 2026.10`。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：
@@ -595,8 +617,7 @@ Pilgrimage to the West/
 2. 确保随后的新会话通过直接阅读此文件，即刻无缝衔接最新状态。
 
 ### 6.3 后续潜在迭代方向 (Roadmap)
-1. **PWA 离线支持 (Service Worker)**：为青海湖及柴达木部分弱网路段增加离线地图切片与离线路书缓存；
-2. **多日天气/风沙预警联动**：接入甘肃/青海沿途城市降水与大风降温实时天气 API；
-3. **团队位置共享预留**：预留多人位置信标接口或微信小程序桥接；
-4. **多旅行项目 Portal 门户页**：未来新增旅行计划时，在根目录上线精美自驾足迹卡片总览大厅。
+1. **多日天气/风沙预警联动**：接入甘肃/青海沿途城市降水与大风降温实时天气 API；
+2. **团队位置共享预留**：预留多人位置信标接口或微信小程序桥接；
+3. **多旅行项目 Portal 门户页**：未来新增旅行计划时，在根目录上线精美自驾足迹卡片总览大厅。
 

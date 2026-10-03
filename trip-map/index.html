@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#1c120a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/images/dunhuang_seal_badge.jpg">
   <title>西行计划 · 丝路自驾路书</title>
 
   <!-- 长辈关怀大字模式轻量防闪烁脚本 (Zero-FOUC Anti-Flash) -->
@@ -1946,23 +1948,36 @@
     .people-count-wrapper {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 13px;
+      gap: 10px;
+      font-size: 14px;
       color: var(--text-sub);
     }
 
     .people-btn {
-      width: 26px;
-      height: 26px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.14);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 20px;
+      font-weight: 700;
       cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .people-btn:active {
+      background: rgba(251, 191, 36, 0.35);
+      transform: scale(0.92);
     }
 
     .ledger-btn-row {
@@ -2658,6 +2673,7 @@
       z-index: 2500;
       opacity: 0;
       visibility: hidden;
+      touch-action: none;
       transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -2832,6 +2848,7 @@
     .sheet-body {
       flex: 1;
       overflow-y: auto;
+      touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
       padding: 16px 18px calc(28px + var(--safe-bottom)) 18px;
       display: flex;
@@ -3730,6 +3747,67 @@
       font-weight: 700;
     }
 
+    /* AA 记账器长辈模式超大触控热区 (Anti-Jitter 48px Touch Target) */
+    body.senior-mode .people-count-wrapper,
+    html.senior-mode .people-count-wrapper {
+      gap: 14px;
+      font-size: 16px;
+    }
+    body.senior-mode .people-btn,
+    html.senior-mode .people-btn {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      min-height: 48px;
+      font-size: 24px;
+      border: 2px solid rgba(251, 191, 36, 0.7);
+      background: rgba(251, 191, 36, 0.22);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    body.senior-mode #people-count-num,
+    html.senior-mode #people-count-num {
+      font-size: 20px !important;
+      min-width: 32px !important;
+    }
+
+    /* ==========================================================================
+       8. CSS 性能降级与省电模式适配 (Battery Saver & Reduced Transparency/Motion)
+       ========================================================================== */
+    @media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce) {
+      :root {
+        --glass-surface: rgba(28, 18, 10, 0.95);
+        --glass-surface-hover: rgba(38, 25, 14, 0.98);
+        --glass-surface-active: rgba(45, 30, 18, 1);
+        --glass-blur: none;
+      }
+      *, *::before, *::after {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      .app-header,
+      .quick-floating-pill,
+      .senior-floating-card,
+      .bottom-sheet-modal,
+      .spot-modal-card,
+      .filter-pill,
+      .day-card,
+      .trip-overview-card,
+      .sheet-card,
+      .floating-dock,
+      .day-hotel-box {
+        background: rgba(24, 15, 8, 0.96) !important;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
     /* 模式切换平滑过渡 */
     body, .day-card, .timeline-node, .node-time, .node-title, .node-desc, 
     .btn-action, .day-hotel-box, .app-header, .floating-dock {
@@ -3849,9 +3927,9 @@
       <footer class="schedule-footer">
         <div class="footer-version-pill">
           <span class="version-tag">RELEASE</span>
-          <span class="version-num">v4.1.0</span>
+          <span class="version-num">v4.2.0</span>
           <span class="footer-sep">·</span>
-          <span class="version-date">2026.09</span>
+          <span class="version-date">2026.10</span>
         </div>
         <div class="footer-meta">
           西行计划 · 丝路自驾路书 · 纯静态秒开
@@ -4063,10 +4141,10 @@
           </div>
           <div class="people-count-wrapper">
             <span>同行分摊：</span>
-            <div class="people-btn" onclick="adjustPeopleCount(-1)">-</div>
-            <span id="people-count-num" style="font-weight: 700; color: #fff; min-width: 20px; text-align: center;">10</span>
+            <div class="people-btn" onclick="adjustPeopleCount(-1)" role="button" aria-label="减少分摊人数" tabindex="0">-</div>
+            <span id="people-count-num" style="font-weight: 700; color: #fff; min-width: 24px; text-align: center;">10</span>
             <span>人</span>
-            <div class="people-btn" onclick="adjustPeopleCount(1)">+</div>
+            <div class="people-btn" onclick="adjustPeopleCount(1)" role="button" aria-label="增加分摊人数" tabindex="0">+</div>
           </div>
         </div>
         <div style="font-size: 12px; color: var(--accent-amber); font-weight: 600;">
@@ -4542,7 +4620,7 @@
             title: "翻越当金山垭口（海拔3648m）", 
             altitudeTag: "⛰️ 当金山 3648m",
             altitudeLevel: "high-pass",
-            desc: "正式告别甘肃进入大美青海，气温骤降，远眺阿尔金山终年雪峰", 
+            desc: "告别甘肃跨入青海，2小时内由1100m骤升至3648m。特别提醒长辈慢下车防高反，保暖避风控时15分钟", 
             subDetailKey: "d6_dangjinshan", 
             subDetailBadge: "🔭 当金山垭口观景",
             transitNext: {
@@ -5286,13 +5364,13 @@
       "d6_dangjinshan": {
         title: "🔭 翻越当金山垭口公路景观",
         subtitle: "Day 6 · 敦煌 ➔ 当金山 ➔ 柴达木盆地",
-        intro: "敦当高速穿过壁画隧道进入青海境内的高原观景服务区。海拔骤升至 3648m，从干热沙漠瞬间跃入高寒草甸，远眺阿尔金山雪峰。",
+        intro: "敦当高速穿过壁画隧道进入青海境内的高原观景服务区。海拔在短短 2 小时内由 1100m 急剧爬升至 3648m，温差骤降超 10℃。特别提示全队（尤其是 50+ 长辈）做好高反防护与防寒保暖，慢步缓行。",
         items: [
           {
             name: "当金山垭口高原观景台（海拔 3648m）",
             tag: "青甘分界 · 阿尔金山雪峰",
-            story: "甘青分界线与柴达木盆地北大门。从低海拔干燥沙漠瞬间跃入海拔 3600m+ 的高寒草原盆地，气温骤降 8~12℃，远眺阿尔金山雪峰。穿上三合一冲锋衣在界碑前合影极具仪式感。",
-            dishes: ["阿尔金山连绵雪峰", "青甘界碑与高山草甸", "高原急弯高架桥震撼全景"],
+            story: "【🚨长辈高反与防寒医学预警】：车程仅 2 小时内由敦煌海拔 1100m 骤升至垭口 3648m，垂直落差超 2500m！车厢开门瞬间气温骤降 8~12℃且伴有强劲高原冷风。50+ 长辈极易出现明显耳膜鼓胀压迫感、轻微胸闷头晕，属正常急性生理代偿反应。下车前务必穿戴好保暖防风三合一冲锋衣与保暖帽子；下车动作必须放缓，严禁兴奋跳跃或快步跑动拍照，避免加重心肺负荷；深呼吸平复心率；垭口拍照停留建议严格控制在 15 分钟以内，打卡完毕立即返回温暖车内避风休整。",
+            dishes: ["⚠️ 严禁奔跑跳跃·控时15分钟", "穿冲锋衣防风抗寒保暖", "阿尔金山连绵雪峰与青甘界碑"],
             price: "免费开放",
             trafficType: "coaster",
             trafficText: "🚌 考斯特直达停靠。敦当高速（柳格高速 G3011）垭口服务区设有规范的大客车专用车位与平整观景步道。",
@@ -6217,7 +6295,7 @@
       { day: 8, from: [101.7789, 36.6231], to: [102.0435, 36.5298], waypoints: [[101.5683, 36.4851]] } // 西宁 -> 塔尔寺 -> 机场
     ];
 
-    // 全程总览 12 大核心枢纽城市/地理节点 (纯粹丝路大环线)
+    // 全程总览 13 大核心枢纽城市/地理节点 (纯粹丝路大环线)
     const HUB_CITIES = [
       { name: "兰州", lng: 103.8152, lat: 36.0682, tag: "集结提车" },
       { name: "张掖", lng: 100.4552, lat: 38.9328, tag: "七彩丹霞" },
@@ -7936,6 +8014,7 @@ ${itemsText}-------------------------
       modal.style.removeProperty('--pill-scale-x');
       modal.style.removeProperty('--pill-scale-y');
       document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
     }
 
     function closeBottomSheet() {
@@ -7947,6 +8026,7 @@ ${itemsText}-------------------------
       modal.classList.remove("active");
       backdrop.classList.remove("active");
       document.body.style.overflow = "";
+      document.body.style.touchAction = "";
       currentDetailKey = null;
     }
 
@@ -8179,6 +8259,18 @@ ${itemsText}-------------------------
           activeCard = null;
         }
       }, { passive: true });
+    }
+  </script>
+  <!-- Service Worker 离线防护与 PWA 注册 (Silk Road PWA Offline Cache) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((registration) => {
+          console.log('[PWA] ServiceWorker registered successfully with scope:', registration.scope);
+        }).catch((err) => {
+          console.warn('[PWA] ServiceWorker registration failed:', err);
+        });
+      });
     }
   </script>
 </body>
