@@ -80,7 +80,13 @@
       pointer-events: none;
       z-index: 30;
       opacity: 0.92;
-      transition: opacity 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .top-status-bar.autohide {
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
     }
 
     .status-badge {
@@ -123,7 +129,7 @@
       position: absolute;
       bottom: 16px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) translateY(0);
       width: calc(100% - 32px);
       max-width: 1200px;
       background: var(--glass-surface);
@@ -137,7 +143,14 @@
       gap: 10px;
       box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.75);
       z-index: 40;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 1;
+    }
+
+    .control-dock.autohide {
+      opacity: 0;
+      transform: translateX(-50%) translateY(24px);
+      pointer-events: none;
     }
 
     /* 时间轴进度条 */
@@ -351,6 +364,7 @@
         </div>
 
         <div class="btn-group">
+          <button class="btn" id="muteBtn">🔊 原声</button>
           <button class="btn" id="speedBtn">倍速: 1.0×</button>
           <button class="btn" id="snapshotBtn">📸 捕获当前帧 (PNG)</button>
           <button class="btn" id="recordBtn">🎬 录制整段视频 (WebM/MP4)</button>
@@ -360,10 +374,14 @@
     </div>
   </div>
 
+  <!-- 原生母带音频元素 (与 120s 帧时序硬同步) -->
+  <audio id="soundtrackAudio" src="soundtrack.wav" preload="auto"></audio>
+
   <div class="hotkey-hint">
     <span>快捷键：<kbd>Space</kbd> 播放/暂停</span>
     <span><kbd>←</kbd> / <kbd>→</kbd> 逐帧步退/步进</span>
     <span><kbd>Home</kbd> 归零第一帧</span>
+    <span><kbd>M</kbd> 原声静音</span>
     <span><kbd>F</kbd> 全屏视口</span>
     <span>内置接口：<kbd>window.renderFrame(f, 3600)</kbd></span>
   </div>
@@ -678,6 +696,31 @@
     const ctx = canvas.getContext("2d");
     const W = 1920;
     const H = 1080;
+
+    // Canvas 2D roundRect 标准兼容性垫片 (Polyfill)
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r = 0) {
+        if (w < 0) { x += w; w = Math.abs(w); }
+        if (h < 0) { y += h; h = Math.abs(h); }
+        let tl = 0, tr = 0, br = 0, bl = 0;
+        if (typeof r === 'number') {
+          tl = tr = br = bl = Math.min(r, w / 2, h / 2);
+        } else if (Array.isArray(r)) {
+          tl = r[0] || 0; tr = r[1] || tl; br = r[2] || tl; bl = r[3] || tr;
+        }
+        this.moveTo(x + tl, y);
+        this.lineTo(x + w - tr, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + tr);
+        this.lineTo(x + w, y + h - br);
+        this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+        this.lineTo(x + bl, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - bl);
+        this.lineTo(x, y + tl);
+        this.quadraticCurveTo(x, y, x + tl, y);
+        this.closePath();
+        return this;
+      };
+    }
 
     const FONT_SERIF = '"Songti SC", "SimSun", "STSong", "Noto Serif CJK SC", "Microsoft YaHei", serif';
     const FONT_DISPLAY = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
@@ -2081,14 +2124,16 @@
       ctx.fillStyle = "#050403";
       ctx.fillRect(0, 0, W, H);
 
-      // 闪烁繁星 (Twinkling Stars)
-      for (let s = 0; s < 120; s++) {
-        const sx = (s * 97) % W;
-        const sy = (s * 53) % H;
-        const blink = (Math.sin(frame * 0.1 + s) + 1) * 0.5;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.2 + blink * 0.8})`;
+      // 闪烁繁星 (Twinkling Stars: GLSL标准确定性散列，彻底杜绝网格与共因子条带伪影)
+      for (let s = 0; s < 260; s++) {
+        const rx = Math.sin(s * 12.9898 + 78.233) * 43758.5453;
+        const ry = Math.sin(s * 93.9898 + 67.345) * 24634.6345;
+        const sx = (rx - Math.floor(rx)) * W;
+        const sy = (ry - Math.floor(ry)) * (H - 200);
+        const blink = (Math.sin(frame * 0.12 + s * 1.7) + 1) * 0.5;
+        ctx.fillStyle = (s % 6 === 0) ? `rgba(254, 240, 138, ${0.25 + blink * 0.75})` : `rgba(255, 255, 255, ${0.2 + blink * 0.8})`;
         ctx.beginPath();
-        ctx.arc(sx, sy, 1.2 + (s % 3) * 0.6, 0, Math.PI * 2);
+        ctx.arc(sx, sy, 0.8 + (s % 3) * 0.7, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -2257,20 +2302,20 @@
       ctx.save();
       ctx.textAlign = "center";
 
-      // 中文字幕 (优雅宋体 / 华文宋体，辅以柔和阴影)
+      // 中文字幕 (优雅宋体 / 华文宋体，辅以柔和阴影，黄金视线高度)
       ctx.font = `bold 38px ${FONT_SERIF}`;
       ctx.fillStyle = `rgba(255, 253, 245, ${alpha})`;
       ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
       ctx.shadowBlur = 18;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 4;
-      ctx.fillText(shot.zhSub, W / 2, H - 110);
+      ctx.fillText(shot.zhSub, W / 2, H - 142);
 
       // 英文字幕 (SF Pro Display / 精致小写英文字距)
       ctx.font = `italic 20px ${FONT_DISPLAY}`;
       ctx.fillStyle = `rgba(254, 240, 138, ${alpha * 0.95})`;
       ctx.shadowBlur = 12;
-      ctx.fillText(shot.enSub, W / 2, H - 70);
+      ctx.fillText(shot.enSub, W / 2, H - 100);
 
       ctx.restore();
     }
@@ -2362,10 +2407,71 @@
       }
     }
 
-    function setFrame(f) {
+    const soundtrackAudio = document.getElementById("soundtrackAudio");
+    const muteBtn = document.getElementById("muteBtn");
+    const viewport = document.getElementById("viewport");
+    const controlDock = document.getElementById("controlDock");
+    const topBar = document.querySelector(".top-status-bar");
+    let isMuted = false;
+    let hideTimer = null;
+
+    // 影院模式悬浮面板自动隐入与唤醒
+    function showControls() {
+      controlDock.classList.remove("autohide");
+      if (topBar) topBar.classList.remove("autohide");
+      clearTimeout(hideTimer);
+      if (isPlaying) {
+        hideTimer = setTimeout(() => {
+          if (isPlaying && !controlDock.matches(":hover")) {
+            controlDock.classList.add("autohide");
+            if (topBar) topBar.classList.add("autohide");
+          }
+        }, 2600);
+      }
+    }
+
+    viewport.addEventListener("mousemove", showControls);
+    viewport.addEventListener("mouseenter", showControls);
+    viewport.addEventListener("mouseleave", () => {
+      if (isPlaying) {
+        controlDock.classList.add("autohide");
+        if (topBar) topBar.classList.add("autohide");
+      }
+    });
+
+    // 音频同步引擎 (Audio-Video Sync)
+    function syncAudio(forceSeek = false) {
+      if (!soundtrackAudio) return;
+      soundtrackAudio.playbackRate = playbackSpeed;
+      const expectedTime = currentFrame / FPS;
+      if (forceSeek || Math.abs(soundtrackAudio.currentTime - expectedTime) > 0.12) {
+        try {
+          soundtrackAudio.currentTime = expectedTime;
+        } catch (e) {}
+      }
+      if (isPlaying) {
+        if (soundtrackAudio.paused) {
+          soundtrackAudio.play().catch(() => {});
+        }
+      } else {
+        if (!soundtrackAudio.paused) {
+          soundtrackAudio.pause();
+        }
+      }
+    }
+
+    // 静音/开声切换
+    muteBtn.addEventListener("click", () => {
+      isMuted = !isMuted;
+      if (soundtrackAudio) soundtrackAudio.muted = isMuted;
+      muteBtn.textContent = isMuted ? "🔇 原声: 关" : "🔊 原声";
+    });
+
+    function setFrame(f, seekAudio = true) {
       currentFrame = Math.max(0, Math.min(f, TOTAL_FRAMES - 1));
       window.renderFrame(currentFrame, TOTAL_FRAMES);
       updateUI(currentFrame);
+      if (seekAudio) syncAudio(true);
     }
 
     // 播放循环
@@ -2385,6 +2491,7 @@
         }
         window.renderFrame(currentFrame, TOTAL_FRAMES);
         updateUI(currentFrame);
+        syncAudio(false);
       }
 
       animReqId = requestAnimationFrame(animationLoop);
@@ -2395,9 +2502,13 @@
       if (isPlaying) {
         playBtn.textContent = "⏸ 暂停";
         lastTimestamp = 0;
+        syncAudio(true);
+        showControls();
         animReqId = requestAnimationFrame(animationLoop);
       } else {
         playBtn.textContent = "▶ 播放";
+        syncAudio(false);
+        showControls();
         if (animReqId) cancelAnimationFrame(animReqId);
       }
     }
@@ -2416,6 +2527,7 @@
       else if (playbackSpeed === 2.0) playbackSpeed = 0.5;
       else playbackSpeed = 1.0;
       speedBtn.textContent = `倍速: ${playbackSpeed.toFixed(1)}×`;
+      syncAudio(true);
     });
 
     // 进度条拖拽交互
@@ -2445,17 +2557,56 @@
       link.click();
     });
 
-    // 录制视频功能 (基于原生 Canvas Stream + MediaRecorder)
+    // 录制视频功能 (基于原生 Canvas Stream + Web Audio 混流 + MediaRecorder)
     function startRecording() {
       try {
-        const stream = canvas.captureStream(FPS);
-        let mimeType = 'video/webm;codecs=vp9';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          mimeType = 'video/webm';
+        const canvasStream = canvas.captureStream(FPS);
+        let exportStream = canvasStream;
+        let exportExt = "webm";
+
+        // 尝试捕获母带音频流并混流
+        try {
+          if (soundtrackAudio) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              if (!window._audioRecCtx) {
+                window._audioRecCtx = new AudioCtx();
+                window._audioRecSource = window._audioRecCtx.createMediaElementSource(soundtrackAudio);
+                window._audioRecDest = window._audioRecCtx.createMediaStreamDestination();
+                window._audioRecSource.connect(window._audioRecDest);
+                window._audioRecSource.connect(window._audioRecCtx.destination);
+              }
+              const audioTracks = window._audioRecDest.stream.getAudioTracks();
+              if (audioTracks.length > 0) {
+                exportStream = new MediaStream([
+                  ...canvasStream.getVideoTracks(),
+                  ...audioTracks
+                ]);
+              }
+            }
+          }
+        } catch (audioErr) {
+          console.warn("媒体录制音频流混入回退:", audioErr);
+        }
+
+        // 优先探测原生 MP4 编码，回退至 VP9 / WebM
+        let mimeType = "video/webm;codecs=vp9";
+        if (MediaRecorder.isTypeSupported("video/mp4;codecs=avc1,mp4a.40.2")) {
+          mimeType = "video/mp4;codecs=avc1,mp4a.40.2";
+          exportExt = "mp4";
+        } else if (MediaRecorder.isTypeSupported("video/mp4")) {
+          mimeType = "video/mp4";
+          exportExt = "mp4";
+        } else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")) {
+          mimeType = "video/webm;codecs=vp9,opus";
+          exportExt = "webm";
+        } else if (MediaRecorder.isTypeSupported("video/webm")) {
+          mimeType = "video/webm";
+          exportExt = "webm";
         }
 
         recordedChunks = [];
-        mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 16000000 });
+        mediaRecorder = new MediaRecorder(exportStream, { mimeType, videoBitsPerSecond: 16000000 });
 
         mediaRecorder.ondataavailable = (e) => {
           if (e.data.size > 0) recordedChunks.push(e.data);
@@ -2466,7 +2617,7 @@
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `silkroad_rendered_video_1080p_${Date.now()}.webm`;
+          a.download = `silkroad_rendered_video_1080p_${Date.now()}.${exportExt}`;
           a.click();
           setTimeout(() => URL.revokeObjectURL(url), 1000);
         };
@@ -2527,6 +2678,9 @@
       } else if (e.code === "Home") {
         e.preventDefault();
         setFrame(0);
+      } else if (e.code === "KeyM") {
+        e.preventDefault();
+        muteBtn.click();
       } else if (e.code === "KeyF") {
         fullscreenBtn.click();
       }

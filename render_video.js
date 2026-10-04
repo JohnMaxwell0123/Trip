@@ -16,6 +16,8 @@ const path = require('path');
 const http = require('http');
 const { spawn } = require('child_process');
 
+const net = require('net');
+
 // 命令行参数解析
 const args = process.argv.slice(2);
 function getArg(flag, defaultValue) {
@@ -30,7 +32,21 @@ const START_FRAME = parseInt(getArg('--start', '0'), 10);
 const END_FRAME = parseInt(getArg('--end', '30'), 10); // 默认测试抓取前 30 帧 (1秒)，可通过 --end 3599 抓取全量
 const STEP = parseInt(getArg('--step', '1'), 10);
 const OUTPUT_DIR = path.resolve(__dirname, getArg('--out', 'frames'));
-const PORT = parseInt(getArg('--port', '9222'), 10);
+const USER_PORT = getArg('--port', null);
+const SEQUENTIAL = args.includes('--seq') || args.includes('--sequential');
+
+// 探测可用空闲调试端口，避免与已有 Chrome 进程冲突
+function getFreePort(startingPort = 9222) {
+  return new Promise((resolve) => {
+    const srv = net.createServer();
+    srv.listen(startingPort, '127.0.0.1', () => {
+      srv.close(() => resolve(startingPort));
+    });
+    srv.on('error', () => {
+      resolve(getFreePort(startingPort + 1));
+    });
+  });
+}
 
 // 探测本地可用浏览器路径
 function getBrowserExecutable() {
@@ -142,11 +158,19 @@ function waitForHttp(url, timeoutMs = 15000) {
 }
 
 async function main() {
+  const PORT = USER_PORT ? parseInt(USER_PORT, 10) : await getFreePort(9222);
+
   console.log("==================================================================");
   console.log(" 西行壮歌 · 丝路与额济纳自驾大环线 无头离线逐帧渲染抓取流水线");
   console.log("==================================================================");
   console.log(`目标帧区间: [Frame ${START_FRAME} -> Frame ${END_FRAME}], 步长: ${STEP}`);
   console.log(`输出目录: ${OUTPUT_DIR}`);
+  console.log(`调试端口: ${PORT} (CDP DevTools Protocol)`);
+  if (SEQUENTIAL) {
+    console.log(`编号模式: 严格连续递增 (frame_0000.png, frame_0001.png...)`);
+  } else {
+    console.log(`编号模式: 绝对帧号对应 (frame_${String(START_FRAME).padStart(4, '0')}.png...)`);
+  }
 
   const browserPath = getBrowserExecutable();
   console.log(`启用浏览器内核: ${browserPath}`);
@@ -156,7 +180,7 @@ async function main() {
   console.log(`挂载渲染页面: ${targetUrl}`);
 
   // 临时用户配置目录
-  const tempProfile = path.resolve(__dirname, '.temp_render_profile');
+  const tempProfile = path.resolve(__dirname, `.temp_render_profile_${PORT}`);
 
   // 启动无头浏览器实例
   const browserArgs = [
@@ -224,7 +248,8 @@ async function main() {
       }
 
       const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-      const fileName = `frame_${String(f).padStart(4, '0')}.png`;
+      const indexNum = SEQUENTIAL ? renderedCount : f;
+      const fileName = `frame_${String(indexNum).padStart(4, '0')}.png`;
       const filePath = path.join(OUTPUT_DIR, fileName);
       fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
 

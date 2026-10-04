@@ -637,7 +637,23 @@ Pilgrimage to the West/
   - **第三阶段：Python 48kHz 双声道配乐合成与无头离线抓取流水线**：
     - 编写 `generate_audio.py`，纯数学程序化合成 120 秒 48,000Hz 16-bit 双声道立体声 `soundtrack.wav`（21.97 MB）；包含 55Hz/65.4Hz 次低音 Ambient Drone 铺底、随行程海拔与地域意境流动的丝路五声交响和弦群、黄河奔流与青海湖涌浪、戈壁公路胎噪与引擎轰鸣、呼啸荒漠风沙、丝路驼队清脆铜铃、莫高窟与塔尔寺青铜大钟/铜磬、单反快门声等全景 Foley 音效，以及 -0.7dBFS 软削波与软饱和母带限制器；
     - 编写 `render_video.js`，基于 Node 24 原生内置 WebSocket 与 Chrome DevTools Protocol (CDP)，零外部 npm 依赖直接操纵本地 Chrome/Edge 浏览器内核进行无头自动化离线逐帧抓取；实测渲染速度达 5-7 fps；
-    - 编写 `build_video.bat` 与 `build_video.ps1` 一键自动化批处理流水线，打通音频合成、图像抓取与 FFmpeg (H.264/AAC) 终极视频压制链路。
+- **v5.0.1 (视频生成系统全链路体检修复 · 原声双向同步 · 影院自动隐入交互 · 空间无偏星空重构 · FFmpeg自动寻径与分段声画对齐)**：
+  - **视觉生成与播放器引擎 (`video_renderer.html`) 深度修复与打磨**：
+    - **字幕与控制栏遮挡根治**：将中英双语字幕垂直基线从 `H - 110` / `H - 70` 提升至 `H - 142` / `H - 100` 电影级黄金下三分位，杜绝被底部悬浮控制栏遮盖；
+    - **影院级自动隐入控制栏 (Cinema Auto-hide)**：实现播放状态下鼠标静止 2.6 秒或移出视口时，控制 Dock 与顶部状态栏平滑下潜淡出，全屏无遮挡纯净沉浸；鼠标移动即刻毫秒级唤醒；
+    - **母带原生音频挂载与毫秒级硬同步**：引入 `<audio id="soundtrackAudio" src="soundtrack.wav">`，实现播放/暂停、进度滑块拖拽、逐帧步退步进、16 镜头直达以及 0.5×/1.0×/2.0× 倍速播放下的毫秒级音画同步；增设 `🔊 原声` 交互按钮与键盘 `M` 键一键静音；
+    - **MediaRecorder 音画一体化录制**：通过 Web Audio API 建立实时混音路由（`createMediaElementSource` -> `createMediaStreamDestination`），将 Canvas 1080P 视频流与 48kHz 原声母带音频流物理合并，解决原录制产物无声的缺陷；优先探测原生 MP4 容器并优雅回退；
+    - **Canvas 2D `ctx.roundRect` 全环境垫片**：注入标准四角半径解析与二次贝塞尔绘制 Polyfill，杜绝无头浏览器或老旧 Webview 环境抛出 `is not a function` 异常；
+    - **Shot 16 终章星空空间无偏重构**：发现原模数算子存在大公约数 (`gcd(233280, 10800)=2160`) 导致恒星排列在 5 条横向水平线的严影视网膜伪影，全面重写为 GLSL 标准确定性高频散列算法，渲染 260 颗天球均匀随机分布、金白双色交相辉映的浩瀚银河星海。
+  - **音频合成工程 (`generate_audio.py`) 母带算法修正**：
+    - 修复此前软饱和限幅器中预除 `peak` 导致全局瞬态动态压扁且无法达到设计电平的数学缺陷；采用真实纯温和 `np.tanh` 软饱和曲线配合峰值规范化增益，总轨峰值精准收敛至 -0.7 dBFS (0.923)，消除破音失真并最大化信噪比。
+  - **无头抓取流水线 (`render_video.js`) 鲁棒性增强**：
+    - 增加基于 Node `net` 模块的 `getFreePort` 动态空闲端口自协商机制，彻底消除默认 9222 端口与已有本地调试进程的端口冲突；
+    - 增加 `--seq` 连续递增重编号支持，灵活应对抽帧与非 0 帧区间导出。
+  - **压制合并脚本 (`build_video.ps1` & `build_video.bat`) 全自动闭环**：
+    - 补齐多源自动寻径（优先检测系统 PATH，自动回退扫描 WinGet 安装路径下的 `ffmpeg.exe`）；
+    - 修复分段视频压制缺陷：注入 `-start_number $StartFrame`、`-ss $audioStartSec` 与 `-t $durationSec`，彻底解决非 0 起始帧时 FFmpeg 报错退出以及音频起点与视频分镜错位的严重不同步 Bug；
+    - 本地实机闭环验证生成标准 1080P 30fps H.264 / AAC `silkroad_epic_1080p.mp4` 成品。
 
 ### 6.2 阶段记忆更新机制 (Stage Memory Rule)
 **【开发纪律铁律】**：

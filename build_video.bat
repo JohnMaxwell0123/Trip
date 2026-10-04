@@ -29,10 +29,22 @@ echo.
 
 :: 3. 检查 FFmpeg 并压制 1080P 30fps H.264/AAC MP4
 echo [Step 3/3] 正在检测 FFmpeg 视频压制工具...
+set FFMPEG_BIN=
 where ffmpeg >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    echo 找到 FFmpeg，正在执行电影级高码率压制 (H.264 High Profile / 320k AAC)...
-    ffmpeg -y -framerate 30 -i frames/frame_%%04d.png -i soundtrack.wav -c:v libx264 -pix_fmt yuv420p -preset slow -crf 18 -c:a aac -b:a 320k -shortest silkroad_epic_1080p.mp4
+    set FFMPEG_BIN=ffmpeg
+) else (
+    for /d %%D in ("%LOCALAPPDATA%\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_*") do (
+        if exist "%%D\ffmpeg-*\bin\ffmpeg.exe" (
+            for /f "delims=" %%F in ('dir /b /s "%%D\ffmpeg.exe"') do set FFMPEG_BIN="%%F"
+        )
+    )
+)
+
+if defined FFMPEG_BIN (
+    echo 找到 FFmpeg: %FFMPEG_BIN%
+    echo 正在执行电影级高码率压制 (1080P 30fps H.264 High Profile / 320k AAC)...
+    %FFMPEG_BIN% -y -framerate 30 -start_number 0 -i frames/frame_%%04d.png -i soundtrack.wav -c:v libx264 -pix_fmt yuv420p -preset slow -crf 18 -c:a aac -b:a 320k -shortest silkroad_epic_1080p.mp4
     if %ERRORLEVEL% EQU 0 (
         echo.
         echo =======================================================================
@@ -47,14 +59,14 @@ if %ERRORLEVEL% EQU 0 (
     echo -----------------------------------------------------------------------
     echo [提示] 本机当前未检测到 ffmpeg 命令。
     echo 解决方案 1 (推荐一行命令安装):
-    echo    winget install Gyan.FFmpeg
+    echo    winget install Gyan.FFmpeg.Essentials
     echo.
     echo 解决方案 2 (免安装浏览器直出):
     echo    直接双击打开 video_renderer.html，点击界面右下角
     echo    【🎬 录制整段视频 (WebM/MP4)】按钮，即可在浏览器内 0 依赖录制导出！
     echo.
     echo 解决方案 3 (手动合成命令):
-    echo    ffmpeg -y -framerate 30 -i frames/frame_%%%%04d.png -i soundtrack.wav -c:v libx264 -pix_fmt yuv420p -preset slow -crf 18 -c:a aac -b:a 320k -shortest silkroad_epic_1080p.mp4
+    echo    ffmpeg -y -framerate 30 -start_number 0 -i frames/frame_%%%%04d.png -i soundtrack.wav -c:v libx264 -pix_fmt yuv420p -preset slow -crf 18 -c:a aac -b:a 320k -shortest silkroad_epic_1080p.mp4
     echo -----------------------------------------------------------------------
 )
 

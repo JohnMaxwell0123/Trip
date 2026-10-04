@@ -44,32 +44,58 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # 3. FFmpeg Video Encoding
-Write-Host "`n[Step 3/3] Checking FFmpeg encoder..." -ForegroundColor Magenta
+Write-Host "`n[Step 3/3] Locating FFmpeg encoder..." -ForegroundColor Magenta
+$ffmpegExe = $null
 $ffmpegCmd = Get-Command "ffmpeg" -ErrorAction SilentlyContinue
-
 if ($ffmpegCmd) {
-    Write-Host "Found FFmpeg: $($ffmpegCmd.Source)" -ForegroundColor Green
+    $ffmpegExe = $ffmpegCmd.Source
+} else {
+    $wingetFfmpeg = Get-ChildItem -Path "$env:LOCALAPPDATA\Microsoft\WinGet\Packages" -Filter "ffmpeg.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($wingetFfmpeg) {
+        $ffmpegExe = $wingetFfmpeg.FullName
+    }
+}
+
+if ($ffmpegExe) {
+    Write-Host "Found FFmpeg: $ffmpegExe" -ForegroundColor Green
     Write-Host "Encoding 1080P 30fps H.264 / AAC MP4 video..." -ForegroundColor Cyan
+
+    $renderedCount = [math]::Floor(($EndFrame - $StartFrame) / $Step) + 1
+    $durationSec = [math]::Round($renderedCount / 30.0, 3)
+    $audioStartSec = [math]::Round($StartFrame / 30.0, 3)
 
     $ffmpegArgs = @(
         "-y",
         "-framerate", "30",
-        "-i", "$OutDir/frame_%04d.png",
-        "-i", "soundtrack.wav",
+        "-start_number", "$StartFrame",
+        "-i", "$OutDir/frame_%04d.png"
+    )
+
+    if (Test-Path "soundtrack.wav") {
+        if ($StartFrame -gt 0) {
+            $ffmpegArgs += @("-ss", "$audioStartSec")
+        }
+        $ffmpegArgs += @("-i", "soundtrack.wav")
+    }
+
+    $ffmpegArgs += @(
+        "-t", "$durationSec",
         "-c:v", "libx264",
         "-pix_fmt", "yuv420p",
         "-preset", "slow",
-        "-crf", "18",
-        "-c:a", "aac",
-        "-b:a", "320k",
-        "-shortest",
-        "silkroad_epic_1080p.mp4"
+        "-crf", "18"
     )
 
-    & ffmpeg @ffmpegArgs
+    if (Test-Path "soundtrack.wav") {
+        $ffmpegArgs += @("-c:a", "aac", "-b:a", "320k", "-shortest")
+    }
+
+    $ffmpegArgs += "silkroad_epic_1080p.mp4"
+
+    & $ffmpegExe @ffmpegArgs
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`n=======================================================================" -ForegroundColor Green
-        Write-Host "Video generated successfully: silkroad_epic_1080p.mp4" -ForegroundColor Yellow
+        Write-Host "✔ Video generated successfully: silkroad_epic_1080p.mp4" -ForegroundColor Yellow
         Write-Host "=======================================================================" -ForegroundColor Green
     } else {
         Write-Warning "FFmpeg exited with error code: $LASTEXITCODE"
@@ -78,7 +104,7 @@ if ($ffmpegCmd) {
     Write-Host "`n-----------------------------------------------------------------------" -ForegroundColor Yellow
     Write-Host "[Note] ffmpeg is not currently in system PATH." -ForegroundColor White
     Write-Host "Option 1 (Install via winget):" -ForegroundColor Cyan
-    Write-Host "   winget install Gyan.FFmpeg" -ForegroundColor Green
+    Write-Host "   winget install Gyan.FFmpeg.Essentials" -ForegroundColor Green
     Write-Host "`nOption 2 (Direct browser export):" -ForegroundColor Cyan
     Write-Host "   Open video_renderer.html in Chrome/Edge, click the Record button on bottom dock." -ForegroundColor Green
     Write-Host "-----------------------------------------------------------------------" -ForegroundColor Yellow

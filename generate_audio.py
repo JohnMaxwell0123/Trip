@@ -351,21 +351,20 @@ def master_and_export_wav(left, right, output_path="soundtrack.wav"):
     master_l = left
     master_r = right
 
-    # 检查峰值并软限幅
-    peak = max(np.max(np.abs(master_l)), np.max(np.abs(master_r)))
-    print(f"-> 混音总轨原始峰值: {peak:.3f}")
+    # 软饱和与母带电平规划 (-0.7 dBFS Headroom)
+    # 采用温和软饱和曲线保留瞬态动态，同时彻底避免硬削波破音
+    target_peak = 0.9228  # 精确 -0.7 dBFS (10^(-0.7/20))
+    sat_l = np.tanh(master_l * 1.02)
+    sat_r = np.tanh(master_r * 1.02)
+    sat_peak = max(np.max(np.abs(sat_l)), np.max(np.abs(sat_r)))
 
-    if peak > 0.95:
-        # 类似双曲正切软饱和限制
-        master_l = np.tanh(master_l / peak * 1.2) * 0.92
-        master_r = np.tanh(master_r / peak * 1.2) * 0.92
-    else:
-        gain = 0.92 / max(1e-4, peak)
-        master_l = master_l * gain
-        master_r = master_r * gain
+    gain = target_peak / max(1e-4, sat_peak)
+    master_l = sat_l * gain
+    master_r = sat_r * gain
 
     final_peak = max(np.max(np.abs(master_l)), np.max(np.abs(master_r)))
-    print(f"-> 母带处理后目标峰值 (-0.7 dBFS): {final_peak:.3f}")
+    final_db = 20.0 * math.log10(max(1e-4, final_peak))
+    print(f"-> 母带处理后目标峰值: {final_peak:.3f} ({final_db:.1f} dBFS)")
 
     # 转换至 16-bit signed integer (-32768 ~ 32767)
     int_l = np.int16(np.clip(master_l * 32767.0, -32768, 32767))
